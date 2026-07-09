@@ -10,7 +10,9 @@ export type IconName =
   | 'close'
   | 'chevron-right'
   | 'save'
-  | 'book';
+  | 'book'
+  | 'check'
+  | 'alert';
 
 @Component({
   selector: 'app-icon',
@@ -76,6 +78,14 @@ export type IconName =
           <path
             d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
           />
+        }
+        @case ('check') {
+          <path d="M20 6L9 17l-5-5" />
+        }
+        @case ('alert') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v5" />
+          <path d="M12 16h.01" />
         }
       }
     </svg>

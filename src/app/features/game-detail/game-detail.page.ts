@@ -9,6 +9,7 @@ import { MEMORY_TYPE_LABEL, MEMORY_TYPE_VARIANT } from '../../core/models/memory
 import { GameService } from '../../core/services/game.service';
 import { RunService } from '../../core/services/run.service';
 import { GameMemoryService } from '../../core/services/game-memory.service';
+import { ToastService } from '../../core/services/toast.service';
 
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -58,6 +59,7 @@ export class GameDetailPage {
   private readonly gameService = inject(GameService);
   private readonly runService = inject(RunService);
   private readonly memoryService = inject(GameMemoryService);
+  private readonly toast = inject(ToastService);
 
   protected readonly futureTabs = FUTURE_TABS;
 
@@ -169,7 +171,9 @@ export class GameDetailPage {
       next: (updated) => {
         this.game.set(updated);
         this.closeGameModal();
+        this.toast.success('Game atualizado com sucesso.');
       },
+      error: () => this.toast.error('Não foi possível atualizar o game.'),
     });
   }
 
@@ -183,7 +187,14 @@ export class GameDetailPage {
       return;
     }
     this.gameService.delete(game.id).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.toast.success('Game removido com sucesso.');
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.deletingGame.set(false);
+        this.toast.error('Não foi possível remover o game.');
+      },
     });
   }
 
@@ -215,6 +226,10 @@ export class GameDetailPage {
       next: () => {
         this.closeRunModal();
         this.loadRuns(game.id);
+        this.toast.success(editing ? 'Run atualizada com sucesso.' : 'Run criada com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar a run.' : 'Não foi possível criar a run.');
       },
     });
   }
@@ -233,6 +248,11 @@ export class GameDetailPage {
       next: () => {
         this.runToDelete.set(null);
         this.loadRuns(game.id);
+        this.toast.success('Run removida com sucesso.');
+      },
+      error: () => {
+        this.runToDelete.set(null);
+        this.toast.error('Não foi possível remover a run.');
       },
     });
   }
@@ -275,6 +295,10 @@ export class GameDetailPage {
       next: () => {
         this.closeMemoryModal();
         this.loadMemories(game.id);
+        this.toast.success(editing ? 'Memória atualizada com sucesso.' : 'Memória criada com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar a memória.' : 'Não foi possível criar a memória.');
       },
     });
   }
@@ -293,6 +317,11 @@ export class GameDetailPage {
       next: () => {
         this.memoryToDelete.set(null);
         this.loadMemories(game.id);
+        this.toast.success('Memória removida com sucesso.');
+      },
+      error: () => {
+        this.memoryToDelete.set(null);
+        this.toast.error('Não foi possível remover a memória.');
       },
     });
   }

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Run, SavePoint, SavePointRequest } from '../../../../core/models';
 import { SavePointService } from '../../../../core/services/save-point.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
@@ -16,6 +17,7 @@ import { SavePointFormComponent } from '../save-point-form/save-point-form.compo
 })
 export class SavePointsPanelComponent {
   private readonly savePointService = inject(SavePointService);
+  private readonly toast = inject(ToastService);
 
   readonly run = input<Run | null>(null);
   readonly closed = output<void>();
@@ -83,6 +85,10 @@ export class SavePointsPanelComponent {
       next: () => {
         this.closeForm();
         this.load(run.id);
+        this.toast.success(editing ? 'SavePoint atualizado com sucesso.' : 'SavePoint criado com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar o save point.' : 'Não foi possível criar o save point.');
       },
     });
   }
@@ -101,6 +107,11 @@ export class SavePointsPanelComponent {
       next: () => {
         this.toDelete.set(null);
         this.load(run.id);
+        this.toast.success('SavePoint removido com sucesso.');
+      },
+      error: () => {
+        this.toDelete.set(null);
+        this.toast.error('Não foi possível remover o save point.');
       },
     });
   }

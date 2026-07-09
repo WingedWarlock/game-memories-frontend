@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Game, GameRequest } from '../../core/models';
 import { GameService } from '../../core/services/game.service';
+import { ToastService } from '../../core/services/toast.service';
 import { SearchBarComponent } from '../../shared/components/search-bar/search-bar.component';
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -25,6 +26,7 @@ import { GameFormComponent } from '../games/components/game-form/game-form.compo
 })
 export class HomePage {
   private readonly gameService = inject(GameService);
+  private readonly toast = inject(ToastService);
 
   protected readonly games = signal<Game[]>([]);
   protected readonly loading = signal(true);
@@ -79,6 +81,10 @@ export class HomePage {
       next: () => {
         this.closeGameModal();
         this.loadGames();
+        this.toast.success(editing ? 'Game atualizado com sucesso.' : 'Game criado com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar o game.' : 'Não foi possível criar o game.');
       },
     });
   }
@@ -100,6 +106,11 @@ export class HomePage {
       next: () => {
         this.gameToDelete.set(null);
         this.loadGames();
+        this.toast.success('Game removido com sucesso.');
+      },
+      error: () => {
+        this.gameToDelete.set(null);
+        this.toast.error('Não foi possível remover o game.');
       },
     });
   }
