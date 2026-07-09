@@ -21,13 +21,13 @@ export class RunFormComponent {
   protected readonly isEditMode = computed(() => !!this.run());
 
   protected readonly form = this.fb.nonNullable.group({
-    name: ['', Validators.required],
+    runName: ['', Validators.required],
     difficulty: [''],
     startDate: [''],
     endDate: [''],
-    status: ['PLANNED' as Run['status'], Validators.required],
+    status: ['IN_PROGRESS' as Run['status'], Validators.required],
     completionPercentage: [0, [Validators.min(0), Validators.max(100)]],
-    favorite: [false],
+    favoriteRun: [false],
     notes: [''],
   });
 
@@ -36,24 +36,24 @@ export class RunFormComponent {
       const run = this.run();
       if (run) {
         this.form.patchValue({
-          name: run.name,
+          runName: run.runName,
           difficulty: run.difficulty ?? '',
           startDate: run.startDate ?? '',
           endDate: run.endDate ?? '',
           status: run.status,
           completionPercentage: run.completionPercentage,
-          favorite: run.favorite,
+          favoriteRun: run.favoriteRun,
           notes: run.notes ?? '',
         });
       } else {
         this.form.reset({
-          name: '',
+          runName: '',
           difficulty: '',
           startDate: '',
           endDate: '',
-          status: 'PLANNED',
+          status: 'IN_PROGRESS',
           completionPercentage: 0,
-          favorite: false,
+          favoriteRun: false,
           notes: '',
         });
       }
@@ -68,13 +68,13 @@ export class RunFormComponent {
 
     const value = this.form.getRawValue();
     this.saved.emit({
-      name: value.name,
+      runName: value.runName,
       difficulty: value.difficulty || undefined,
       startDate: value.startDate || undefined,
       endDate: value.endDate || undefined,
       status: value.status,
       completionPercentage: value.completionPercentage,
-      favorite: value.favorite,
+      favoriteRun: value.favoriteRun,
       notes: value.notes || undefined,
     });
   }

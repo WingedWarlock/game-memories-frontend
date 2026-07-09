@@ -23,8 +23,8 @@
 
     <section id="info" class="section game-info-section">
       <div class="game-info-cover">
-        @if (game()!.coverUrl) {
-          <img [src]="game()!.coverUrl" [alt]="game()!.title" [title]="game()!.title" />
+        @if (game()!.coverImage) {
+          <img [src]="game()!.coverImage" [alt]="game()!.title" [title]="game()!.title" />
         } @else {
           <app-icon name="book" [size]="36" />
         }
@@ -58,19 +58,17 @@
           @if (game()!.genre) {
             <span class="chip">{{ game()!.genre }}</span>
           }
-          @if (game()!.developer) {
-            <span class="chip">Dev: {{ game()!.developer }}</span>
-          }
-          @if (game()!.publisher) {
-            <span class="chip">Publisher: {{ game()!.publisher }}</span>
-          }
-          @if (game()!.releaseYear) {
-            <span class="chip">{{ game()!.releaseYear }}</span>
-          }
         </div>
 
         @if (game()!.description) {
           <p class="game-info-description">{{ game()!.description }}</p>
+        }
+
+        @if (game()!.notes) {
+          <div class="game-info-notes">
+            <span class="field-hint">Anotações pessoais</span>
+            <p>{{ game()!.notes }}</p>
+          </div>
         }
       </div>
     </section>
@@ -99,8 +97,8 @@
             <li class="run-item">
               <div class="run-item-main">
                 <div class="run-item-title-row">
-                  <strong>{{ run.name }}</strong>
-                  <app-favorite-icon [favorite]="run.favorite" />
+                  <strong>{{ run.runName }}</strong>
+                  <app-favorite-icon [favorite]="run.favoriteRun" />
                 </div>
                 <div class="run-item-meta">
                   <app-status-badge [label]="runStatusLabel(run.status)" [variant]="runStatusVariant(run.status)" />
@@ -164,7 +162,7 @@
               </div>
               <p class="memory-item-description">{{ memory.description }}</p>
               <div class="memory-item-footer">
-                <span class="field-hint">{{ memory.date | date: 'dd/MM/yyyy' }}</span>
+                <span class="field-hint">{{ memory.memoryDate | date: 'dd/MM/yyyy' }}</span>
                 <div class="memory-item-actions">
                   <button type="button" class="btn btn-icon btn-ghost" (click)="openEditMemory(memory)" aria-label="Editar memória">
                     <app-icon name="edit" [size]="14" />
@@ -203,7 +201,7 @@
 <app-confirm-dialog
   [open]="!!runToDelete()"
   title="Remover Run"
-  [message]="'Tem certeza que deseja remover a run \'' + (runToDelete()?.name ?? '') + '\'? Seus save points também serão perdidos.'"
+  [message]="'Tem certeza que deseja remover a run \'' + (runToDelete()?.runName ?? '') + '\'? Seus save points também serão perdidos.'"
   confirmLabel="Remover"
   [danger]="true"
   (confirmed)="confirmDeleteRun()"

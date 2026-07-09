@@ -9,8 +9,8 @@
   </div>
 
   <div class="game-card-cover">
-    @if (game().coverUrl) {
-      <img [src]="game().coverUrl" [alt]="game().title" loading="lazy" />
+    @if (game().coverImage) {
+      <img [src]="game().coverImage" [alt]="game().title" loading="lazy" />
     } @else {
       <app-icon name="book" [size]="32" />
     }

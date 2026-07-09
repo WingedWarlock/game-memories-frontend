@@ -10,18 +10,18 @@ export class SavePointService {
   private readonly baseUrl = environment.apiUrl;
 
   getByRun(runId: number): Observable<SavePoint[]> {
-    return this.http.get<SavePoint[]>(`${this.baseUrl}/runs/${runId}/save-points`);
+    return this.http.get<SavePoint[]>(`${this.baseUrl}/runs/${runId}/savepoints`);
   }
 
   create(runId: number, payload: SavePointRequest): Observable<SavePoint> {
-    return this.http.post<SavePoint>(`${this.baseUrl}/runs/${runId}/save-points`, payload);
+    return this.http.post<SavePoint>(`${this.baseUrl}/runs/${runId}/savepoints`, payload);
   }
 
   update(id: number, payload: SavePointRequest): Observable<SavePoint> {
-    return this.http.put<SavePoint>(`${this.baseUrl}/save-points/${id}`, payload);
+    return this.http.put<SavePoint>(`${this.baseUrl}/savepoints/${id}`, payload);
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/save-points/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/savepoints/${id}`);
   }
 }

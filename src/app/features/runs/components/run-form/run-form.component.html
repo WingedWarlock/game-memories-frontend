@@ -1,8 +1,8 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <div class="field">
     <label for="run-name">Nome da run *</label>
-    <input id="run-name" type="text" formControlName="name" placeholder="Ex: Primeira jogatina, New Game+..." />
-    @if (form.controls.name.invalid && form.controls.name.touched) {
+    <input id="run-name" type="text" formControlName="runName" placeholder="Ex: Primeira jogatina, New Game+..." />
+    @if (form.controls.runName.invalid && form.controls.runName.touched) {
       <span class="field-error">Informe um nome para a run.</span>
     }
   </div>
@@ -44,7 +44,7 @@
   </div>
 
   <div class="checkbox-field field">
-    <input id="run-favorite" type="checkbox" formControlName="favorite" />
+    <input id="run-favorite" type="checkbox" formControlName="favoriteRun" />
     <label for="run-favorite">Marcar como favorita</label>
   </div>
 

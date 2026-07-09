@@ -23,8 +23,8 @@ export class MemoryFormComponent {
   protected readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
     description: ['', Validators.required],
-    date: ['', Validators.required],
-    type: ['GENERAL' as GameMemory['type'], Validators.required],
+    memoryDate: ['', Validators.required],
+    type: ['MEMORY' as GameMemory['type'], Validators.required],
   });
 
   constructor() {
@@ -34,15 +34,15 @@ export class MemoryFormComponent {
         this.form.patchValue({
           title: memory.title,
           description: memory.description,
-          date: memory.date,
+          memoryDate: memory.memoryDate,
           type: memory.type,
         });
       } else {
         this.form.reset({
           title: '',
           description: '',
-          date: '',
-          type: 'GENERAL',
+          memoryDate: '',
+          type: 'MEMORY',
         });
       }
     });

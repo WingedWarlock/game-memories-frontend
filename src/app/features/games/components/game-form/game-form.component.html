@@ -29,19 +29,8 @@
 
   <div class="field-row">
     <div class="field">
-      <label for="game-developer">Desenvolvedora</label>
-      <input id="game-developer" type="text" formControlName="developer" />
-    </div>
-    <div class="field">
-      <label for="game-publisher">Publicadora</label>
-      <input id="game-publisher" type="text" formControlName="publisher" />
-    </div>
-  </div>
-
-  <div class="field-row">
-    <div class="field">
-      <label for="game-release-year">Ano de lançamento</label>
-      <input id="game-release-year" type="number" formControlName="releaseYear" />
+      <label for="game-cover">URL da capa</label>
+      <input id="game-cover" type="text" formControlName="coverImage" placeholder="https://..." />
     </div>
     <div class="field">
       <label for="game-status">Status *</label>
@@ -54,13 +43,13 @@
   </div>
 
   <div class="field">
-    <label for="game-cover">URL da capa</label>
-    <input id="game-cover" type="text" formControlName="coverUrl" placeholder="https://..." />
+    <label for="game-description">Descrição</label>
+    <textarea id="game-description" formControlName="description" rows="3" placeholder="Sinopse ou informações gerais sobre o jogo"></textarea>
   </div>
 
   <div class="field">
-    <label for="game-description">Anotações gerais</label>
-    <textarea id="game-description" formControlName="description" rows="3"></textarea>
+    <label for="game-notes">Anotações pessoais</label>
+    <textarea id="game-notes" formControlName="notes" rows="3" placeholder="Suas anotações sobre esse jogo"></textarea>
   </div>
 
   <div class="checkbox-field field">

@@ -1,4 +1,4 @@
-<app-modal [open]="isOpen()" [title]="'SavePoints — ' + (run()?.name ?? '')" size="lg" (closed)="closed.emit()">
+<app-modal [open]="isOpen()" [title]="'SavePoints — ' + (run()?.runName ?? '')" size="lg" (closed)="closed.emit()">
   @if (!showForm()) {
     <div class="save-points-header">
       <p class="field-hint">Pontos importantes salvos nesta run.</p>

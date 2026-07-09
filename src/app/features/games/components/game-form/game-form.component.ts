@@ -25,13 +25,11 @@ export class GameFormComponent {
     saga: [''],
     platform: ['', Validators.required],
     genre: [''],
-    developer: [''],
-    publisher: [''],
-    releaseYear: this.fb.control<number | null>(null),
-    status: ['BACKLOG' as Game['status'], Validators.required],
+    status: ['NOT_STARTED' as Game['status'], Validators.required],
     favorite: [false],
-    coverUrl: [''],
+    coverImage: [''],
     description: [''],
+    notes: [''],
   });
 
   constructor() {
@@ -43,13 +41,11 @@ export class GameFormComponent {
           saga: game.saga ?? '',
           platform: game.platform,
           genre: game.genre ?? '',
-          developer: game.developer ?? '',
-          publisher: game.publisher ?? '',
-          releaseYear: game.releaseYear ?? null,
           status: game.status,
           favorite: game.favorite,
-          coverUrl: game.coverUrl ?? '',
+          coverImage: game.coverImage ?? '',
           description: game.description ?? '',
+          notes: game.notes ?? '',
         });
       } else {
         this.form.reset({
@@ -57,13 +53,11 @@ export class GameFormComponent {
           saga: '',
           platform: '',
           genre: '',
-          developer: '',
-          publisher: '',
-          releaseYear: null,
-          status: 'BACKLOG',
+          status: 'NOT_STARTED',
           favorite: false,
-          coverUrl: '',
+          coverImage: '',
           description: '',
+          notes: '',
         });
       }
     });
@@ -81,13 +75,11 @@ export class GameFormComponent {
       saga: value.saga || undefined,
       platform: value.platform,
       genre: value.genre || undefined,
-      developer: value.developer || undefined,
-      publisher: value.publisher || undefined,
-      releaseYear: value.releaseYear ?? undefined,
       status: value.status,
       favorite: value.favorite,
-      coverUrl: value.coverUrl || undefined,
+      coverImage: value.coverImage || undefined,
       description: value.description || undefined,
+      notes: value.notes || undefined,
     });
   }
 }
