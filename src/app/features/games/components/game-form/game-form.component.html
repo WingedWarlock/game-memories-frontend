@@ -1,0 +1,75 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field-row">
+    <div class="field">
+      <label for="game-title">Título *</label>
+      <input id="game-title" type="text" formControlName="title" placeholder="Ex: Kingdom Hearts" />
+      @if (form.controls.title.invalid && form.controls.title.touched) {
+        <span class="field-error">Informe o título do jogo.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="game-platform">Plataforma *</label>
+      <input id="game-platform" type="text" formControlName="platform" placeholder="Ex: PS2, PC, Switch" />
+      @if (form.controls.platform.invalid && form.controls.platform.touched) {
+        <span class="field-error">Informe a plataforma.</span>
+      }
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="game-saga">Saga</label>
+      <input id="game-saga" type="text" formControlName="saga" placeholder="Ex: Kingdom Hearts" />
+    </div>
+    <div class="field">
+      <label for="game-genre">Gênero</label>
+      <input id="game-genre" type="text" formControlName="genre" placeholder="Ex: RPG, Ação" />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="game-developer">Desenvolvedora</label>
+      <input id="game-developer" type="text" formControlName="developer" />
+    </div>
+    <div class="field">
+      <label for="game-publisher">Publicadora</label>
+      <input id="game-publisher" type="text" formControlName="publisher" />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="game-release-year">Ano de lançamento</label>
+      <input id="game-release-year" type="number" formControlName="releaseYear" />
+    </div>
+    <div class="field">
+      <label for="game-status">Status *</label>
+      <select id="game-status" formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="game-cover">URL da capa</label>
+    <input id="game-cover" type="text" formControlName="coverUrl" placeholder="https://..." />
+  </div>
+
+  <div class="field">
+    <label for="game-description">Anotações gerais</label>
+    <textarea id="game-description" formControlName="description" rows="3"></textarea>
+  </div>
+
+  <div class="checkbox-field field">
+    <input id="game-favorite" type="checkbox" formControlName="favorite" />
+    <label for="game-favorite">Marcar como favorito</label>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Criar Game' }}</button>
+  </div>
+</form>

@@ -1,0 +1,40 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="memory-title">Título *</label>
+    <input id="memory-title" type="text" formControlName="title" placeholder="Ex: Terminei no dia do meu aniversário" />
+    @if (form.controls.title.invalid && form.controls.title.touched) {
+      <span class="field-error">Informe um título.</span>
+    }
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="memory-date">Data *</label>
+      <input id="memory-date" type="date" formControlName="date" />
+      @if (form.controls.date.invalid && form.controls.date.touched) {
+        <span class="field-error">Informe a data.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="memory-type">Tipo *</label>
+      <select id="memory-type" formControlName="type">
+        @for (option of typeOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="memory-description">Descrição *</label>
+    <textarea id="memory-description" formControlName="description" rows="4" placeholder="Conte essa memória..."></textarea>
+    @if (form.controls.description.invalid && form.controls.description.touched) {
+      <span class="field-error">Escreva a descrição da memória.</span>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Adicionar memória' }}</button>
+  </div>
+</form>

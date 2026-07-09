@@ -1,0 +1,28 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field-row">
+    <div class="field">
+      <label for="sp-slot">Slot *</label>
+      <input id="sp-slot" type="text" formControlName="slot" placeholder="Ex: Slot 1" />
+      @if (form.controls.slot.invalid && form.controls.slot.touched) {
+        <span class="field-error">Informe o slot.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="sp-title">Título *</label>
+      <input id="sp-title" type="text" formControlName="title" placeholder="Ex: Antes da luta final" />
+      @if (form.controls.title.invalid && form.controls.title.touched) {
+        <span class="field-error">Informe o título.</span>
+      }
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="sp-description">Descrição</label>
+    <textarea id="sp-description" formControlName="description" rows="3"></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Adicionar SavePoint' }}</button>
+  </div>
+</form>

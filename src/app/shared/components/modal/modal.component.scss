@@ -1,0 +1,57 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 5, 0.65);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 16px;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.modal-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 520px;
+  animation: modal-in 0.15s ease-out;
+
+  &--sm {
+    max-width: 400px;
+  }
+
+  &--lg {
+    max-width: 760px;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+
+  h3 {
+    font-size: 18px;
+  }
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

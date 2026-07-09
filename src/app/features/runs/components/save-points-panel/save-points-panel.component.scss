@@ -1,0 +1,41 @@
+.save-points-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.save-point-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.save-point-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.save-point-info {
+  flex: 1;
+
+  p {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+}
+
+.save-point-actions {
+  display: flex;
+  gap: 4px;
+}

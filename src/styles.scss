@@ -1,0 +1,498 @@
+/* Game Memories — design tokens & estilos globais */
+
+:root {
+  /* superfícies */
+  --bg-base: #14120f;
+  --bg-elevated: #1e1b15;
+  --bg-elevated-2: #262219;
+  --border: #35301f;
+  --border-strong: #4a4327;
+
+  /* texto */
+  --text-primary: #f3ead9;
+  --text-secondary: #beae8c;
+  --text-muted: #877a5c;
+
+  /* acento (dourado / latão) */
+  --accent: #d1a054;
+  --accent-strong: #e8bd72;
+  --accent-soft: rgba(209, 160, 84, 0.16);
+  --on-accent: #1c1508;
+
+  /* estados */
+  --danger: #d3695a;
+  --danger-soft: rgba(211, 105, 90, 0.16);
+  --success: #7fae72;
+  --success-soft: rgba(127, 174, 114, 0.16);
+  --warning: #d9b45c;
+  --warning-soft: rgba(217, 180, 92, 0.16);
+  --info: #7ea3b8;
+  --info-soft: rgba(126, 163, 184, 0.16);
+
+  /* forma */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  /* tipografia */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1a170f 0%, var(--bg-base) 55%);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+/* ---------- layout ---------- */
+
+.page-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- botões ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-strong);
+  }
+}
+
+.btn-secondary {
+  background: var(--bg-elevated-2);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+
+  &:hover:not(:disabled) {
+    background: var(--bg-elevated-2);
+    color: var(--text-primary);
+  }
+}
+
+.btn-danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+
+  &:hover:not(:disabled) {
+    background: var(--danger-soft);
+  }
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.btn-icon {
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  line-height: 0;
+}
+
+/* ---------- superfícies / cards ---------- */
+
+.surface {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.section {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- formulários ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--danger);
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input {
+    width: auto;
+    accent-color: var(--accent);
+  }
+
+  label {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* ---------- badges / chips ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-elevated-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.badge-accent {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: transparent;
+}
+
+.badge-success {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: transparent;
+}
+
+.badge-info {
+  background: var(--info-soft);
+  color: var(--info);
+  border-color: transparent;
+}
+
+.badge-warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: transparent;
+}
+
+.badge-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: transparent;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated-2);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+/* ---------- favoritar ---------- */
+
+.favorite-icon {
+  display: inline-flex;
+  color: var(--border-strong);
+
+  &.is-favorite {
+    color: var(--accent);
+  }
+}
+
+/* ---------- estado vazio ---------- */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+
+  h3 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ---------- tabs (seções da tela de Game) ---------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  background: var(--bg-elevated-2);
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: var(--accent-strong);
+    border-color: var(--accent);
+  }
+}
+
+.tab-disabled {
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.55;
+
+  &:hover {
+    color: var(--text-muted);
+    border-color: transparent;
+  }
+}
+
+/* ---------- listas (runs / memories) ---------- */
+
+.run-list,
+.memory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.run-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.run-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.run-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.run-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.run-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.memory-item {
+  padding: 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}

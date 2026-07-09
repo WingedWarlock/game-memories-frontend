@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="home-header">
+    <div>
+      <h1>Sua Biblioteca</h1>
+      <p class="home-subtitle">Todos os jogos e memórias reunidos em um só lugar.</p>
+    </div>
+
+    <div class="home-actions">
+      <app-search-bar placeholder="Pesquisar jogos..." [value]="searchTerm()" (valueChange)="searchTerm.set($event)" />
+      <button type="button" class="btn btn-primary" (click)="openCreateModal()">
+        <app-icon name="plus" [size]="16" />
+        Novo Game
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando sua biblioteca...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar seus jogos</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary" (click)="loadGames()" style="margin-top: 16px;">
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (games().length === 0) {
+    <div class="empty-state">
+      <h3>Sua biblioteca ainda está vazia</h3>
+      <p>Adicione o primeiro jogo para começar a registrar suas memórias.</p>
+    </div>
+  } @else {
+    <div class="games-grid">
+      @for (game of games(); track game.id) {
+        <app-game-card [game]="game" (editRequested)="openEditModal($event)" (deleteRequested)="requestDelete($event)" />
+      }
+    </div>
+  }
+</div>
+
+<app-modal [open]="showGameModal()" [title]="editingGame() ? 'Editar Game' : 'Novo Game'" (closed)="closeGameModal()">
+  <app-game-form [game]="editingGame()" (saved)="onGameSaved($event)" (cancelled)="closeGameModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!gameToDelete()"
+  title="Remover Game"
+  [message]="'Tem certeza que deseja remover \'' + (gameToDelete()?.title ?? '') + '\'? Todas as runs, memórias e save points associados também serão perdidos.'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"
+/>

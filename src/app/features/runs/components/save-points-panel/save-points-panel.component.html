@@ -1,0 +1,54 @@
+<app-modal [open]="isOpen()" [title]="'SavePoints — ' + (run()?.name ?? '')" size="lg" (closed)="closed.emit()">
+  @if (!showForm()) {
+    <div class="save-points-header">
+      <p class="field-hint">Pontos importantes salvos nesta run.</p>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="openCreate()">
+        <app-icon name="plus" [size]="14" />
+        Novo SavePoint
+      </button>
+    </div>
+  }
+
+  @if (showForm()) {
+    <app-save-point-form [savePoint]="editingSavePoint()" (saved)="onSaved($event)" (cancelled)="closeForm()" />
+  } @else if (loading()) {
+    <p class="loading-state">Carregando save points...</p>
+  } @else if (savePoints().length === 0) {
+    <div class="empty-state">
+      <h3>Nenhum SavePoint ainda</h3>
+      <p>Registre os pontos importantes desta jogatina.</p>
+    </div>
+  } @else {
+    <ul class="save-point-list">
+      @for (sp of savePoints(); track sp.id) {
+        <li class="save-point-item">
+          <span class="chip">{{ sp.slot }}</span>
+          <div class="save-point-info">
+            <strong>{{ sp.title }}</strong>
+            @if (sp.description) {
+              <p>{{ sp.description }}</p>
+            }
+          </div>
+          <div class="save-point-actions">
+            <button type="button" class="btn btn-icon btn-ghost" (click)="openEdit(sp)" aria-label="Editar save point">
+              <app-icon name="edit" [size]="14" />
+            </button>
+            <button type="button" class="btn btn-icon btn-ghost" (click)="requestDelete(sp)" aria-label="Remover save point">
+              <app-icon name="trash" [size]="14" />
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!toDelete()"
+  title="Remover SavePoint"
+  [message]="'Tem certeza que deseja remover o save point \'' + (toDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="toDelete.set(null)"
+/>

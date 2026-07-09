@@ -1,0 +1,55 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="run-name">Nome da run *</label>
+    <input id="run-name" type="text" formControlName="name" placeholder="Ex: Primeira jogatina, New Game+..." />
+    @if (form.controls.name.invalid && form.controls.name.touched) {
+      <span class="field-error">Informe um nome para a run.</span>
+    }
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="run-difficulty">Dificuldade</label>
+      <input id="run-difficulty" type="text" formControlName="difficulty" placeholder="Ex: Normal, Difícil" />
+    </div>
+    <div class="field">
+      <label for="run-status">Status *</label>
+      <select id="run-status" formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="run-start">Data de início</label>
+      <input id="run-start" type="date" formControlName="startDate" />
+    </div>
+    <div class="field">
+      <label for="run-end">Data de conclusão</label>
+      <input id="run-end" type="date" formControlName="endDate" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="run-percentage">Porcentagem concluída</label>
+    <input id="run-percentage" type="number" min="0" max="100" formControlName="completionPercentage" />
+  </div>
+
+  <div class="field">
+    <label for="run-notes">Anotações</label>
+    <textarea id="run-notes" formControlName="notes" rows="3"></textarea>
+  </div>
+
+  <div class="checkbox-field field">
+    <input id="run-favorite" type="checkbox" formControlName="favorite" />
+    <label for="run-favorite">Marcar como favorita</label>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Criar Run' }}</button>
+  </div>
+</form>

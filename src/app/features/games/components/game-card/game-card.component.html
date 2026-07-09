@@ -1,0 +1,38 @@
+<a class="game-card" [routerLink]="['/games', game().id]">
+  <div class="game-card-actions">
+    <button type="button" class="btn btn-icon btn-ghost" (click)="onEdit($event)" aria-label="Editar jogo">
+      <app-icon name="edit" [size]="15" />
+    </button>
+    <button type="button" class="btn btn-icon btn-ghost" (click)="onDelete($event)" aria-label="Remover jogo">
+      <app-icon name="trash" [size]="15" />
+    </button>
+  </div>
+
+  <div class="game-card-cover">
+    @if (game().coverUrl) {
+      <img [src]="game().coverUrl" [alt]="game().title" loading="lazy" />
+    } @else {
+      <app-icon name="book" [size]="32" />
+    }
+  </div>
+
+  <div class="game-card-body">
+    <div class="game-card-title-row">
+      <h3>{{ game().title }}</h3>
+      <app-favorite-icon [favorite]="game().favorite" />
+    </div>
+
+    @if (game().saga) {
+      <p class="game-card-saga">{{ game().saga }}</p>
+    }
+
+    <div class="game-card-meta">
+      <span class="chip">{{ game().platform }}</span>
+      @if (game().genre) {
+        <span class="chip">{{ game().genre }}</span>
+      }
+    </div>
+
+    <app-status-badge [label]="statusLabel(game().status)" [variant]="statusVariant(game().status)" />
+  </div>
+</a>

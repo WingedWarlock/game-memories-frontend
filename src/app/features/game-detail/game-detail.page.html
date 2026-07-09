@@ -1,0 +1,227 @@
+<div class="page-container">
+  <a routerLink="/" class="back-link">
+    <app-icon name="chevron-right" [size]="14" />
+    Voltar para a biblioteca
+  </a>
+
+  @if (loadingGame()) {
+    <p class="loading-state">Carregando jogo...</p>
+  } @else if (errorGame() || !game()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar este jogo</h3>
+      <p>Verifique se o servidor está rodando ou volte para a biblioteca.</p>
+    </div>
+  } @else {
+    <nav class="tabs">
+      <a class="tab" href="#info">Informações</a>
+      <a class="tab" href="#runs">Runs</a>
+      <a class="tab" href="#memories">Memories</a>
+      @for (tabName of futureTabs; track tabName) {
+        <span class="tab tab-disabled" [attr.title]="tabName + ' — em breve'">{{ tabName }}</span>
+      }
+    </nav>
+
+    <section id="info" class="section game-info-section">
+      <div class="game-info-cover">
+        @if (game()!.coverUrl) {
+          <img [src]="game()!.coverUrl" [alt]="game()!.title" [title]="game()!.title" />
+        } @else {
+          <app-icon name="book" [size]="36" />
+        }
+      </div>
+
+      <div class="game-info-body">
+        <div class="section-header">
+          <div class="section-title">
+            <h2>{{ game()!.title }}</h2>
+            <app-favorite-icon [favorite]="game()!.favorite" [size]="20" />
+          </div>
+          <div class="section-actions">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openEditGame()">
+              <app-icon name="edit" [size]="14" />
+              Editar
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" (click)="requestDeleteGame()">
+              <app-icon name="trash" [size]="14" />
+              Remover
+            </button>
+          </div>
+        </div>
+
+        @if (game()!.saga) {
+          <p class="game-info-saga">{{ game()!.saga }}</p>
+        }
+
+        <div class="game-info-meta">
+          <app-status-badge [label]="gameStatusLabel(game()!.status)" [variant]="gameStatusVariant(game()!.status)" />
+          <span class="chip">{{ game()!.platform }}</span>
+          @if (game()!.genre) {
+            <span class="chip">{{ game()!.genre }}</span>
+          }
+          @if (game()!.developer) {
+            <span class="chip">Dev: {{ game()!.developer }}</span>
+          }
+          @if (game()!.publisher) {
+            <span class="chip">Publisher: {{ game()!.publisher }}</span>
+          }
+          @if (game()!.releaseYear) {
+            <span class="chip">{{ game()!.releaseYear }}</span>
+          }
+        </div>
+
+        @if (game()!.description) {
+          <p class="game-info-description">{{ game()!.description }}</p>
+        }
+      </div>
+    </section>
+
+    <section id="runs" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Runs</h2>
+        <div class="section-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateRun()">
+            <app-icon name="plus" [size]="14" />
+            Nova Run
+          </button>
+        </div>
+      </div>
+
+      @if (loadingRuns()) {
+        <p class="loading-state">Carregando runs...</p>
+      } @else if (runs().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhuma run cadastrada</h3>
+          <p>Registre sua primeira jogatina deste jogo.</p>
+        </div>
+      } @else {
+        <ul class="run-list">
+          @for (run of runs(); track run.id) {
+            <li class="run-item">
+              <div class="run-item-main">
+                <div class="run-item-title-row">
+                  <strong>{{ run.name }}</strong>
+                  <app-favorite-icon [favorite]="run.favorite" />
+                </div>
+                <div class="run-item-meta">
+                  <app-status-badge [label]="runStatusLabel(run.status)" [variant]="runStatusVariant(run.status)" />
+                  @if (run.difficulty) {
+                    <span class="chip">{{ run.difficulty }}</span>
+                  }
+                  @if (run.startDate) {
+                    <span class="chip">
+                      {{ run.startDate | date: 'dd/MM/yyyy' }}
+                      @if (run.endDate) {
+                        – {{ run.endDate | date: 'dd/MM/yyyy' }}
+                      }
+                    </span>
+                  }
+                  <span class="run-progress">{{ run.completionPercentage }}%</span>
+                </div>
+              </div>
+              <div class="run-item-actions">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="openSavePoints(run)">
+                  <app-icon name="save" [size]="14" />
+                  SavePoints
+                </button>
+                <button type="button" class="btn btn-icon btn-ghost" (click)="openEditRun(run)" aria-label="Editar run">
+                  <app-icon name="edit" [size]="14" />
+                </button>
+                <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteRun(run)" aria-label="Remover run">
+                  <app-icon name="trash" [size]="14" />
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section id="memories" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Memories</h2>
+        <div class="section-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateMemory()">
+            <app-icon name="plus" [size]="14" />
+            Nova Memória
+          </button>
+        </div>
+      </div>
+
+      @if (loadingMemories()) {
+        <p class="loading-state">Carregando memórias...</p>
+      } @else if (memories().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhuma memória registrada</h3>
+          <p>Guarde os momentos marcantes que você viveu com este jogo.</p>
+        </div>
+      } @else {
+        <ul class="memory-list">
+          @for (memory of memories(); track memory.id) {
+            <li class="memory-item">
+              <div class="memory-item-header">
+                <strong>{{ memory.title }}</strong>
+                <app-status-badge [label]="memoryTypeLabel(memory.type)" [variant]="memoryTypeVariant(memory.type)" />
+              </div>
+              <p class="memory-item-description">{{ memory.description }}</p>
+              <div class="memory-item-footer">
+                <span class="field-hint">{{ memory.date | date: 'dd/MM/yyyy' }}</span>
+                <div class="memory-item-actions">
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="openEditMemory(memory)" aria-label="Editar memória">
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteMemory(memory)" aria-label="Remover memória">
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>
+
+<app-modal [open]="showGameModal()" title="Editar Game" (closed)="closeGameModal()">
+  <app-game-form [game]="game()" (saved)="onGameSaved($event)" (cancelled)="closeGameModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="deletingGame()"
+  title="Remover Game"
+  [message]="'Tem certeza que deseja remover \'' + (game()?.title ?? '') + '\'? Todas as runs, memórias e save points associados também serão perdidos.'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteGame()"
+  (cancelled)="deletingGame.set(false)"
+/>
+
+<app-modal [open]="showRunModal()" [title]="editingRun() ? 'Editar Run' : 'Nova Run'" (closed)="closeRunModal()">
+  <app-run-form [run]="editingRun()" (saved)="onRunSaved($event)" (cancelled)="closeRunModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!runToDelete()"
+  title="Remover Run"
+  [message]="'Tem certeza que deseja remover a run \'' + (runToDelete()?.name ?? '') + '\'? Seus save points também serão perdidos.'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteRun()"
+  (cancelled)="runToDelete.set(null)"
+/>
+
+<app-save-points-panel [run]="selectedRunForSavePoints()" (closed)="closeSavePoints()" />
+
+<app-modal [open]="showMemoryModal()" [title]="editingMemory() ? 'Editar Memória' : 'Nova Memória'" (closed)="closeMemoryModal()">
+  <app-memory-form [memory]="editingMemory()" (saved)="onMemorySaved($event)" (cancelled)="closeMemoryModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!memoryToDelete()"
+  title="Remover Memória"
+  [message]="'Tem certeza que deseja remover a memória \'' + (memoryToDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteMemory()"
+  (cancelled)="memoryToDelete.set(null)"
+/>
