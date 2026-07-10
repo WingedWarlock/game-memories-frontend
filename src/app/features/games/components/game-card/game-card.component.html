@@ -1,19 +1,17 @@
 <a class="game-card" [routerLink]="['/games', game().id]">
-  <div class="game-card-actions">
-    <button type="button" class="btn btn-icon btn-ghost" (click)="onEdit($event)" aria-label="Editar jogo">
-      <app-icon name="edit" [size]="15" />
-    </button>
-    <button type="button" class="btn btn-icon btn-ghost" (click)="onDelete($event)" aria-label="Remover jogo">
-      <app-icon name="trash" [size]="15" />
-    </button>
-  </div>
+  @if (showActions()) {
+    <div class="game-card-actions">
+      <button type="button" class="btn btn-icon btn-ghost" (click)="onEdit($event)" aria-label="Editar jogo">
+        <app-icon name="edit" [size]="15" />
+      </button>
+      <button type="button" class="btn btn-icon btn-ghost" (click)="onDelete($event)" aria-label="Remover jogo">
+        <app-icon name="trash" [size]="15" />
+      </button>
+    </div>
+  }
 
   <div class="game-card-cover">
-    @if (game().coverImage) {
-      <img [src]="game().coverImage" [alt]="game().title" loading="lazy" />
-    } @else {
-      <app-icon name="book" [size]="32" />
-    }
+    <app-cover-carousel [gameId]="game().id" [altText]="game().title" />
   </div>
 
   <div class="game-card-body">
@@ -34,5 +32,9 @@
     </div>
 
     <app-status-badge [label]="statusLabel(game().status)" [variant]="statusVariant(game().status)" />
+
+    @if (caption()) {
+      <p class="game-card-caption">{{ caption() }}</p>
+    }
   </div>
 </a>

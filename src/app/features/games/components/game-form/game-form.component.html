@@ -27,19 +27,13 @@
     </div>
   </div>
 
-  <div class="field-row">
-    <div class="field">
-      <label for="game-cover">URL da capa</label>
-      <input id="game-cover" type="text" formControlName="coverImage" placeholder="https://..." />
-    </div>
-    <div class="field">
-      <label for="game-status">Status *</label>
-      <select id="game-status" formControlName="status">
-        @for (option of statusOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
-        }
-      </select>
-    </div>
+  <div class="field">
+    <label for="game-status">Status *</label>
+    <select id="game-status" formControlName="status">
+      @for (option of statusOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
   </div>
 
   <div class="field">

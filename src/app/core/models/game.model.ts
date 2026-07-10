@@ -8,7 +8,6 @@ export interface Game {
   genre?: string;
   status: GameStatus;
   favorite: boolean;
-  coverImage?: string;
   description?: string;
   notes?: string;
   createdAt?: string;

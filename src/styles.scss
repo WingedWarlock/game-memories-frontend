@@ -440,6 +440,20 @@ textarea {
   }
 }
 
+.tab-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
+
+/* ---------- grade de jogos (Biblioteca / Timeline) ---------- */
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 20px;
+}
+
 /* ---------- listas (runs / memories) ---------- */
 
 .run-list,

@@ -46,7 +46,9 @@ export class HomePage {
     this.error.set(false);
     this.gameService.getAll().subscribe({
       next: (games) => {
-        this.games.set(games);
+        this.games.set(
+          games.slice().sort((a, b) => a.title.localeCompare(b.title, 'pt-BR', { sensitivity: 'base' })),
+        );
         this.loading.set(false);
       },
       error: () => {

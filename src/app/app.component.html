@@ -3,7 +3,13 @@
     <app-icon name="book" [size]="22" />
     <span class="brand-name">Game Memories</span>
   </a>
-  <span class="brand-tagline">sua biblioteca de jogos</span>
+
+  <nav class="app-nav">
+    <a class="tab" routerLink="/" routerLinkActive="tab-active" [routerLinkActiveOptions]="{ exact: true }">
+      Timeline
+    </a>
+    <a class="tab" routerLink="/biblioteca" routerLinkActive="tab-active">Biblioteca</a>
+  </nav>
 </header>
 
 <router-outlet />

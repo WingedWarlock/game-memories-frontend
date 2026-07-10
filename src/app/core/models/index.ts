@@ -5,3 +5,6 @@ export * from './run-status.model';
 export * from './save-point.model';
 export * from './game-memory.model';
 export * from './memory-type.model';
+export * from './game-cover.model';
+export * from './game-screenshot.model';
+export * from './game-music.model';

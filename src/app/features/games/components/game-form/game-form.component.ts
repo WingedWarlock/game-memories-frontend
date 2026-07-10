@@ -27,7 +27,6 @@ export class GameFormComponent {
     genre: [''],
     status: ['NOT_STARTED' as Game['status'], Validators.required],
     favorite: [false],
-    coverImage: [''],
     description: [''],
     notes: [''],
   });
@@ -43,7 +42,6 @@ export class GameFormComponent {
           genre: game.genre ?? '',
           status: game.status,
           favorite: game.favorite,
-          coverImage: game.coverImage ?? '',
           description: game.description ?? '',
           notes: game.notes ?? '',
         });
@@ -55,7 +53,6 @@ export class GameFormComponent {
           genre: '',
           status: 'NOT_STARTED',
           favorite: false,
-          coverImage: '',
           description: '',
           notes: '',
         });
@@ -77,7 +74,6 @@ export class GameFormComponent {
       genre: value.genre || undefined,
       status: value.status,
       favorite: value.favorite,
-      coverImage: value.coverImage || undefined,
       description: value.description || undefined,
       notes: value.notes || undefined,
     });

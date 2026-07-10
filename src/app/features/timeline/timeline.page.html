@@ -1,0 +1,32 @@
+<div class="page-container">
+  <div class="timeline-header">
+    <h1>Timeline</h1>
+    <p class="timeline-subtitle">Sua jornada com os jogos, ano a ano.</p>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando sua timeline...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar sua timeline</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (isEmpty()) {
+    <div class="empty-state">
+      <h3>Sua timeline ainda está vazia</h3>
+      <p>Marque jogos como "Jogando" ou conclua uma run para eles aparecerem aqui.</p>
+    </div>
+  } @else {
+    @for (group of yearGroups(); track group.year) {
+      <section class="timeline-year">
+        <h2 class="timeline-year-heading">{{ group.year }}</h2>
+        <div class="games-grid">
+          @for (entry of group.entries; track entry.game.id) {
+            <app-game-card [game]="entry.game" [caption]="entry.captionLabel" [showActions]="false" />
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

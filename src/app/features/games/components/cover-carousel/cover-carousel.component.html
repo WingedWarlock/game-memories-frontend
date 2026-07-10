@@ -1,0 +1,15 @@
+<div class="cover-carousel">
+  @if (activeCovers().length > 0) {
+    <img
+      [src]="activeCovers()[currentIndex()].fileUrl"
+      [alt]="activeCovers()[currentIndex()].title || altText()"
+      [title]="activeCovers()[currentIndex()].title || altText()"
+      class="cover-carousel-img"
+      [class.is-visible]="visible()"
+    />
+  } @else {
+    <div class="cover-carousel-placeholder">
+      <app-icon name="book" [size]="iconSize()" />
+    </div>
+  }
+</div>

@@ -1,11 +1,13 @@
 .app-header {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   max-width: 1180px;
   margin: 0 auto;
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -23,7 +25,7 @@
   color: var(--text-primary);
 }
 
-.brand-tagline {
-  color: var(--text-muted);
-  font-size: 13px;
+.app-nav {
+  display: flex;
+  gap: 6px;
 }

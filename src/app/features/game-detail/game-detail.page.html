@@ -1,5 +1,5 @@
 <div class="page-container">
-  <a routerLink="/" class="back-link">
+  <a routerLink="/biblioteca" class="back-link">
     <app-icon name="chevron-right" [size]="14" />
     Voltar para a biblioteca
   </a>
@@ -16,18 +16,42 @@
       <a class="tab" href="#info">Informações</a>
       <a class="tab" href="#runs">Runs</a>
       <a class="tab" href="#memories">Memories</a>
+      <a class="tab" href="#screenshots">Screenshots</a>
+      <a class="tab" href="#music">Músicas</a>
       @for (tabName of futureTabs; track tabName) {
         <span class="tab tab-disabled" [attr.title]="tabName + ' — em breve'">{{ tabName }}</span>
       }
     </nav>
 
     <section id="info" class="section game-info-section">
-      <div class="game-info-cover">
-        @if (game()!.coverImage) {
-          <img [src]="game()!.coverImage" [alt]="game()!.title" [title]="game()!.title" />
-        } @else {
-          <app-icon name="book" [size]="36" />
-        }
+      <div class="game-info-cover-wrap">
+        <div class="game-info-cover">
+          <app-cover-carousel [covers]="covers()" [altText]="game()!.title" [iconSize]="36" />
+        </div>
+
+        <div class="cover-manager">
+          <div class="cover-manager-header">
+            <span class="field-hint">Capas ({{ covers().length }})</span>
+            <app-file-upload-button label="Adicionar" accept="image/*" (fileSelected)="uploadCover($event)" />
+          </div>
+          @if (covers().length > 0) {
+            <div class="cover-manager-strip">
+              @for (cover of covers(); track cover.id) {
+                <div class="cover-thumb">
+                  <img [src]="cover.fileUrl" [alt]="cover.title || 'Capa'" [title]="cover.title || 'Capa'" />
+                  <button
+                    type="button"
+                    class="btn btn-icon btn-ghost cover-thumb-delete"
+                    (click)="requestDeleteCover(cover)"
+                    aria-label="Remover capa"
+                  >
+                    <app-icon name="trash" [size]="12" />
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
 
       <div class="game-info-body">
@@ -177,6 +201,78 @@
         </ul>
       }
     </section>
+
+    <section id="screenshots" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Screenshots</h2>
+        <div class="section-actions">
+          <app-file-upload-button label="Adicionar screenshot" accept="image/*" (fileSelected)="uploadScreenshot($event)" />
+        </div>
+      </div>
+
+      @if (loadingScreenshots()) {
+        <p class="loading-state">Carregando screenshots...</p>
+      } @else if (screenshots().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhum screenshot ainda</h3>
+          <p>Guarde os melhores momentos visuais deste jogo.</p>
+        </div>
+      } @else {
+        <div class="screenshot-grid">
+          @for (shot of screenshots(); track shot.id) {
+            <div class="screenshot-thumb" (click)="openLightbox(shot)">
+              <img [src]="shot.fileUrl" [alt]="shot.title || 'Screenshot'" [title]="shot.title || 'Screenshot'" />
+              <button
+                type="button"
+                class="btn btn-icon btn-ghost screenshot-delete"
+                (click)="requestDeleteScreenshot(shot); $event.stopPropagation()"
+                aria-label="Remover screenshot"
+              >
+                <app-icon name="trash" [size]="14" />
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section id="music" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Músicas</h2>
+        <div class="section-actions">
+          <app-file-upload-button label="Adicionar música" accept="audio/*" (fileSelected)="uploadMusic($event)" />
+        </div>
+      </div>
+
+      @if (loadingMusic()) {
+        <p class="loading-state">Carregando músicas...</p>
+      } @else if (music().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhuma música ainda</h3>
+          <p>Adicione as trilhas que marcaram sua jornada com este jogo.</p>
+        </div>
+      } @else {
+        <ul class="music-list">
+          @for (track of music(); track track.id) {
+            <li class="music-item">
+              <div class="music-item-info">
+                <strong>{{ track.title || track.originalFileName }}</strong>
+                @if (track.artist) {
+                  <span class="field-hint">{{ track.artist }}</span>
+                }
+                @if (track.id === nowPlayingTrackId()) {
+                  <span class="badge badge-accent">Tocando agora</span>
+                }
+              </div>
+              <audio #musicPlayer controls [src]="track.fileUrl"></audio>
+              <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteMusic(track)" aria-label="Remover música">
+                <app-icon name="trash" [size]="14" />
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
   }
 </div>
 
@@ -222,4 +318,43 @@
   [danger]="true"
   (confirmed)="confirmDeleteMemory()"
   (cancelled)="memoryToDelete.set(null)"
+/>
+
+<app-confirm-dialog
+  [open]="!!coverToDelete()"
+  title="Remover Capa"
+  message="Tem certeza que deseja remover esta capa?"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteCover()"
+  (cancelled)="coverToDelete.set(null)"
+/>
+
+<app-modal [open]="!!lightboxScreenshot()" [title]="lightboxScreenshot()?.title || 'Screenshot'" size="lg" (closed)="closeLightbox()">
+  @if (lightboxScreenshot(); as shot) {
+    <img class="lightbox-image" [src]="shot.fileUrl" [alt]="shot.title || 'Screenshot'" [title]="shot.title || 'Screenshot'" />
+    @if (shot.description) {
+      <p class="lightbox-description">{{ shot.description }}</p>
+    }
+  }
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!screenshotToDelete()"
+  title="Remover Screenshot"
+  message="Tem certeza que deseja remover este screenshot?"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteScreenshot()"
+  (cancelled)="screenshotToDelete.set(null)"
+/>
+
+<app-confirm-dialog
+  [open]="!!musicToDelete()"
+  title="Remover Música"
+  [message]="'Tem certeza que deseja remover \'' + (musicToDelete()?.title || musicToDelete()?.originalFileName || '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteMusic()"
+  (cancelled)="musicToDelete.set(null)"
 />

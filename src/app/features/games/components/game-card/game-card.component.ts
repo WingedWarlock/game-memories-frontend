@@ -5,17 +5,20 @@ import { GAME_STATUS_LABEL, GAME_STATUS_VARIANT } from '../../../../core/models/
 import { FavoriteIconComponent } from '../../../../shared/components/favorite-icon/favorite-icon.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { CoverCarouselComponent } from '../cover-carousel/cover-carousel.component';
 
 @Component({
   selector: 'app-game-card',
   standalone: true,
-  imports: [RouterLink, FavoriteIconComponent, StatusBadgeComponent, IconComponent],
+  imports: [RouterLink, FavoriteIconComponent, StatusBadgeComponent, IconComponent, CoverCarouselComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-card.component.html',
   styleUrl: './game-card.component.scss',
 })
 export class GameCardComponent {
   readonly game = input.required<Game>();
+  readonly caption = input<string | null>(null);
+  readonly showActions = input<boolean>(true);
   readonly editRequested = output<Game>();
   readonly deleteRequested = output<Game>();
 
