@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { NameCount, Stats } from '../../core/models';
 import { StatsService } from '../../core/services/stats.service';
 
@@ -10,7 +11,7 @@ interface DistributionGroup {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [],
+  imports: [NgFor],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './stats.page.html',
   styleUrl: './stats.page.scss',
@@ -59,4 +60,6 @@ export class StatsPage {
     const max = Math.max(...items.map((item) => item.count), 1);
     return (count / max) * 100;
   }
+
+  protected readonly trackByItemName = (_: number, item: NameCount) => item.name;
 }

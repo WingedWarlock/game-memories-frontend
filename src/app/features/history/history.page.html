@@ -21,15 +21,17 @@
     @for (group of dayGroups(); track group.dateKey) {
       <section class="history-day">
         <h2 class="history-day-heading">{{ group.dateKey + 'T00:00:00' | date: "dd 'de' MMMM 'de' yyyy" }}</h2>
-        <ul class="history-event-list">@for (event of group.events; track event.id) {<li class="history-event">
-              <span class="history-event-icon">
-                <app-icon [name]="eventIcon(event.type)" [size]="16" />
-              </span>
-              <div class="history-event-body">
-                <p>{{ event.description }}</p>
-                <span class="field-hint">{{ event.occurredAt | date: 'HH:mm' }}</span>
-              </div>
-            </li>}</ul>
+        <ul class="history-event-list">
+          <li class="history-event" *ngFor="let event of group.events; trackBy: trackByEventId">
+            <span class="history-event-icon">
+              <app-icon [name]="eventIcon(event.type)" [size]="16" />
+            </span>
+            <div class="history-event-body">
+              <p>{{ event.description }}</p>
+              <span class="field-hint">{{ event.occurredAt | date: 'HH:mm' }}</span>
+            </div>
+          </li>
+        </ul>
       </section>
     }
   }

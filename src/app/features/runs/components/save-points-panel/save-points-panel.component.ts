@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgFor } from '@angular/common';
 import { Run, SavePoint, SavePointRequest } from '../../../../core/models';
 import { SavePointService } from '../../../../core/services/save-point.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -11,7 +11,7 @@ import { SavePointFormComponent } from '../save-point-form/save-point-form.compo
 @Component({
   selector: 'app-save-points-panel',
   standalone: true,
-  imports: [ModalComponent, ConfirmDialogComponent, IconComponent, SavePointFormComponent, DatePipe],
+  imports: [ModalComponent, ConfirmDialogComponent, IconComponent, SavePointFormComponent, DatePipe, NgFor],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './save-points-panel.component.html',
   styleUrl: './save-points-panel.component.scss',
@@ -30,6 +30,8 @@ export class SavePointsPanelComponent {
   protected readonly showForm = signal(false);
   protected readonly editingSavePoint = signal<SavePoint | null>(null);
   protected readonly toDelete = signal<SavePoint | null>(null);
+
+  protected readonly trackBySavePointId = (_: number, savePoint: SavePoint) => savePoint.id;
 
   constructor() {
     effect(() => {

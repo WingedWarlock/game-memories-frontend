@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -43,7 +44,7 @@ function formatDate(isoDate: string): string {
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent, LibraryTimelineChartComponent],
+  imports: [NgFor, GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent, LibraryTimelineChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './timeline.page.html',
   styleUrl: './timeline.page.scss',
@@ -77,6 +78,7 @@ export class TimelinePage {
   protected readonly lifeEventToDelete = signal<LifeEvent | null>(null);
 
   protected readonly lifeEventCategoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
+  protected readonly trackByLifeEventId = (_: number, lifeEvent: LifeEvent) => lifeEvent.id;
 
   protected readonly libraryRuns = signal<LibraryRun[]>([]);
   protected readonly librarySavePointsByRun = signal<Map<number, SavePoint[]>>(new Map());

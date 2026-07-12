@@ -65,7 +65,8 @@
             <app-icon name="close" [size]="12" />
           </button>
         </div>
-        <ul class="timeline-detail-list">@for (item of cluster.items; track item.id) {<li class="timeline-detail-item">
+        <ul class="timeline-detail-list">
+          <li class="timeline-detail-item" *ngFor="let item of cluster.items; trackBy: trackByItemId">
               <div class="timeline-detail-item-header">
                 <app-icon
                   [name]="item.kind === 'savepoint' ? 'save' : item.kind === 'memory' ? 'book' : 'trophy'"
@@ -80,7 +81,8 @@
               @if (item.description) {
                 <p class="timeline-detail-description">{{ item.description }}</p>
               }
-            </li>}</ul>
+          </li>
+        </ul>
       </div>
     }
   </div>

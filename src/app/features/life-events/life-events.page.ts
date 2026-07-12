@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { LifeEvent, LifeEventRequest } from '../../core/models';
 import { LifeEventService } from '../../core/services/life-event.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -17,7 +18,7 @@ interface MomentYearGroup {
 @Component({
   selector: 'app-life-events',
   standalone: true,
-  imports: [ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
+  imports: [NgFor, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './life-events.page.html',
   styleUrl: './life-events.page.scss',
@@ -35,6 +36,7 @@ export class LifeEventsPage {
   protected readonly lifeEventToDelete = signal<LifeEvent | null>(null);
 
   protected readonly categoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
+  protected readonly trackByLifeEventId = (_: number, lifeEvent: LifeEvent) => lifeEvent.id;
 
   protected readonly yearGroups = computed<MomentYearGroup[]>(() => {
     const groups = new Map<number, LifeEvent[]>();

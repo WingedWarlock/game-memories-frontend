@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgFor } from '@angular/common';
 import { HistoryEvent, HistoryEventType } from '../../core/models';
 import { HistoryEventService } from '../../core/services/history-event.service';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
@@ -32,7 +32,7 @@ const EVENT_ICON: Record<HistoryEventType, IconName> = {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [DatePipe, IconComponent],
+  imports: [DatePipe, NgFor, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './history.page.html',
   styleUrl: './history.page.scss',
@@ -56,6 +56,8 @@ export class HistoryPage {
   });
 
   protected readonly eventIcon = (type: HistoryEventType) => EVENT_ICON[type];
+
+  protected readonly trackByEventId = (_: number, event: HistoryEvent) => event.id;
 
   constructor() {
     this.load();

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgFor } from '@angular/common';
 import { Achievement, GameMemory, Run, SavePoint } from '../../../../core/models';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import {
@@ -33,7 +33,7 @@ interface TimelineTick {
 @Component({
   selector: 'app-library-timeline-chart',
   standalone: true,
-  imports: [DatePipe, IconComponent],
+  imports: [DatePipe, NgFor, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './library-timeline-chart.component.html',
   styleUrl: './library-timeline-chart.component.scss',
@@ -45,6 +45,7 @@ export class LibraryTimelineChartComponent {
   readonly achievementsByRun = input<Map<number, Achievement[]>>(new Map());
 
   protected readonly selectedCluster = signal<MarkerCluster | null>(null);
+  protected readonly trackByItemId = (_: number, item: TimelineMarkerItem) => item.id;
 
   private readonly domain = computed(() => {
     const times: number[] = [];

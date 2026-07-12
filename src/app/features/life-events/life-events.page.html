@@ -27,7 +27,8 @@
     @for (group of yearGroups(); track group.year) {
       <section class="moment-year">
         <h2 class="moment-year-heading">{{ group.year }}</h2>
-        <ul class="moment-list">@for (lifeEvent of group.lifeEvents; track lifeEvent.id) {<li class="moment-item">
+        <ul class="moment-list">
+          <li class="moment-item" *ngFor="let lifeEvent of group.lifeEvents; trackBy: trackByLifeEventId">
               <span class="moment-item-icon">
                 <app-icon name="calendar" [size]="16" />
               </span>
@@ -48,7 +49,8 @@
                   <app-icon name="trash" [size]="14" />
                 </button>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       </section>
     }
   }

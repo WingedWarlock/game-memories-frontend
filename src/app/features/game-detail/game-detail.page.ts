@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe, Location, NgFor } from '@angular/common';
 
 import {
   Achievement,
@@ -77,6 +77,7 @@ const SECTION_TABS: SectionTab[] = [
   standalone: true,
   imports: [
     DatePipe,
+    NgFor,
     ModalComponent,
     ConfirmDialogComponent,
     IconComponent,
@@ -185,6 +186,13 @@ export class GameDetailPage {
   protected readonly runStatusVariant = (status: Run['status']) => RUN_STATUS_VARIANT[status];
   protected readonly memoryTypeLabel = (type: GameMemory['type']) => MEMORY_TYPE_LABEL[type];
   protected readonly memoryTypeVariant = (type: GameMemory['type']) => MEMORY_TYPE_VARIANT[type];
+
+  protected readonly trackByRunId = (_: number, run: Run) => run.id;
+  protected readonly trackByMemoryId = (_: number, memory: GameMemory) => memory.id;
+  protected readonly trackByMusicId = (_: number, track: GameMusic) => track.id;
+  protected readonly trackByAchievementId = (_: number, achievement: Achievement) => achievement.id;
+  protected readonly trackByDlcId = (_: number, dlc: Dlc) => dlc.id;
+  protected readonly trackByModId = (_: number, mod: Mod) => mod.id;
 
   constructor() {
     this.loadAll(this.route.snapshot.paramMap.get('id'));

@@ -44,7 +44,7 @@
             <div class="cover-manager-strip">
               @for (cover of covers(); track cover.id) {
                 <div class="cover-thumb">
-                  <img [src]="cover.fileUrl" [alt]="cover.title || 'Capa'" [title]="cover.title || 'Capa'" />
+                  <img [src]="cover.fileUrl" alt="{{ cover.title || 'Capa' }}" title="{{ cover.title || 'Capa' }}" />
                   <button
                     type="button"
                     class="btn btn-icon btn-ghost cover-thumb-delete"
@@ -132,7 +132,8 @@
           <p>Registre sua primeira jogatina deste jogo.</p>
         </div>
       } @else {
-        <ul class="run-list">@for (run of runs(); track run.id) {<li class="run-item">
+        <ul class="run-list">
+          <li class="run-item" *ngFor="let run of runs(); trackBy: trackByRunId">
               <div class="run-item-main">
                 <div class="run-item-title-row">
                   <strong>{{ run.runName }}</strong>
@@ -166,7 +167,8 @@
                   <app-icon name="trash" [size]="14" />
                 </button>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -191,7 +193,8 @@
           <p>Guarde os momentos marcantes que você viveu com este jogo.</p>
         </div>
       } @else {
-        <ul class="memory-list">@for (memory of memories(); track memory.id) {<li class="memory-item">
+        <ul class="memory-list">
+          <li class="memory-item" *ngFor="let memory of memories(); trackBy: trackByMemoryId">
               <div class="memory-item-header">
                 <strong>{{ memory.title }}</strong>
                 <app-status-badge [label]="memoryTypeLabel(memory.type)" [variant]="memoryTypeVariant(memory.type)" />
@@ -208,7 +211,8 @@
                   </button>
                 </div>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -233,7 +237,7 @@
         <div class="screenshot-grid">
           @for (shot of screenshots(); track shot.id) {
             <div class="screenshot-thumb" (click)="openLightbox(shot)">
-              <img [src]="shot.fileUrl" [alt]="shot.title || 'Screenshot'" [title]="shot.title || 'Screenshot'" />
+              <img [src]="shot.fileUrl" alt="{{ shot.title || 'Screenshot' }}" title="{{ shot.title || 'Screenshot' }}" />
               <button
                 type="button"
                 class="btn btn-icon btn-ghost screenshot-delete"
@@ -266,7 +270,8 @@
           <p>Adicione as trilhas que marcaram sua jornada com este jogo.</p>
         </div>
       } @else {
-        <ul class="music-list">@for (track of music(); track track.id) {<li class="music-item">
+        <ul class="music-list">
+          <li class="music-item" *ngFor="let track of music(); trackBy: trackByMusicId">
               <div class="music-item-info">
                 <strong>{{ track.title || track.originalFileName }}</strong>
                 @if (track.artist) {
@@ -280,7 +285,8 @@
               <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteMusic(track)" aria-label="Remover música">
                 <app-icon name="trash" [size]="14" />
               </button>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -305,7 +311,8 @@
           <p>Acompanhe as conquistas que você já desbloqueou neste jogo.</p>
         </div>
       } @else {
-        <ul class="memory-list">@for (achievement of achievements(); track achievement.id) {<li class="memory-item">
+        <ul class="memory-list">
+          <li class="memory-item" *ngFor="let achievement of achievements(); trackBy: trackByAchievementId">
               <div class="memory-item-header">
                 <strong>{{ achievement.title }}</strong>
                 <app-status-badge
@@ -331,7 +338,8 @@
                   </button>
                 </div>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -356,7 +364,8 @@
           <p>Cadastre as expansões e conteúdos extras deste jogo.</p>
         </div>
       } @else {
-        <ul class="memory-list">@for (dlc of dlcs(); track dlc.id) {<li class="memory-item">
+        <ul class="memory-list">
+          <li class="memory-item" *ngFor="let dlc of dlcs(); trackBy: trackByDlcId">
               <div class="memory-item-header">
                 <strong>{{ dlc.title }}</strong>
                 <app-status-badge
@@ -381,7 +390,8 @@
                   </button>
                 </div>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -406,7 +416,8 @@
           <p>Guarde os mods que você usa ou já usou neste jogo.</p>
         </div>
       } @else {
-        <ul class="memory-list">@for (mod of mods(); track mod.id) {<li class="memory-item">
+        <ul class="memory-list">
+          <li class="memory-item" *ngFor="let mod of mods(); trackBy: trackByModId">
               <div class="memory-item-header">
                 <strong>{{ mod.title }}</strong>
                 <app-status-badge [label]="mod.active ? 'Ativo' : 'Inativo'" [variant]="mod.active ? 'success' : 'neutral'" />
@@ -431,7 +442,8 @@
                   </button>
                 </div>
               </div>
-            </li>}</ul>
+          </li>
+        </ul>
       }
     </section>
     }
@@ -508,7 +520,7 @@
 
 <app-modal [open]="!!lightboxScreenshot()" [title]="lightboxScreenshot()?.title || 'Screenshot'" size="lg" (closed)="closeLightbox()">
   @if (lightboxScreenshot(); as shot) {
-    <img class="lightbox-image" [src]="shot.fileUrl" [alt]="shot.title || 'Screenshot'" [title]="shot.title || 'Screenshot'" />
+    <img class="lightbox-image" [src]="shot.fileUrl" alt="{{ shot.title || 'Screenshot' }}" title="{{ shot.title || 'Screenshot' }}" />
     @if (shot.description) {
       <p class="lightbox-description">{{ shot.description }}</p>
     }

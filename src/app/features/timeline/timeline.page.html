@@ -61,7 +61,8 @@
           }
 
           @if (showMoments() && group.lifeEvents.length > 0) {
-            <ul class="life-event-list">@for (lifeEvent of group.lifeEvents; track lifeEvent.id) {<li class="life-event-item">
+            <ul class="life-event-list">
+              <li class="life-event-item" *ngFor="let lifeEvent of group.lifeEvents; trackBy: trackByLifeEventId">
                   <app-icon name="calendar" [size]="14" />
                   <div class="life-event-body">
                     <strong>{{ lifeEvent.title }}</strong>
@@ -75,7 +76,8 @@
                       <app-icon name="trash" [size]="12" />
                     </button>
                   </div>
-                </li>}</ul>
+              </li>
+            </ul>
           }
 
           @if (group.entries.length > 0) {
