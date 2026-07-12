@@ -1,0 +1,53 @@
+.history-day {
+  margin-bottom: 28px;
+}
+
+.history-day-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  text-transform: capitalize;
+  margin-bottom: 12px;
+}
+
+.history-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.history-event-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.history-event-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  p {
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+}

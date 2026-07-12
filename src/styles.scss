@@ -582,6 +582,83 @@ textarea {
   }
 }
 
+.crown-badge {
+  display: inline-flex;
+  color: var(--accent-strong);
+}
+
+/* ---------- páginas de resumo (Estatísticas / Histórico / Retrospectiva) ---------- */
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.retry-button {
+  margin-top: 16px;
+}
+
+.stat-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.stat-tile-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.stat-tile-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.highlight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.highlight-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlight-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;

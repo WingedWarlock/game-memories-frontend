@@ -18,6 +18,7 @@ import { CoverCarouselComponent } from '../cover-carousel/cover-carousel.compone
 export class GameCardComponent {
   readonly game = input.required<Game>();
   readonly caption = input<string | null>(null);
+  readonly tag = input<string | null>(null);
   readonly showActions = input<boolean>(true);
   readonly editRequested = output<Game>();
   readonly deleteRequested = output<Game>();

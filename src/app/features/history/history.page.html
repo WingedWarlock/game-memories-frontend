@@ -1,0 +1,40 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Histórico</h1>
+    <p class="page-subtitle">A linha do tempo de tudo que aconteceu na sua biblioteca, a partir de agora.</p>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando histórico...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar o histórico</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (dayGroups().length === 0) {
+    <div class="empty-state">
+      <h3>Ainda não há nada no histórico</h3>
+      <p>A partir de agora, tudo que você registrar no Game Memories vai aparecer aqui.</p>
+    </div>
+  } @else {
+    @for (group of dayGroups(); track group.dateKey) {
+      <section class="history-day">
+        <h2 class="history-day-heading">{{ group.dateKey + 'T00:00:00' | date: "dd 'de' MMMM 'de' yyyy" }}</h2>
+        <ul class="history-event-list">
+          @for (event of group.events; track event.id) {
+            <li class="history-event">
+              <span class="history-event-icon">
+                <app-icon [name]="eventIcon(event.type)" [size]="16" />
+              </span>
+              <div class="history-event-body">
+                <p>{{ event.description }}</p>
+                <span class="field-hint">{{ event.occurredAt | date: 'HH:mm' }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+</div>

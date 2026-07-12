@@ -1,8 +1,8 @@
 <div class="page-container">
-  <a routerLink="/biblioteca" class="back-link">
+  <button type="button" class="back-link" (click)="goBack()">
     <app-icon name="chevron-right" [size]="14" />
-    Voltar para a biblioteca
-  </a>
+    Voltar para a página anterior
+  </button>
 
   @if (loadingGame()) {
     <p class="loading-state">Carregando jogo...</p>
@@ -22,9 +22,6 @@
         >
           {{ tab.label }}
         </button>
-      }
-      @for (tabName of futureTabs; track tabName) {
-        <span class="tab tab-disabled" [attr.title]="tabName + ' — em breve'">{{ tabName }}</span>
       }
       <button type="button" class="tab tab-toggle-all" (click)="toggleAllSections()">
         {{ allSectionsSelected() ? 'Limpar tudo' : 'Selecionar tudo' }}

@@ -11,6 +11,9 @@
   }
 
   <div class="game-card-cover">
+    @if (tag()) {
+      <span class="badge badge-accent game-card-tag">{{ tag() }}</span>
+    }
     <app-cover-carousel [gameId]="game().id" [altText]="game().title" />
   </div>
 
@@ -31,7 +34,14 @@
       }
     </div>
 
-    <app-status-badge [label]="statusLabel(game().status)" [variant]="statusVariant(game().status)" />
+    <div class="game-card-status-row">
+      <app-status-badge [label]="statusLabel(game().status)" [variant]="statusVariant(game().status)" />
+      @if (game().myHundredPercent) {
+        <span class="crown-badge" title="Meu 100%">
+          <app-icon name="crown" [size]="16" />
+        </span>
+      }
+    </div>
 
     @if (caption()) {
       <p class="game-card-caption">{{ caption() }}</p>

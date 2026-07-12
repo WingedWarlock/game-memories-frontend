@@ -1,0 +1,37 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field-row">
+    <div class="field">
+      <label for="le-title">Título *</label>
+      <input id="le-title" type="text" formControlName="title" placeholder="Ex: Comecei na Celepar" />
+      @if (form.controls.title.invalid && form.controls.title.touched) {
+        <span class="field-error">Informe o título.</span>
+      }
+    </div>
+    <div class="field">
+      <label for="le-date">Data *</label>
+      <input id="le-date" type="date" formControlName="date" />
+      @if (form.controls.date.invalid && form.controls.date.touched) {
+        <span class="field-error">Informe a data.</span>
+      }
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="le-category">Categoria *</label>
+    <select id="le-category" formControlName="category">
+      @for (option of categoryOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="le-description">Descrição</label>
+    <textarea id="le-description" formControlName="description" rows="3" placeholder="O que estava acontecendo na sua vida nessa época"></textarea>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Adicionar Momento' }}</button>
+  </div>
+</form>

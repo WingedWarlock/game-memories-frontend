@@ -1,0 +1,70 @@
+.moments-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.moment-year {
+  margin-bottom: 32px;
+}
+
+.moment-year-heading {
+  font-size: 26px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.moment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.moment-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.moment-item-body {
+  flex: 1;
+
+  p {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+}
+
+.moment-item-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.moment-item-actions {
+  display: flex;
+  gap: 4px;
+}

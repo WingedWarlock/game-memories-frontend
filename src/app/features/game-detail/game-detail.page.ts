@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChildren } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DatePipe, Location } from '@angular/common';
 
 import {
   Achievement,
@@ -72,13 +72,10 @@ const SECTION_TABS: SectionTab[] = [
   { key: 'timeline', label: 'Linha do Tempo' },
 ];
 
-const FUTURE_TABS = ['Estatísticas', 'Histórico'];
-
 @Component({
   selector: 'app-game-detail',
   standalone: true,
   imports: [
-    RouterLink,
     DatePipe,
     ModalComponent,
     ConfirmDialogComponent,
@@ -103,6 +100,7 @@ const FUTURE_TABS = ['Estatísticas', 'Histórico'];
 export class GameDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly gameService = inject(GameService);
   private readonly runService = inject(RunService);
   private readonly memoryService = inject(GameMemoryService);
@@ -115,7 +113,6 @@ export class GameDetailPage {
   private readonly savePointService = inject(SavePointService);
   private readonly toast = inject(ToastService);
 
-  protected readonly futureTabs = FUTURE_TABS;
   protected readonly sectionTabs = SECTION_TABS;
 
   protected readonly visibleSections = signal<Set<string>>(new Set(SECTION_TABS.map((tab) => tab.key)));
@@ -364,6 +361,10 @@ export class GameDetailPage {
       },
       error: () => this.loadingMods.set(false),
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   // ---------- Filtro de abas ----------

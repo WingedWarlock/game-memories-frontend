@@ -12,3 +12,6 @@ export * from './game-music.model';
 export * from './achievement.model';
 export * from './dlc.model';
 export * from './mod.model';
+export * from './history-event.model';
+export * from './life-event.model';
+export * from './stats.model';

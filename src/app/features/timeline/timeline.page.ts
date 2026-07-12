@@ -1,13 +1,23 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
-import { Game, Run } from '../../core/models';
+import { Game, LifeEvent, LifeEventRequest, Retrospective, Run } from '../../core/models';
 import { GameService } from '../../core/services/game.service';
 import { RunService } from '../../core/services/run.service';
+import { LifeEventService } from '../../core/services/life-event.service';
+import { StatsService } from '../../core/services/stats.service';
+import { ToastService } from '../../core/services/toast.service';
+import { LIFE_EVENT_CATEGORY_LABEL } from '../../core/models/life-event.model';
+
 import { GameCardComponent } from '../games/components/game-card/game-card.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
+import { LifeEventFormComponent } from '../life-events/components/life-event-form/life-event-form.component';
 
 interface TimelineEntry {
+  key: string;
   game: Game;
   isPlaying: boolean;
   captionLabel: string | null;
@@ -17,6 +27,8 @@ interface TimelineEntry {
 interface TimelineYearGroup {
   year: number;
   entries: TimelineEntry[];
+  lifeEvents: LifeEvent[];
+  summary: Retrospective | null;
 }
 
 function formatDate(isoDate: string): string {
@@ -27,7 +39,7 @@ function formatDate(isoDate: string): string {
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [GameCardComponent],
+  imports: [GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './timeline.page.html',
   styleUrl: './timeline.page.scss',
@@ -35,11 +47,29 @@ function formatDate(isoDate: string): string {
 export class TimelinePage {
   private readonly gameService = inject(GameService);
   private readonly runService = inject(RunService);
+  private readonly lifeEventService = inject(LifeEventService);
+  private readonly statsService = inject(StatsService);
+  private readonly toast = inject(ToastService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
   protected readonly yearGroups = signal<TimelineYearGroup[]>([]);
   protected readonly isEmpty = signal(false);
+  protected readonly expandedYears = signal<Set<number>>(new Set());
+  private expansionInitialized = false;
+
+  protected readonly allYearsExpanded = computed(() => {
+    const groups = this.yearGroups();
+    return groups.length > 0 && groups.every((group) => this.expandedYears().has(group.year));
+  });
+
+  protected readonly showMoments = signal(true);
+
+  protected readonly showLifeEventModal = signal(false);
+  protected readonly editingLifeEvent = signal<LifeEvent | null>(null);
+  protected readonly lifeEventToDelete = signal<LifeEvent | null>(null);
+
+  protected readonly lifeEventCategoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
 
   constructor() {
     this.load();
@@ -53,27 +83,24 @@ export class TimelinePage {
       .getAll()
       .pipe(
         switchMap((games) => {
+          const lifeEvents$ = this.lifeEventService.getAll().pipe(catchError(() => of<LifeEvent[]>([])));
           if (games.length === 0) {
-            return of({ games, runsByGameId: new Map<number, Run[]>() });
+            return lifeEvents$.pipe(map((lifeEvents) => ({ games, runsByGameId: new Map<number, Run[]>(), lifeEvents })));
           }
-          const runRequests = games.map((game) =>
-            this.runService.getByGame(game.id).pipe(catchError(() => of<Run[]>([]))),
-          );
-          return forkJoin(runRequests).pipe(
-            map((runsList) => {
+          const runRequests = games.map((game) => this.runService.getByGame(game.id).pipe(catchError(() => of<Run[]>([]))));
+          return forkJoin([forkJoin(runRequests), lifeEvents$]).pipe(
+            map(([runsList, lifeEvents]) => {
               const runsByGameId = new Map<number, Run[]>();
               games.forEach((game, index) => runsByGameId.set(game.id, runsList[index]));
-              return { games, runsByGameId };
+              return { games, runsByGameId, lifeEvents };
             }),
           );
         }),
       )
       .subscribe({
-        next: ({ games, runsByGameId }) => {
-          const groups = this.buildYearGroups(games, runsByGameId);
-          this.yearGroups.set(groups);
-          this.isEmpty.set(groups.length === 0);
-          this.loading.set(false);
+        next: ({ games, runsByGameId, lifeEvents }) => {
+          const groups = this.buildYearGroups(games, runsByGameId, lifeEvents);
+          this.loadSummaries(groups);
         },
         error: () => {
           this.error.set(true);
@@ -82,46 +109,73 @@ export class TimelinePage {
       });
   }
 
-  private buildYearGroups(games: Game[], runsByGameId: Map<number, Run[]>): TimelineYearGroup[] {
+  private loadSummaries(groups: TimelineYearGroup[]): void {
+    if (groups.length === 0) {
+      this.yearGroups.set([]);
+      this.isEmpty.set(true);
+      this.loading.set(false);
+      return;
+    }
+
+    if (!this.expansionInitialized) {
+      this.expansionInitialized = true;
+      this.expandedYears.set(new Set(groups.map((group) => group.year)));
+    }
+
+    forkJoin(groups.map((group) => this.statsService.getRetrospective(group.year).pipe(catchError(() => of(null))))).subscribe(
+      (summaries) => {
+        this.yearGroups.set(groups.map((group, index) => ({ ...group, summary: summaries[index] })));
+        this.isEmpty.set(false);
+        this.loading.set(false);
+      },
+    );
+  }
+
+  private buildYearGroups(games: Game[], runsByGameId: Map<number, Run[]>, lifeEvents: LifeEvent[]): TimelineYearGroup[] {
     const currentYear = new Date().getFullYear();
 
     const playingEntries: TimelineEntry[] = games
-      .filter((game) => game.status === 'PLAYING')
-      .map((game) => ({ game, isPlaying: true, captionLabel: null, completionDate: null }));
+      .filter((game) => (runsByGameId.get(game.id) ?? []).some((run) => run.status === 'IN_PROGRESS'))
+      .map((game) => ({ key: `playing-${game.id}`, game, isPlaying: true, captionLabel: null, completionDate: null }));
 
-    const playingIds = new Set(playingEntries.map((entry) => entry.game.id));
     const completedByYear = new Map<number, TimelineEntry[]>();
 
     for (const game of games) {
-      if (playingIds.has(game.id)) {
-        continue;
+      const completedRuns = (runsByGameId.get(game.id) ?? []).filter((run) => run.status === 'COMPLETED' && !!run.endDate);
+      for (const run of completedRuns) {
+        const year = Number(run.endDate!.slice(0, 4));
+        const entry: TimelineEntry = {
+          key: `run-${run.id}`,
+          game,
+          isPlaying: false,
+          captionLabel: `${run.runName} — concluído em ${formatDate(run.endDate!)}`,
+          completionDate: run.endDate!,
+        };
+        const list = completedByYear.get(year) ?? [];
+        list.push(entry);
+        completedByYear.set(year, list);
       }
-      const completedRuns = (runsByGameId.get(game.id) ?? []).filter(
-        (run) => run.status === 'COMPLETED' && !!run.endDate,
-      );
-      if (completedRuns.length === 0) {
-        continue;
-      }
-      const mostRecent = completedRuns.reduce((latest, run) =>
-        run.endDate! > latest.endDate! ? run : latest,
-      );
-      const year = Number(mostRecent.endDate!.slice(0, 4));
-      const entry: TimelineEntry = {
-        game,
-        isPlaying: false,
-        captionLabel: `Concluído em ${formatDate(mostRecent.endDate!)}`,
-        completionDate: mostRecent.endDate!,
-      };
-      const list = completedByYear.get(year) ?? [];
-      list.push(entry);
-      completedByYear.set(year, list);
     }
 
     for (const list of completedByYear.values()) {
       list.sort((a, b) => b.completionDate!.localeCompare(a.completionDate!));
     }
 
+    const lifeEventsByYear = new Map<number, LifeEvent[]>();
+    for (const lifeEvent of lifeEvents) {
+      const year = Number(lifeEvent.date.slice(0, 4));
+      const list = lifeEventsByYear.get(year) ?? [];
+      list.push(lifeEvent);
+      lifeEventsByYear.set(year, list);
+    }
+    for (const list of lifeEventsByYear.values()) {
+      list.sort((a, b) => a.date.localeCompare(b.date));
+    }
+
     const years = new Set(completedByYear.keys());
+    for (const year of lifeEventsByYear.keys()) {
+      years.add(year);
+    }
     if (playingEntries.length > 0) {
       years.add(currentYear);
     }
@@ -130,11 +184,87 @@ export class TimelinePage {
       .sort((a, b) => b - a)
       .map((year) => {
         const entries =
-          year === currentYear
-            ? [...playingEntries, ...(completedByYear.get(year) ?? [])]
-            : (completedByYear.get(year) ?? []);
-        return { year, entries };
+          year === currentYear ? [...playingEntries, ...(completedByYear.get(year) ?? [])] : (completedByYear.get(year) ?? []);
+        return { year, entries, lifeEvents: lifeEventsByYear.get(year) ?? [], summary: null };
       })
-      .filter((group) => group.entries.length > 0);
+      .filter((group) => group.entries.length > 0 || group.lifeEvents.length > 0);
+  }
+
+  // ---------- Grupos recolhíveis ----------
+
+  isYearExpanded(year: number): boolean {
+    return this.expandedYears().has(year);
+  }
+
+  toggleYear(year: number): void {
+    const next = new Set(this.expandedYears());
+    if (next.has(year)) {
+      next.delete(year);
+    } else {
+      next.add(year);
+    }
+    this.expandedYears.set(next);
+  }
+
+  toggleAllYears(): void {
+    this.expandedYears.set(this.allYearsExpanded() ? new Set() : new Set(this.yearGroups().map((group) => group.year)));
+  }
+
+  toggleMoments(): void {
+    this.showMoments.update((value) => !value);
+  }
+
+  // ---------- Momentos de vida ----------
+
+  openCreateLifeEvent(): void {
+    this.editingLifeEvent.set(null);
+    this.showLifeEventModal.set(true);
+  }
+
+  openEditLifeEvent(lifeEvent: LifeEvent): void {
+    this.editingLifeEvent.set(lifeEvent);
+    this.showLifeEventModal.set(true);
+  }
+
+  closeLifeEventModal(): void {
+    this.showLifeEventModal.set(false);
+    this.editingLifeEvent.set(null);
+  }
+
+  onLifeEventSaved(payload: LifeEventRequest): void {
+    const editing = this.editingLifeEvent();
+    const request = editing ? this.lifeEventService.update(editing.id, payload) : this.lifeEventService.create(payload);
+    request.subscribe({
+      next: () => {
+        this.closeLifeEventModal();
+        this.load();
+        this.toast.success(editing ? 'Momento atualizado com sucesso.' : 'Momento adicionado com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar o momento.' : 'Não foi possível adicionar o momento.');
+      },
+    });
+  }
+
+  requestDeleteLifeEvent(lifeEvent: LifeEvent): void {
+    this.lifeEventToDelete.set(lifeEvent);
+  }
+
+  confirmDeleteLifeEvent(): void {
+    const lifeEvent = this.lifeEventToDelete();
+    if (!lifeEvent) {
+      return;
+    }
+    this.lifeEventService.delete(lifeEvent.id).subscribe({
+      next: () => {
+        this.lifeEventToDelete.set(null);
+        this.load();
+        this.toast.success('Momento removido com sucesso.');
+      },
+      error: () => {
+        this.lifeEventToDelete.set(null);
+        this.toast.error('Não foi possível remover o momento.');
+      },
+    });
   }
 }

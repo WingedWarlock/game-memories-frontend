@@ -1,0 +1,73 @@
+<div class="page-container">
+  <div class="page-header moments-header-row">
+    <div>
+      <h1>Momentos</h1>
+      <p class="page-subtitle">Os acontecimentos da sua vida, em ordem cronológica.</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openCreate()">
+      <app-icon name="plus" [size]="14" />
+      Novo Momento
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando momentos...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar os momentos</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (yearGroups().length === 0) {
+    <div class="empty-state">
+      <h3>Nenhum momento registrado ainda</h3>
+      <p>Guarde os acontecimentos da sua vida — trabalho, estudos, viagens — para contextualizar sua jornada gamer.</p>
+    </div>
+  } @else {
+    @for (group of yearGroups(); track group.year) {
+      <section class="moment-year">
+        <h2 class="moment-year-heading">{{ group.year }}</h2>
+        <ul class="moment-list">
+          @for (lifeEvent of group.lifeEvents; track lifeEvent.id) {
+            <li class="moment-item">
+              <span class="moment-item-icon">
+                <app-icon name="calendar" [size]="16" />
+              </span>
+              <div class="moment-item-body">
+                <div class="moment-item-header">
+                  <strong>{{ lifeEvent.title }}</strong>
+                  <span class="field-hint">{{ categoryLabel(lifeEvent.category) }} · {{ lifeEvent.date }}</span>
+                </div>
+                @if (lifeEvent.description) {
+                  <p>{{ lifeEvent.description }}</p>
+                }
+              </div>
+              <div class="moment-item-actions">
+                <button type="button" class="btn btn-icon btn-ghost" (click)="openEdit(lifeEvent)" aria-label="Editar momento">
+                  <app-icon name="edit" [size]="14" />
+                </button>
+                <button type="button" class="btn btn-icon btn-ghost" (click)="requestDelete(lifeEvent)" aria-label="Remover momento">
+                  <app-icon name="trash" [size]="14" />
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+</div>
+
+<app-modal [open]="showModal()" [title]="editingLifeEvent() ? 'Editar Momento' : 'Novo Momento de Vida'" (closed)="closeModal()">
+  <app-life-event-form [lifeEvent]="editingLifeEvent()" (saved)="onSaved($event)" (cancelled)="closeModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!lifeEventToDelete()"
+  title="Remover Momento"
+  [message]="'Tem certeza que deseja remover o momento \'' + (lifeEventToDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="lifeEventToDelete.set(null)"
+/>

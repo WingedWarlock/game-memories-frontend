@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Run, SavePoint } from '../../../../core/models';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 interface TimelineMarker {
   id: number;
   leftPercent: number;
   label: string;
+  savePoint: SavePoint;
+  runName: string;
 }
 
 interface TimelineRow {
@@ -14,6 +17,7 @@ interface TimelineRow {
   hasBar: boolean;
   leftPercent: number;
   widthPercent: number;
+  barLabel: string;
   markers: TimelineMarker[];
 }
 
@@ -26,10 +30,15 @@ function parseDate(iso: string): number {
   return new Date(`${iso}T00:00:00`).getTime();
 }
 
+function formatDate(iso: string): string {
+  const [year, month, day] = iso.split('-');
+  return `${day}/${month}/${year}`;
+}
+
 @Component({
   selector: 'app-game-timeline-chart',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-timeline-chart.component.html',
   styleUrl: './game-timeline-chart.component.scss',
@@ -37,6 +46,8 @@ function parseDate(iso: string): number {
 export class GameTimelineChartComponent {
   readonly runs = input<Run[]>([]);
   readonly savePointsByRun = input<Map<number, SavePoint[]>>(new Map());
+
+  protected readonly selectedMarker = signal<TimelineMarker | null>(null);
 
   private readonly domain = computed(() => {
     const times: number[] = [];
@@ -80,6 +91,8 @@ export class GameTimelineChartComponent {
             id: sp.id,
             leftPercent: percent(parseDate(sp.date!)),
             label: `${sp.slot} — ${sp.title}`,
+            savePoint: sp,
+            runName: run.runName,
           }))
           .sort((a, b) => a.leftPercent - b.leftPercent);
 
@@ -89,12 +102,19 @@ export class GameTimelineChartComponent {
         const left = hasBar ? percent(startTime ?? endTime!) : 0;
         const right = hasBar ? percent(endTime ?? startTime!) : 0;
 
+        const barLabel = run.startDate
+          ? `Início: ${formatDate(run.startDate)} — ${run.endDate ? `Fim: ${formatDate(run.endDate)}` : 'Em andamento'}`
+          : run.endDate
+            ? `Fim: ${formatDate(run.endDate)}`
+            : '';
+
         return {
           runId: run.id,
           runName: run.runName,
           hasBar,
           leftPercent: left,
           widthPercent: Math.max(right - left, hasBar ? 0.8 : 0),
+          barLabel,
           markers,
           sortKey: startTime ?? (markers[0]?.leftPercent ?? Infinity),
         };
@@ -118,4 +138,8 @@ export class GameTimelineChartComponent {
       return { leftPercent, time };
     });
   });
+
+  selectMarker(marker: TimelineMarker): void {
+    this.selectedMarker.set(this.selectedMarker()?.id === marker.id ? null : marker);
+  }
 }

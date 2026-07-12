@@ -1,22 +1,102 @@
-.timeline-header {
-  margin-bottom: 32px;
+.timeline-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.timeline-subtitle {
+.timeline-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.toggle-all-years {
+  font-size: 12px;
   color: var(--text-muted);
-  margin-top: 6px;
+  white-space: nowrap;
 }
 
 .timeline-year {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+}
+
+.timeline-year-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 12px;
+  cursor: pointer;
+  color: inherit;
+
+  app-icon {
+    transition: transform 0.15s ease;
+    color: var(--text-muted);
+  }
+
+  app-icon.rotated {
+    transform: rotate(90deg);
+  }
 }
 
 .timeline-year-heading {
-  font-size: 28px;
-  margin-bottom: 16px;
+  font-size: 26px;
   color: var(--accent);
 }
 
-.retry-button {
-  margin-top: 16px;
+.year-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+.life-event-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.life-event-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--accent-strong);
+}
+
+.life-event-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text-primary);
+
+  strong {
+    font-size: 13px;
+  }
+}
+
+.life-event-actions {
+  display: flex;
+  gap: 2px;
 }

@@ -43,6 +43,7 @@
 }
 
 .game-card-cover {
+  position: relative;
   aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
@@ -55,6 +56,13 @@
     height: 100%;
     object-fit: cover;
   }
+}
+
+.game-card-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
 }
 
 .game-card-body {
@@ -87,6 +95,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.game-card-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .game-card-caption {

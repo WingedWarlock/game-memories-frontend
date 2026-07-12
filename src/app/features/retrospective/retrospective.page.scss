@@ -1,0 +1,56 @@
+.retro-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.year-select {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 8px 14px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--accent-strong);
+}
+
+.retro-hero {
+  background: linear-gradient(160deg, var(--accent-soft), var(--bg-elevated));
+}
+
+.retro-year {
+  font-size: 32px;
+  color: var(--accent-strong);
+  margin-bottom: 16px;
+}
+
+.moment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.moment-card {
+  padding: 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.moment-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-strong);
+}
+
+.moment-quote {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-style: italic;
+}

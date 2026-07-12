@@ -1,0 +1,179 @@
+<div class="page-container">
+  <div class="page-header retro-header">
+    <div>
+      <h1>Retrospectiva</h1>
+      <p class="page-subtitle">Um resumo do seu ano como jogador.</p>
+    </div>
+    @if (years().length > 0) {
+      <select class="year-select" [value]="selectedYear()" (change)="onYearChange($event)">
+        @for (year of years(); track year) {
+          <option [value]="year">{{ year }}</option>
+        }
+      </select>
+    }
+  </div>
+
+  @if (loadingYears()) {
+    <p class="loading-state">Carregando anos disponíveis...</p>
+  } @else if (years().length === 0) {
+    <div class="empty-state">
+      <h3>Ainda não há dados suficientes</h3>
+      <p>Registre runs, memórias ou momentos de vida com datas para gerar sua primeira retrospectiva.</p>
+    </div>
+  } @else if (loading()) {
+    <p class="loading-state">Montando sua retrospectiva de {{ selectedYear() }}...</p>
+  } @else if (error() || !retrospective()) {
+    <div class="empty-state">
+      <h3>Não foi possível montar a retrospectiva</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+    </div>
+  } @else {
+    <section class="section retro-hero">
+      <h2 class="retro-year">{{ retrospective()!.year }}</h2>
+      <div class="stat-tile-grid">
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.gamesStarted }}</span>
+          <span class="stat-tile-label">Jogos iniciados</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.gamesCompleted }}</span>
+          <span class="stat-tile-label">Jogos concluídos</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.hundredPercentCount }}</span>
+          <span class="stat-tile-label">Meu 100%</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.runsCount }}</span>
+          <span class="stat-tile-label">Runs</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.memoriesCount }}</span>
+          <span class="stat-tile-label">Memórias</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.savePointsCount }}</span>
+          <span class="stat-tile-label">Save Points</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.screenshotsCount }}</span>
+          <span class="stat-tile-label">Screenshots</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ retrospective()!.musicCount }}</span>
+          <span class="stat-tile-label">Músicas adicionadas</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Destaques do ano</h2>
+      <div class="highlight-grid">
+        @if (retrospective()!.favoriteOfYear; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Favorito do ano</span>
+          </div>
+        }
+        @if (retrospective()!.bestRatingOfYear; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Melhor nota do ano — {{ ratingLabel(g.rating) }}</span>
+          </div>
+        }
+        @if (retrospective()!.mostPlayedGameOfYear; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Jogo mais jogado do ano ({{ g.count }} runs)</span>
+          </div>
+        }
+        @if (retrospective()!.topSaga) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ retrospective()!.topSaga }}</span>
+            <span class="highlight-label">Saga mais jogada</span>
+          </div>
+        }
+        @if (retrospective()!.topGenre) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ retrospective()!.topGenre }}</span>
+            <span class="highlight-label">Gênero mais jogado</span>
+          </div>
+        }
+        @if (retrospective()!.topPlatform) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ retrospective()!.topPlatform }}</span>
+            <span class="highlight-label">Plataforma mais usada</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Marcos do ano</h2>
+      <div class="highlight-grid">
+        @if (retrospective()!.firstGameStarted; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Primeiro jogo iniciado — {{ g.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        }
+        @if (retrospective()!.lastGameStarted; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Último jogo iniciado — {{ g.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        }
+        @if (retrospective()!.firstGameCompleted; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Primeiro jogo zerado — {{ g.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        }
+        @if (retrospective()!.lastGameCompleted; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Último jogo zerado — {{ g.date | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        }
+        @if (retrospective()!.longestRun; as r) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ r.gameTitle }}</span>
+            <span class="highlight-label">Run mais longa — {{ r.runName }} ({{ r.days }} dias)</span>
+          </div>
+        }
+        @if (retrospective()!.shortestRun; as r) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ r.gameTitle }}</span>
+            <span class="highlight-label">Run mais curta — {{ r.runName }} ({{ r.days }} dias)</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (retrospective()!.highlightMemories.length > 0 || retrospective()!.lifeEvents.length > 0) {
+      <section class="section">
+        <h2 class="section-title">Momentos Marcantes</h2>
+        <div class="moment-grid">
+          @for (memory of retrospective()!.highlightMemories; track memory.title + memory.memoryDate) {
+            <div class="moment-card">
+              <div class="moment-card-header">
+                <app-icon name="book" [size]="14" />
+                <span class="field-hint">{{ memory.gameTitle }} · {{ memory.memoryDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <p class="moment-quote">"{{ memory.description || memory.title }}"</p>
+            </div>
+          }
+          @for (lifeEvent of retrospective()!.lifeEvents; track lifeEvent.id) {
+            <div class="moment-card">
+              <div class="moment-card-header">
+                <app-icon name="calendar" [size]="14" />
+                <span class="field-hint">{{ lifeEventCategoryLabel(lifeEvent.category) }} · {{ lifeEvent.date | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              <p class="moment-quote">"{{ lifeEvent.description || lifeEvent.title }}"</p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

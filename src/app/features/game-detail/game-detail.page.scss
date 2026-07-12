@@ -1,8 +1,3 @@
-.crown-badge {
-  display: inline-flex;
-  color: var(--accent-strong);
-}
-
 .tab {
   cursor: pointer;
   appearance: none;
@@ -22,6 +17,11 @@
   text-decoration: none;
   font-size: 13px;
   margin-bottom: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 
   app-icon {
     transform: rotate(180deg);

@@ -1,0 +1,196 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Estatísticas</h1>
+    <p class="page-subtitle">Como você é como jogador — calculado a partir de tudo que já foi registrado.</p>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando estatísticas...</p>
+  } @else if (error() || !stats()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar as estatísticas</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else {
+    <section class="section">
+      <h2 class="section-title">Biblioteca</h2>
+      <div class="stat-tile-grid">
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalGames }}</span>
+          <span class="stat-tile-label">Total de jogos</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.favoriteGames }}</span>
+          <span class="stat-tile-label">Favoritos</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.completedGames }}</span>
+          <span class="stat-tile-label">Concluídos</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.playingGames }}</span>
+          <span class="stat-tile-label">Jogando</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.pausedGames }}</span>
+          <span class="stat-tile-label">Pausados</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.notStartedGames }}</span>
+          <span class="stat-tile-label">Não iniciados</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Meu Perfil Gamer</h2>
+      <div class="stat-tile-grid">
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.hundredPercentGames }}</span>
+          <span class="stat-tile-label">Meu 100%</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalRuns }}</span>
+          <span class="stat-tile-label">Runs</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalMemories }}</span>
+          <span class="stat-tile-label">Memórias</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalSavePoints }}</span>
+          <span class="stat-tile-label">Save Points</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalScreenshots }}</span>
+          <span class="stat-tile-label">Screenshots</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalMusic }}</span>
+          <span class="stat-tile-label">Músicas</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.unlockedAchievements }}/{{ stats()!.library.totalAchievements }}</span>
+          <span class="stat-tile-label">Conquistas</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalDlcs }}</span>
+          <span class="stat-tile-label">DLCs</span>
+        </div>
+        <div class="stat-tile">
+          <span class="stat-tile-value">{{ stats()!.library.totalMods }}</span>
+          <span class="stat-tile-label">Mods</span>
+        </div>
+      </div>
+    </section>
+
+    @if (distributions().length > 0) {
+      <section class="section">
+        <h2 class="section-title">Distribuições</h2>
+        <div class="distribution-grid">
+          @for (group of distributions(); track group.title) {
+            <div class="distribution-card">
+              <h3>{{ group.title }}</h3>
+              <ul class="bar-list">
+                @for (item of group.items; track item.name) {
+                  <li class="bar-row">
+                    <span class="bar-row-label">{{ item.name }}</span>
+                    <div class="bar-row-track">
+                      <div class="bar-row-fill" [style.width.%]="barWidth(item.count, group.items)"></div>
+                    </div>
+                    <span class="bar-row-count">{{ item.count }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="section">
+      <h2 class="section-title">Timeline</h2>
+      <div class="highlight-grid">
+        @if (stats()!.timelineHighlights.yearWithMostGamesStarted; as h) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ h.year }}</span>
+            <span class="highlight-label">Ano com mais jogos iniciados ({{ h.count }})</span>
+          </div>
+        }
+        @if (stats()!.timelineHighlights.yearWithMostGamesCompleted; as h) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ h.year }}</span>
+            <span class="highlight-label">Ano com mais jogos concluídos ({{ h.count }})</span>
+          </div>
+        }
+        @if (stats()!.timelineHighlights.yearWithMostMemories; as h) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ h.year }}</span>
+            <span class="highlight-label">Ano com mais memórias registradas ({{ h.count }})</span>
+          </div>
+        }
+        @if (stats()!.timelineHighlights.yearWithMostRuns; as h) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ h.year }}</span>
+            <span class="highlight-label">Ano com mais runs ({{ h.count }})</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Destaques</h2>
+      <div class="highlight-grid">
+        @if (stats()!.highlights.mostPlayedSaga) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ stats()!.highlights.mostPlayedSaga }}</span>
+            <span class="highlight-label">Saga mais jogada</span>
+          </div>
+        }
+        @if (stats()!.highlights.favoriteGenre) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ stats()!.highlights.favoriteGenre }}</span>
+            <span class="highlight-label">Gênero favorito</span>
+          </div>
+        }
+        @if (stats()!.highlights.mostUsedPlatform) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ stats()!.highlights.mostUsedPlatform }}</span>
+            <span class="highlight-label">Plataforma mais usada</span>
+          </div>
+        }
+        @if (stats()!.highlights.firstGameRegistered; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Primeiro jogo registrado</span>
+          </div>
+        }
+        @if (stats()!.highlights.lastGameRegistered; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Último jogo registrado</span>
+          </div>
+        }
+        @if (stats()!.highlights.gameWithMostRuns; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Jogo com mais runs ({{ g.count }})</span>
+          </div>
+        }
+        @if (stats()!.highlights.gameWithMostMemories; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Jogo com mais memórias ({{ g.count }})</span>
+          </div>
+        }
+        @if (stats()!.highlights.gameWithMostSavePoints; as g) {
+          <div class="highlight-card">
+            <span class="highlight-value">{{ g.title }}</span>
+            <span class="highlight-label">Jogo com mais save points ({{ g.count }})</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

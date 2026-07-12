@@ -17,10 +17,24 @@
           <span class="timeline-row-label">{{ row.runName }}</span>
           <div class="timeline-row-track">
             @if (row.hasBar) {
-              <div class="timeline-bar" [style.left.%]="row.leftPercent" [style.width.%]="row.widthPercent"></div>
+              <div
+                class="timeline-bar"
+                [style.left.%]="row.leftPercent"
+                [style.width.%]="row.widthPercent"
+                [title]="row.barLabel"
+                [attr.aria-label]="row.barLabel"
+              ></div>
             }
             @for (marker of row.markers; track marker.id) {
-              <span class="timeline-marker" [style.left.%]="marker.leftPercent" [title]="marker.label"></span>
+              <button
+                type="button"
+                class="timeline-marker"
+                [class.timeline-marker-active]="selectedMarker()?.id === marker.id"
+                [style.left.%]="marker.leftPercent"
+                [title]="marker.label"
+                [attr.aria-label]="marker.label"
+                (click)="selectMarker(marker)"
+              ></button>
             }
           </div>
         </div>
@@ -29,7 +43,23 @@
 
     <div class="timeline-legend">
       <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-bar"></span>Duração da run</span>
-      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker"></span>SavePoint</span>
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker"></span>SavePoint (clique para ver detalhes)</span>
     </div>
+
+    @if (selectedMarker(); as marker) {
+      <div class="timeline-detail">
+        <div class="timeline-detail-header">
+          <span class="chip">{{ marker.savePoint.slot }}</span>
+          <strong>{{ marker.savePoint.title }}</strong>
+          <button type="button" class="btn btn-icon btn-ghost timeline-detail-close" (click)="selectedMarker.set(null)" aria-label="Fechar detalhe">
+            <app-icon name="close" [size]="12" />
+          </button>
+        </div>
+        <p class="field-hint">{{ marker.runName }} @if (marker.savePoint.date) { · {{ marker.savePoint.date | date: 'dd/MM/yyyy' }} }</p>
+        @if (marker.savePoint.description) {
+          <p class="timeline-detail-description">{{ marker.savePoint.description }}</p>
+        }
+      </div>
+    }
   </div>
 }
