@@ -23,6 +23,14 @@
   margin-bottom: 32px;
 }
 
+.library-timeline-section {
+  margin-top: 8px;
+
+  > p {
+    margin-bottom: 16px;
+  }
+}
+
 .timeline-year-toggle {
   display: flex;
   align-items: center;

@@ -92,17 +92,13 @@
           @for (group of distributions(); track group.title) {
             <div class="distribution-card">
               <h3>{{ group.title }}</h3>
-              <ul class="bar-list">
-                @for (item of group.items; track item.name) {
-                  <li class="bar-row">
+              <ul class="bar-list">@for (item of group.items; track item.name) {<li class="bar-row">
                     <span class="bar-row-label">{{ item.name }}</span>
                     <div class="bar-row-track">
                       <div class="bar-row-fill" [style.width.%]="barWidth(item.count, group.items)"></div>
                     </div>
                     <span class="bar-row-count">{{ item.count }}</span>
-                  </li>
-                }
-              </ul>
+                  </li>}</ul>
             </div>
           }
         </div>

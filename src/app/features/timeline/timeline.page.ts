@@ -2,9 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
-import { Game, LifeEvent, LifeEventRequest, Retrospective, Run } from '../../core/models';
+import { Achievement, Game, GameMemory, LifeEvent, LifeEventRequest, Retrospective, Run, SavePoint } from '../../core/models';
 import { GameService } from '../../core/services/game.service';
 import { RunService } from '../../core/services/run.service';
+import { SavePointService } from '../../core/services/save-point.service';
+import { GameMemoryService } from '../../core/services/game-memory.service';
+import { AchievementService } from '../../core/services/achievement.service';
 import { LifeEventService } from '../../core/services/life-event.service';
 import { StatsService } from '../../core/services/stats.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -15,6 +18,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LifeEventFormComponent } from '../life-events/components/life-event-form/life-event-form.component';
+import { LibraryRun, LibraryTimelineChartComponent } from './components/library-timeline-chart/library-timeline-chart.component';
 
 interface TimelineEntry {
   key: string;
@@ -39,7 +43,7 @@ function formatDate(isoDate: string): string {
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
+  imports: [GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent, LibraryTimelineChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './timeline.page.html',
   styleUrl: './timeline.page.scss',
@@ -47,6 +51,9 @@ function formatDate(isoDate: string): string {
 export class TimelinePage {
   private readonly gameService = inject(GameService);
   private readonly runService = inject(RunService);
+  private readonly savePointService = inject(SavePointService);
+  private readonly memoryService = inject(GameMemoryService);
+  private readonly achievementService = inject(AchievementService);
   private readonly lifeEventService = inject(LifeEventService);
   private readonly statsService = inject(StatsService);
   private readonly toast = inject(ToastService);
@@ -70,6 +77,11 @@ export class TimelinePage {
   protected readonly lifeEventToDelete = signal<LifeEvent | null>(null);
 
   protected readonly lifeEventCategoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
+
+  protected readonly libraryRuns = signal<LibraryRun[]>([]);
+  protected readonly librarySavePointsByRun = signal<Map<number, SavePoint[]>>(new Map());
+  protected readonly libraryMemoriesByRun = signal<Map<number, GameMemory[]>>(new Map());
+  protected readonly libraryAchievementsByRun = signal<Map<number, Achievement[]>>(new Map());
 
   constructor() {
     this.load();
@@ -101,12 +113,82 @@ export class TimelinePage {
         next: ({ games, runsByGameId, lifeEvents }) => {
           const groups = this.buildYearGroups(games, runsByGameId, lifeEvents);
           this.loadSummaries(groups);
+          this.loadLibraryTimeline(games, runsByGameId);
         },
         error: () => {
           this.error.set(true);
           this.loading.set(false);
         },
       });
+  }
+
+  private loadLibraryTimeline(games: Game[], runsByGameId: Map<number, Run[]>): void {
+    const gameTitleById = new Map(games.map((game) => [game.id, game.title]));
+    const libraryRuns: LibraryRun[] = [];
+    for (const runs of runsByGameId.values()) {
+      for (const run of runs) {
+        libraryRuns.push({ ...run, gameTitle: gameTitleById.get(run.gameId) ?? '' });
+      }
+    }
+    this.libraryRuns.set(libraryRuns);
+
+    if (libraryRuns.length === 0) {
+      this.librarySavePointsByRun.set(new Map());
+      this.libraryMemoriesByRun.set(new Map());
+      this.libraryAchievementsByRun.set(new Map());
+      return;
+    }
+
+    forkJoin(
+      libraryRuns.map((run) => this.savePointService.getByRun(run.id).pipe(catchError(() => of<SavePoint[]>([])))),
+    ).subscribe((savePointsList) => {
+      const map = new Map<number, SavePoint[]>();
+      libraryRuns.forEach((run, index) => map.set(run.id, savePointsList[index]));
+      this.librarySavePointsByRun.set(map);
+    });
+
+    // Memórias e conquistas não pertencem a uma run — jogamos elas na primeira run (por data de início) de cada jogo.
+    const firstRunIdByGameId = new Map<number, number>();
+    for (const [gameId, runs] of runsByGameId.entries()) {
+      const firstRun = [...runs].sort((a, b) => {
+        if (a.startDate && b.startDate) return a.startDate.localeCompare(b.startDate);
+        if (a.startDate) return -1;
+        if (b.startDate) return 1;
+        return a.id - b.id;
+      })[0];
+      if (firstRun) {
+        firstRunIdByGameId.set(gameId, firstRun.id);
+      }
+    }
+
+    const gamesWithRuns = games.filter((game) => firstRunIdByGameId.has(game.id));
+    if (gamesWithRuns.length === 0) {
+      this.libraryMemoriesByRun.set(new Map());
+      this.libraryAchievementsByRun.set(new Map());
+      return;
+    }
+
+    forkJoin(
+      gamesWithRuns.map((game) => this.memoryService.getByGame(game.id).pipe(catchError(() => of<GameMemory[]>([])))),
+    ).subscribe((memoriesList) => {
+      const map = new Map<number, GameMemory[]>();
+      gamesWithRuns.forEach((game, index) => {
+        const runId = firstRunIdByGameId.get(game.id)!;
+        map.set(runId, [...(map.get(runId) ?? []), ...memoriesList[index]]);
+      });
+      this.libraryMemoriesByRun.set(map);
+    });
+
+    forkJoin(
+      gamesWithRuns.map((game) => this.achievementService.getByGame(game.id).pipe(catchError(() => of<Achievement[]>([])))),
+    ).subscribe((achievementsList) => {
+      const map = new Map<number, Achievement[]>();
+      gamesWithRuns.forEach((game, index) => {
+        const runId = firstRunIdByGameId.get(game.id)!;
+        map.set(runId, [...(map.get(runId) ?? []), ...achievementsList[index]]);
+      });
+      this.libraryAchievementsByRun.set(map);
+    });
   }
 
   private loadSummaries(groups: TimelineYearGroup[]): void {

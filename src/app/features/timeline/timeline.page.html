@@ -61,9 +61,7 @@
           }
 
           @if (showMoments() && group.lifeEvents.length > 0) {
-            <ul class="life-event-list">
-              @for (lifeEvent of group.lifeEvents; track lifeEvent.id) {
-                <li class="life-event-item">
+            <ul class="life-event-list">@for (lifeEvent of group.lifeEvents; track lifeEvent.id) {<li class="life-event-item">
                   <app-icon name="calendar" [size]="14" />
                   <div class="life-event-body">
                     <strong>{{ lifeEvent.title }}</strong>
@@ -77,9 +75,7 @@
                       <app-icon name="trash" [size]="12" />
                     </button>
                   </div>
-                </li>
-              }
-            </ul>
+                </li>}</ul>
           }
 
           @if (group.entries.length > 0) {
@@ -95,6 +91,19 @@
             </div>
           }
         }
+      </section>
+    }
+
+    @if (libraryRuns().length > 0) {
+      <section class="section library-timeline-section">
+        <h2 class="section-title">Linha do Tempo Geral</h2>
+        <p class="field-hint">Todas as runs da sua biblioteca, juntas em um só gráfico.</p>
+        <app-library-timeline-chart
+          [runs]="libraryRuns()"
+          [savePointsByRun]="librarySavePointsByRun()"
+          [memoriesByRun]="libraryMemoriesByRun()"
+          [achievementsByRun]="libraryAchievementsByRun()"
+        />
       </section>
     }
   }

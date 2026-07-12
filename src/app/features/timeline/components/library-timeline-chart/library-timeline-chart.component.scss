@@ -1,17 +1,17 @@
-.timeline-chart {
+.library-timeline-chart {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.timeline-axis {
+.library-timeline-axis {
   position: relative;
   height: 20px;
-  margin-left: 140px;
+  margin-left: 220px;
   border-bottom: 1px solid var(--border);
 }
 
-.timeline-axis-tick {
+.library-timeline-axis-tick {
   position: absolute;
   transform: translateX(-50%);
   font-size: 11px;
@@ -19,22 +19,25 @@
   white-space: nowrap;
 }
 
-.timeline-rows {
+.library-timeline-rows {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  max-height: 640px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.timeline-row {
+.library-timeline-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.timeline-row-label {
-  width: 128px;
+.library-timeline-row-label {
+  width: 208px;
   flex-shrink: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   overflow: hidden;
@@ -42,24 +45,24 @@
   white-space: nowrap;
 }
 
-.timeline-row-track {
+.library-timeline-row-track {
   position: relative;
   flex: 1;
-  height: 22px;
+  height: 20px;
   background: var(--bg-elevated-2);
   border-radius: var(--radius-sm);
 }
 
-.timeline-bar {
+.library-timeline-bar {
   position: absolute;
-  top: 5px;
+  top: 4px;
   height: 12px;
   min-width: 6px;
   border-radius: 999px;
   background: var(--accent);
 }
 
-.timeline-marker {
+.library-timeline-marker {
   position: absolute;
   top: 50%;
   width: 10px;
@@ -75,7 +78,7 @@
   }
 }
 
-.timeline-marker-savepoint {
+.library-timeline-marker-savepoint {
   background: var(--accent-strong);
   transform: translate(-50%, -50%) rotate(45deg);
 
@@ -84,27 +87,24 @@
   }
 }
 
-.timeline-marker-memory {
+.library-timeline-marker-memory {
   background: var(--info);
   border-radius: 50%;
 }
 
-.timeline-marker-achievement {
+.library-timeline-marker-achievement {
   background: var(--success);
   border-radius: 2px;
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
-.timeline-marker-cluster {
+.library-timeline-marker-cluster {
   width: 16px;
   height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-width: 2px;
 }
 
-.timeline-marker-count {
+.library-timeline-marker-count {
   position: absolute;
   inset: 0;
   display: flex;
@@ -116,33 +116,33 @@
   color: var(--bg-base);
 }
 
-.timeline-marker-memory .timeline-marker-count,
-.timeline-marker-achievement .timeline-marker-count {
+.library-timeline-marker-memory .library-timeline-marker-count,
+.library-timeline-marker-achievement .library-timeline-marker-count {
   transform: none;
 }
 
-.timeline-marker-active {
+.library-timeline-marker-active {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.timeline-detail {
+.library-timeline-detail {
   padding: 14px 16px;
   background: var(--bg-elevated-2);
   border: 1px solid var(--accent);
   border-radius: var(--radius-md);
 }
 
-.timeline-detail-header {
+.library-timeline-detail-header {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.timeline-detail-close {
+.library-timeline-detail-close {
   margin-left: auto;
 }
 
-.timeline-detail-list {
+.library-timeline-detail-list {
   list-style: none;
   margin: 12px 0 0;
   padding: 0;
@@ -151,7 +151,7 @@
   gap: 10px;
 }
 
-.timeline-detail-item {
+.library-timeline-detail-item {
   padding-top: 10px;
   border-top: 1px solid var(--border);
 
@@ -161,7 +161,7 @@
   }
 }
 
-.timeline-detail-item-header {
+.library-timeline-detail-item-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -169,47 +169,47 @@
   color: var(--text-muted);
 }
 
-.timeline-detail-description {
+.library-timeline-detail-description {
   margin-top: 8px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
-.timeline-legend {
+.library-timeline-legend {
   display: flex;
   gap: 20px;
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.timeline-legend-item {
+.library-timeline-legend-item {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.timeline-legend-swatch {
+.library-timeline-legend-swatch {
   display: inline-block;
   width: 12px;
   height: 12px;
 }
 
-.timeline-legend-swatch-bar {
+.library-timeline-legend-swatch-bar {
   border-radius: 999px;
   background: var(--accent);
 }
 
-.timeline-legend-swatch-savepoint {
+.library-timeline-legend-swatch-savepoint {
   background: var(--accent-strong);
   transform: rotate(45deg);
 }
 
-.timeline-legend-swatch-memory {
+.library-timeline-legend-swatch-memory {
   background: var(--info);
   border-radius: 50%;
 }
 
-.timeline-legend-swatch-achievement {
+.library-timeline-legend-swatch-achievement {
   background: var(--success);
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }

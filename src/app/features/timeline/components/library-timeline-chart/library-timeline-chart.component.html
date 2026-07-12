@@ -1,0 +1,87 @@
+@if (isEmpty()) {
+  <div class="empty-state">
+    <h3>Nenhuma data registrada ainda</h3>
+    <p>Preencha datas de início/fim nas runs, datas nos save points, memórias ou conquistas desbloqueadas para ver a linha do tempo geral.</p>
+  </div>
+} @else {
+  <div class="library-timeline-chart">
+    <div class="library-timeline-axis">
+      @for (tick of ticks(); track tick.time) {
+        <span class="library-timeline-axis-tick" [style.left.%]="tick.leftPercent">{{ tick.time | date: 'dd/MM/yy' }}</span>
+      }
+    </div>
+
+    <div class="library-timeline-rows">
+      @for (row of rows(); track row.key) {
+        <div class="library-timeline-row">
+          <span class="library-timeline-row-label" [title]="row.fullLabel">{{ row.label }}</span>
+          <div class="library-timeline-row-track">
+            @if (row.hasBar) {
+              <div
+                class="library-timeline-bar"
+                [style.left.%]="row.leftPercent"
+                [style.width.%]="row.widthPercent"
+                [title]="row.barLabel"
+                [attr.aria-label]="row.barLabel"
+              ></div>
+            }
+            @for (cluster of row.clusters; track cluster.key) {
+              <button
+                type="button"
+                class="library-timeline-marker"
+                [class.library-timeline-marker-savepoint]="cluster.items[0].kind === 'savepoint'"
+                [class.library-timeline-marker-memory]="cluster.items[0].kind === 'memory'"
+                [class.library-timeline-marker-achievement]="cluster.items[0].kind === 'achievement'"
+                [class.library-timeline-marker-cluster]="cluster.items.length > 1"
+                [class.library-timeline-marker-active]="selectedCluster()?.key === cluster.key"
+                [style.left.%]="cluster.leftPercent"
+                [title]="cluster.items.length > 1 ? cluster.items.length + ' itens nesta data' : cluster.items[0].title"
+                (click)="selectCluster(cluster)"
+              >
+                <span class="sr-only">{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</span>
+                @if (cluster.items.length > 1) {
+                  <span class="library-timeline-marker-count">{{ cluster.items.length }}</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="library-timeline-legend">
+      <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-bar"></span>Duração da run</span>
+      <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-savepoint"></span>SavePoint</span>
+      <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-memory"></span>Memória</span>
+      <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-achievement"></span>Conquista</span>
+      <span class="library-timeline-legend-item">Clique num marcador para ver detalhes — marcadores próximos se agrupam em um número</span>
+    </div>
+
+    @if (selectedCluster(); as cluster) {
+      <div class="library-timeline-detail">
+        <div class="library-timeline-detail-header">
+          <strong>{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</strong>
+          <button type="button" class="btn btn-icon btn-ghost library-timeline-detail-close" (click)="closeDetail()" aria-label="Fechar detalhe">
+            <app-icon name="close" [size]="12" />
+          </button>
+        </div>
+        <ul class="library-timeline-detail-list">@for (item of cluster.items; track item.id) {<li class="library-timeline-detail-item">
+              <div class="library-timeline-detail-item-header">
+                <app-icon
+                  [name]="item.kind === 'savepoint' ? 'save' : item.kind === 'memory' ? 'book' : 'trophy'"
+                  [size]="14"
+                />
+                @if (item.subtitle) {
+                  <span class="chip">{{ item.subtitle }}</span>
+                }
+                <strong>{{ item.title }}</strong>
+                <span class="field-hint">{{ item.date | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              @if (item.description) {
+                <p class="library-timeline-detail-description">{{ item.description }}</p>
+              }
+            </li>}</ul>
+      </div>
+    }
+  </div>
+}

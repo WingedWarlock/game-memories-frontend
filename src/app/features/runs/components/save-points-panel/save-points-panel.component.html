@@ -19,9 +19,7 @@
       <p>Registre os pontos importantes desta jogatina.</p>
     </div>
   } @else {
-    <ul class="save-point-list">
-      @for (sp of savePoints(); track sp.id) {
-        <li class="save-point-item">
+    <ul class="save-point-list">@for (sp of savePoints(); track sp.id) {<li class="save-point-item">
           <span class="chip">{{ sp.slot }}</span>
           <div class="save-point-info">
             <div class="save-point-title-row">
@@ -42,9 +40,7 @@
               <app-icon name="trash" [size]="14" />
             </button>
           </div>
-        </li>
-      }
-    </ul>
+        </li>}</ul>
   }
 </app-modal>
 

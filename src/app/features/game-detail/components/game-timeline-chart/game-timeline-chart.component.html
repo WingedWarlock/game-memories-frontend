@@ -1,7 +1,7 @@
 @if (isEmpty()) {
   <div class="empty-state">
     <h3>Nenhuma data registrada ainda</h3>
-    <p>Preencha datas de início/fim nas runs ou datas nos save points para ver a linha do tempo.</p>
+    <p>Preencha datas de início/fim nas runs, datas nos save points, memórias ou conquistas desbloqueadas para ver a linha do tempo.</p>
   </div>
 } @else {
   <div class="timeline-chart">
@@ -12,9 +12,9 @@
     </div>
 
     <div class="timeline-rows">
-      @for (row of rows(); track row.runId) {
+      @for (row of rows(); track row.key) {
         <div class="timeline-row">
-          <span class="timeline-row-label">{{ row.runName }}</span>
+          <span class="timeline-row-label">{{ row.label }}</span>
           <div class="timeline-row-track">
             @if (row.hasBar) {
               <div
@@ -25,16 +25,24 @@
                 [attr.aria-label]="row.barLabel"
               ></div>
             }
-            @for (marker of row.markers; track marker.id) {
+            @for (cluster of row.clusters; track cluster.key) {
               <button
                 type="button"
                 class="timeline-marker"
-                [class.timeline-marker-active]="selectedMarker()?.id === marker.id"
-                [style.left.%]="marker.leftPercent"
-                [title]="marker.label"
-                [attr.aria-label]="marker.label"
-                (click)="selectMarker(marker)"
-              ></button>
+                [class.timeline-marker-savepoint]="cluster.items[0].kind === 'savepoint'"
+                [class.timeline-marker-memory]="cluster.items[0].kind === 'memory'"
+                [class.timeline-marker-achievement]="cluster.items[0].kind === 'achievement'"
+                [class.timeline-marker-cluster]="cluster.items.length > 1"
+                [class.timeline-marker-active]="selectedCluster()?.key === cluster.key"
+                [style.left.%]="cluster.leftPercent"
+                [title]="cluster.items.length > 1 ? cluster.items.length + ' itens nesta data' : cluster.items[0].title"
+                (click)="selectCluster(cluster)"
+              >
+                <span class="sr-only">{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</span>
+                @if (cluster.items.length > 1) {
+                  <span class="timeline-marker-count">{{ cluster.items.length }}</span>
+                }
+              </button>
             }
           </div>
         </div>
@@ -43,22 +51,36 @@
 
     <div class="timeline-legend">
       <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-bar"></span>Duração da run</span>
-      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker"></span>SavePoint (clique para ver detalhes)</span>
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker timeline-legend-swatch-savepoint"></span>SavePoint</span>
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker timeline-legend-swatch-memory"></span>Memória</span>
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker timeline-legend-swatch-achievement"></span>Conquista</span>
+      <span class="timeline-legend-item">Clique num marcador para ver detalhes — marcadores próximos se agrupam em um número</span>
     </div>
 
-    @if (selectedMarker(); as marker) {
+    @if (selectedCluster(); as cluster) {
       <div class="timeline-detail">
         <div class="timeline-detail-header">
-          <span class="chip">{{ marker.savePoint.slot }}</span>
-          <strong>{{ marker.savePoint.title }}</strong>
-          <button type="button" class="btn btn-icon btn-ghost timeline-detail-close" (click)="selectedMarker.set(null)" aria-label="Fechar detalhe">
+          <strong>{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</strong>
+          <button type="button" class="btn btn-icon btn-ghost timeline-detail-close" (click)="closeDetail()" aria-label="Fechar detalhe">
             <app-icon name="close" [size]="12" />
           </button>
         </div>
-        <p class="field-hint">{{ marker.runName }} @if (marker.savePoint.date) { · {{ marker.savePoint.date | date: 'dd/MM/yyyy' }} }</p>
-        @if (marker.savePoint.description) {
-          <p class="timeline-detail-description">{{ marker.savePoint.description }}</p>
-        }
+        <ul class="timeline-detail-list">@for (item of cluster.items; track item.id) {<li class="timeline-detail-item">
+              <div class="timeline-detail-item-header">
+                <app-icon
+                  [name]="item.kind === 'savepoint' ? 'save' : item.kind === 'memory' ? 'book' : 'trophy'"
+                  [size]="14"
+                />
+                @if (item.subtitle) {
+                  <span class="chip">{{ item.subtitle }}</span>
+                }
+                <strong>{{ item.title }}</strong>
+                <span class="field-hint">{{ item.date | date: 'dd/MM/yyyy' }}</span>
+              </div>
+              @if (item.description) {
+                <p class="timeline-detail-description">{{ item.description }}</p>
+              }
+            </li>}</ul>
       </div>
     }
   </div>

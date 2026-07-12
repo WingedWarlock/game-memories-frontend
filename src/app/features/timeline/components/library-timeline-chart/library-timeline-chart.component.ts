@@ -10,9 +10,14 @@ import {
   parseTimelineDate,
 } from '../../../../core/utils/timeline-chart.util';
 
+export interface LibraryRun extends Run {
+  gameTitle: string;
+}
+
 interface TimelineRow {
   key: string;
   label: string;
+  fullLabel: string;
   hasBar: boolean;
   leftPercent: number;
   widthPercent: number;
@@ -26,18 +31,18 @@ interface TimelineTick {
 }
 
 @Component({
-  selector: 'app-game-timeline-chart',
+  selector: 'app-library-timeline-chart',
   standalone: true,
   imports: [DatePipe, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './game-timeline-chart.component.html',
-  styleUrl: './game-timeline-chart.component.scss',
+  templateUrl: './library-timeline-chart.component.html',
+  styleUrl: './library-timeline-chart.component.scss',
 })
-export class GameTimelineChartComponent {
-  readonly runs = input<Run[]>([]);
+export class LibraryTimelineChartComponent {
+  readonly runs = input<LibraryRun[]>([]);
   readonly savePointsByRun = input<Map<number, SavePoint[]>>(new Map());
-  readonly memories = input<GameMemory[]>([]);
-  readonly achievements = input<Achievement[]>([]);
+  readonly memoriesByRun = input<Map<number, GameMemory[]>>(new Map());
+  readonly achievementsByRun = input<Map<number, Achievement[]>>(new Map());
 
   protected readonly selectedCluster = signal<MarkerCluster | null>(null);
 
@@ -52,11 +57,15 @@ export class GameTimelineChartComponent {
         if (sp.date) times.push(parseTimelineDate(sp.date));
       }
     }
-    for (const memory of this.memories()) {
-      if (memory.memoryDate) times.push(parseTimelineDate(memory.memoryDate));
+    for (const memories of this.memoriesByRun().values()) {
+      for (const memory of memories) {
+        if (memory.memoryDate) times.push(parseTimelineDate(memory.memoryDate));
+      }
     }
-    for (const achievement of this.achievements()) {
-      if (achievement.unlocked && achievement.unlockedDate) times.push(parseTimelineDate(achievement.unlockedDate));
+    for (const achievements of this.achievementsByRun().values()) {
+      for (const achievement of achievements) {
+        if (achievement.unlocked && achievement.unlockedDate) times.push(parseTimelineDate(achievement.unlockedDate));
+      }
     }
     if (times.length === 0) {
       return null;
@@ -80,11 +89,13 @@ export class GameTimelineChartComponent {
     }
     const percent = (time: number) => ((time - domain.min) / (domain.max - domain.min)) * 100;
     const savePointsByRun = this.savePointsByRun();
+    const memoriesByRun = this.memoriesByRun();
+    const achievementsByRun = this.achievementsByRun();
 
-    const runRows = this.runs()
+    return this.runs()
       .map((run): TimelineRow & { sortKey: number } => {
         const savePoints = (savePointsByRun.get(run.id) ?? []).filter((sp) => !!sp.date);
-        const markerItems: TimelineMarkerItem[] = savePoints.map((sp) => ({
+        const savePointItems: TimelineMarkerItem[] = savePoints.map((sp) => ({
           id: `savepoint-${sp.id}`,
           kind: 'savepoint',
           leftPercent: percent(parseTimelineDate(sp.date!)),
@@ -93,6 +104,30 @@ export class GameTimelineChartComponent {
           description: sp.description,
           date: sp.date!,
         }));
+
+        const memories = (memoriesByRun.get(run.id) ?? []).filter((memory) => !!memory.memoryDate);
+        const memoryItems: TimelineMarkerItem[] = memories.map((memory) => ({
+          id: `memory-${memory.id}`,
+          kind: 'memory',
+          leftPercent: percent(parseTimelineDate(memory.memoryDate)),
+          title: memory.title,
+          description: memory.description,
+          date: memory.memoryDate,
+        }));
+
+        const achievements = (achievementsByRun.get(run.id) ?? []).filter(
+          (achievement) => achievement.unlocked && !!achievement.unlockedDate,
+        );
+        const achievementItems: TimelineMarkerItem[] = achievements.map((achievement) => ({
+          id: `achievement-${achievement.id}`,
+          kind: 'achievement',
+          leftPercent: percent(parseTimelineDate(achievement.unlockedDate!)),
+          title: achievement.title,
+          description: achievement.description,
+          date: achievement.unlockedDate!,
+        }));
+
+        const markerItems: TimelineMarkerItem[] = [...savePointItems, ...memoryItems, ...achievementItems];
 
         const startTime = run.startDate ? parseTimelineDate(run.startDate) : null;
         const endTime = run.endDate ? parseTimelineDate(run.endDate) : null;
@@ -106,9 +141,12 @@ export class GameTimelineChartComponent {
             ? `Fim: ${formatTimelineDate(run.endDate)}`
             : '';
 
+        const fullLabel = `${run.gameTitle} · ${run.runName}`;
+
         return {
           key: `run-${run.id}`,
-          label: run.runName,
+          label: fullLabel,
+          fullLabel,
           hasBar,
           leftPercent: left,
           widthPercent: Math.max(right - left, hasBar ? 0.8 : 0),
@@ -119,54 +157,6 @@ export class GameTimelineChartComponent {
       })
       .filter((row) => row.hasBar || row.clusters.length > 0)
       .sort((a, b) => a.sortKey - b.sortKey);
-
-    const memoryItems: TimelineMarkerItem[] = this.memories()
-      .filter((memory) => !!memory.memoryDate)
-      .map((memory) => ({
-        id: `memory-${memory.id}`,
-        kind: 'memory',
-        leftPercent: percent(parseTimelineDate(memory.memoryDate)),
-        title: memory.title,
-        description: memory.description,
-        date: memory.memoryDate,
-      }));
-
-    const achievementItems: TimelineMarkerItem[] = this.achievements()
-      .filter((achievement) => achievement.unlocked && !!achievement.unlockedDate)
-      .map((achievement) => ({
-        id: `achievement-${achievement.id}`,
-        kind: 'achievement',
-        leftPercent: percent(parseTimelineDate(achievement.unlockedDate!)),
-        title: achievement.title,
-        description: achievement.description,
-        date: achievement.unlockedDate!,
-      }));
-
-    const extraRows: TimelineRow[] = [];
-    if (memoryItems.length > 0) {
-      extraRows.push({
-        key: 'memories',
-        label: 'Memórias',
-        hasBar: false,
-        leftPercent: 0,
-        widthPercent: 0,
-        barLabel: '',
-        clusters: clusterMarkers(memoryItems),
-      });
-    }
-    if (achievementItems.length > 0) {
-      extraRows.push({
-        key: 'achievements',
-        label: 'Conquistas',
-        hasBar: false,
-        leftPercent: 0,
-        widthPercent: 0,
-        barLabel: '',
-        clusters: clusterMarkers(achievementItems),
-      });
-    }
-
-    return [...runRows, ...extraRows];
   });
 
   protected readonly ticks = computed<TimelineTick[]>(() => {
@@ -174,7 +164,7 @@ export class GameTimelineChartComponent {
     if (!domain) {
       return [];
     }
-    const tickCount = 5;
+    const tickCount = 6;
     const step = (domain.max - domain.min) / (tickCount - 1);
     return Array.from({ length: tickCount }, (_, index) => {
       const time = domain.min + step * index;
