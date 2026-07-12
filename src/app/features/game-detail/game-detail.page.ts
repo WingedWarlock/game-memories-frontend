@@ -1,8 +1,12 @@
-import { ChangeDetectionStrategy, Component, ElementRef, effect, inject, signal, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, effect, inject, signal, viewChildren } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 
 import {
+  Achievement,
+  AchievementRequest,
+  Dlc,
+  DlcRequest,
   Game,
   GameCover,
   GameMemory,
@@ -10,10 +14,14 @@ import {
   GameMusic,
   GameRequest,
   GameScreenshot,
+  Mod,
+  ModRequest,
   Run,
   RunRequest,
+  SavePoint,
 } from '../../core/models';
 import { GAME_STATUS_LABEL, GAME_STATUS_VARIANT } from '../../core/models/game-status.model';
+import { GAME_RATING_LABEL, GAME_RATING_VARIANT } from '../../core/models/game-rating.model';
 import { RUN_STATUS_LABEL, RUN_STATUS_VARIANT } from '../../core/models/run-status.model';
 import { MEMORY_TYPE_LABEL, MEMORY_TYPE_VARIANT } from '../../core/models/memory-type.model';
 import { GameService } from '../../core/services/game.service';
@@ -22,7 +30,13 @@ import { GameMemoryService } from '../../core/services/game-memory.service';
 import { GameCoverService } from '../../core/services/game-cover.service';
 import { GameScreenshotService } from '../../core/services/game-screenshot.service';
 import { GameMusicService } from '../../core/services/game-music.service';
+import { AchievementService } from '../../core/services/achievement.service';
+import { DlcService } from '../../core/services/dlc.service';
+import { ModService } from '../../core/services/mod.service';
+import { SavePointService } from '../../core/services/save-point.service';
 import { ToastService } from '../../core/services/toast.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -36,8 +50,29 @@ import { CoverCarouselComponent } from '../games/components/cover-carousel/cover
 import { RunFormComponent } from '../runs/components/run-form/run-form.component';
 import { SavePointsPanelComponent } from '../runs/components/save-points-panel/save-points-panel.component';
 import { MemoryFormComponent } from '../memories/components/memory-form/memory-form.component';
+import { AchievementFormComponent } from '../achievements/components/achievement-form/achievement-form.component';
+import { DlcFormComponent } from '../dlcs/components/dlc-form/dlc-form.component';
+import { ModFormComponent } from '../mods/components/mod-form/mod-form.component';
+import { GameTimelineChartComponent } from './components/game-timeline-chart/game-timeline-chart.component';
 
-const FUTURE_TABS = ['Conquistas', 'DLCs', 'Mods', 'Linha do Tempo', 'Estatísticas', 'Histórico'];
+interface SectionTab {
+  key: string;
+  label: string;
+}
+
+const SECTION_TABS: SectionTab[] = [
+  { key: 'info', label: 'Informações' },
+  { key: 'runs', label: 'Runs' },
+  { key: 'memories', label: 'Memories' },
+  { key: 'screenshots', label: 'Screenshots' },
+  { key: 'music', label: 'Músicas' },
+  { key: 'achievements', label: 'Conquistas' },
+  { key: 'dlcs', label: 'DLCs' },
+  { key: 'mods', label: 'Mods' },
+  { key: 'timeline', label: 'Linha do Tempo' },
+];
+
+const FUTURE_TABS = ['Estatísticas', 'Histórico'];
 
 @Component({
   selector: 'app-game-detail',
@@ -56,6 +91,10 @@ const FUTURE_TABS = ['Conquistas', 'DLCs', 'Mods', 'Linha do Tempo', 'Estatísti
     RunFormComponent,
     SavePointsPanelComponent,
     MemoryFormComponent,
+    AchievementFormComponent,
+    DlcFormComponent,
+    ModFormComponent,
+    GameTimelineChartComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-detail.page.html',
@@ -70,9 +109,17 @@ export class GameDetailPage {
   private readonly coverService = inject(GameCoverService);
   private readonly screenshotService = inject(GameScreenshotService);
   private readonly musicService = inject(GameMusicService);
+  private readonly achievementService = inject(AchievementService);
+  private readonly dlcService = inject(DlcService);
+  private readonly modService = inject(ModService);
+  private readonly savePointService = inject(SavePointService);
   private readonly toast = inject(ToastService);
 
   protected readonly futureTabs = FUTURE_TABS;
+  protected readonly sectionTabs = SECTION_TABS;
+
+  protected readonly visibleSections = signal<Set<string>>(new Set(SECTION_TABS.map((tab) => tab.key)));
+  protected readonly allSectionsSelected = computed(() => this.visibleSections().size === SECTION_TABS.length);
 
   protected readonly game = signal<Game | null>(null);
   protected readonly loadingGame = signal(true);
@@ -113,8 +160,30 @@ export class GameDetailPage {
   private readonly musicPlayers = viewChildren<ElementRef<HTMLAudioElement>>('musicPlayer');
   private hasAutoplayed = false;
 
+  protected readonly achievements = signal<Achievement[]>([]);
+  protected readonly loadingAchievements = signal(true);
+  protected readonly showAchievementModal = signal(false);
+  protected readonly editingAchievement = signal<Achievement | null>(null);
+  protected readonly achievementToDelete = signal<Achievement | null>(null);
+
+  protected readonly dlcs = signal<Dlc[]>([]);
+  protected readonly loadingDlcs = signal(true);
+  protected readonly showDlcModal = signal(false);
+  protected readonly editingDlc = signal<Dlc | null>(null);
+  protected readonly dlcToDelete = signal<Dlc | null>(null);
+
+  protected readonly mods = signal<Mod[]>([]);
+  protected readonly loadingMods = signal(true);
+  protected readonly showModModal = signal(false);
+  protected readonly editingMod = signal<Mod | null>(null);
+  protected readonly modToDelete = signal<Mod | null>(null);
+
+  protected readonly savePointsByRun = signal<Map<number, SavePoint[]>>(new Map());
+
   protected readonly gameStatusLabel = (status: Game['status']) => GAME_STATUS_LABEL[status];
   protected readonly gameStatusVariant = (status: Game['status']) => GAME_STATUS_VARIANT[status];
+  protected readonly gameRatingLabel = (rating: NonNullable<Game['rating']>) => GAME_RATING_LABEL[rating];
+  protected readonly gameRatingVariant = (rating: NonNullable<Game['rating']>) => GAME_RATING_VARIANT[rating];
   protected readonly runStatusLabel = (status: Run['status']) => RUN_STATUS_LABEL[status];
   protected readonly runStatusVariant = (status: Run['status']) => RUN_STATUS_VARIANT[status];
   protected readonly memoryTypeLabel = (type: GameMemory['type']) => MEMORY_TYPE_LABEL[type];
@@ -174,6 +243,9 @@ export class GameDetailPage {
     this.loadCovers(id);
     this.loadScreenshots(id);
     this.loadMusic(id);
+    this.loadAchievements(id);
+    this.loadDlcs(id);
+    this.loadMods(id);
   }
 
   private loadGame(id: number): void {
@@ -197,9 +269,24 @@ export class GameDetailPage {
       next: (runs) => {
         this.runs.set(runs);
         this.loadingRuns.set(false);
+        this.loadSavePointsForTimeline(runs);
       },
       error: () => this.loadingRuns.set(false),
     });
+  }
+
+  private loadSavePointsForTimeline(runs: Run[]): void {
+    if (runs.length === 0) {
+      this.savePointsByRun.set(new Map());
+      return;
+    }
+    forkJoin(runs.map((run) => this.savePointService.getByRun(run.id).pipe(catchError(() => of<SavePoint[]>([]))))).subscribe(
+      (savePointsList) => {
+        const map = new Map<number, SavePoint[]>();
+        runs.forEach((run, index) => map.set(run.id, savePointsList[index]));
+        this.savePointsByRun.set(map);
+      },
+    );
   }
 
   private loadMemories(id: number): void {
@@ -244,6 +331,59 @@ export class GameDetailPage {
       },
       error: () => this.loadingMusic.set(false),
     });
+  }
+
+  private loadAchievements(id: number): void {
+    this.loadingAchievements.set(true);
+    this.achievementService.getByGame(id).subscribe({
+      next: (achievements) => {
+        this.achievements.set(achievements);
+        this.loadingAchievements.set(false);
+      },
+      error: () => this.loadingAchievements.set(false),
+    });
+  }
+
+  private loadDlcs(id: number): void {
+    this.loadingDlcs.set(true);
+    this.dlcService.getByGame(id).subscribe({
+      next: (dlcs) => {
+        this.dlcs.set(dlcs);
+        this.loadingDlcs.set(false);
+      },
+      error: () => this.loadingDlcs.set(false),
+    });
+  }
+
+  private loadMods(id: number): void {
+    this.loadingMods.set(true);
+    this.modService.getByGame(id).subscribe({
+      next: (mods) => {
+        this.mods.set(mods);
+        this.loadingMods.set(false);
+      },
+      error: () => this.loadingMods.set(false),
+    });
+  }
+
+  // ---------- Filtro de abas ----------
+
+  isSectionVisible(key: string): boolean {
+    return this.visibleSections().has(key);
+  }
+
+  toggleSection(key: string): void {
+    const next = new Set(this.visibleSections());
+    if (next.has(key)) {
+      next.delete(key);
+    } else {
+      next.add(key);
+    }
+    this.visibleSections.set(next);
+  }
+
+  toggleAllSections(): void {
+    this.visibleSections.set(this.allSectionsSelected() ? new Set() : new Set(SECTION_TABS.map((tab) => tab.key)));
   }
 
   // ---------- Game ----------
@@ -357,6 +497,7 @@ export class GameDetailPage {
 
   closeSavePoints(): void {
     this.selectedRunForSavePoints.set(null);
+    this.loadSavePointsForTimeline(this.runs());
   }
 
   // ---------- Memories ----------
@@ -548,6 +689,185 @@ export class GameDetailPage {
       error: () => {
         this.musicToDelete.set(null);
         this.toast.error('Não foi possível remover a música.');
+      },
+    });
+  }
+
+  // ---------- Achievements ----------
+
+  openCreateAchievement(): void {
+    this.editingAchievement.set(null);
+    this.showAchievementModal.set(true);
+  }
+
+  openEditAchievement(achievement: Achievement): void {
+    this.editingAchievement.set(achievement);
+    this.showAchievementModal.set(true);
+  }
+
+  closeAchievementModal(): void {
+    this.showAchievementModal.set(false);
+    this.editingAchievement.set(null);
+  }
+
+  onAchievementSaved(payload: AchievementRequest): void {
+    const game = this.game();
+    const editing = this.editingAchievement();
+    if (!game) {
+      return;
+    }
+    const request = editing
+      ? this.achievementService.update(editing.id, payload)
+      : this.achievementService.create(game.id, payload);
+    request.subscribe({
+      next: () => {
+        this.closeAchievementModal();
+        this.loadAchievements(game.id);
+        this.toast.success(editing ? 'Conquista atualizada com sucesso.' : 'Conquista criada com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar a conquista.' : 'Não foi possível criar a conquista.');
+      },
+    });
+  }
+
+  requestDeleteAchievement(achievement: Achievement): void {
+    this.achievementToDelete.set(achievement);
+  }
+
+  confirmDeleteAchievement(): void {
+    const achievement = this.achievementToDelete();
+    const game = this.game();
+    if (!achievement || !game) {
+      return;
+    }
+    this.achievementService.delete(achievement.id).subscribe({
+      next: () => {
+        this.achievementToDelete.set(null);
+        this.loadAchievements(game.id);
+        this.toast.success('Conquista removida com sucesso.');
+      },
+      error: () => {
+        this.achievementToDelete.set(null);
+        this.toast.error('Não foi possível remover a conquista.');
+      },
+    });
+  }
+
+  // ---------- DLCs ----------
+
+  openCreateDlc(): void {
+    this.editingDlc.set(null);
+    this.showDlcModal.set(true);
+  }
+
+  openEditDlc(dlc: Dlc): void {
+    this.editingDlc.set(dlc);
+    this.showDlcModal.set(true);
+  }
+
+  closeDlcModal(): void {
+    this.showDlcModal.set(false);
+    this.editingDlc.set(null);
+  }
+
+  onDlcSaved(payload: DlcRequest): void {
+    const game = this.game();
+    const editing = this.editingDlc();
+    if (!game) {
+      return;
+    }
+    const request = editing ? this.dlcService.update(editing.id, payload) : this.dlcService.create(game.id, payload);
+    request.subscribe({
+      next: () => {
+        this.closeDlcModal();
+        this.loadDlcs(game.id);
+        this.toast.success(editing ? 'DLC atualizada com sucesso.' : 'DLC criada com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar a DLC.' : 'Não foi possível criar a DLC.');
+      },
+    });
+  }
+
+  requestDeleteDlc(dlc: Dlc): void {
+    this.dlcToDelete.set(dlc);
+  }
+
+  confirmDeleteDlc(): void {
+    const dlc = this.dlcToDelete();
+    const game = this.game();
+    if (!dlc || !game) {
+      return;
+    }
+    this.dlcService.delete(dlc.id).subscribe({
+      next: () => {
+        this.dlcToDelete.set(null);
+        this.loadDlcs(game.id);
+        this.toast.success('DLC removida com sucesso.');
+      },
+      error: () => {
+        this.dlcToDelete.set(null);
+        this.toast.error('Não foi possível remover a DLC.');
+      },
+    });
+  }
+
+  // ---------- Mods ----------
+
+  openCreateMod(): void {
+    this.editingMod.set(null);
+    this.showModModal.set(true);
+  }
+
+  openEditMod(mod: Mod): void {
+    this.editingMod.set(mod);
+    this.showModModal.set(true);
+  }
+
+  closeModModal(): void {
+    this.showModModal.set(false);
+    this.editingMod.set(null);
+  }
+
+  onModSaved(payload: ModRequest): void {
+    const game = this.game();
+    const editing = this.editingMod();
+    if (!game) {
+      return;
+    }
+    const request = editing ? this.modService.update(editing.id, payload) : this.modService.create(game.id, payload);
+    request.subscribe({
+      next: () => {
+        this.closeModModal();
+        this.loadMods(game.id);
+        this.toast.success(editing ? 'Mod atualizado com sucesso.' : 'Mod criado com sucesso.');
+      },
+      error: () => {
+        this.toast.error(editing ? 'Não foi possível atualizar o mod.' : 'Não foi possível criar o mod.');
+      },
+    });
+  }
+
+  requestDeleteMod(mod: Mod): void {
+    this.modToDelete.set(mod);
+  }
+
+  confirmDeleteMod(): void {
+    const mod = this.modToDelete();
+    const game = this.game();
+    if (!mod || !game) {
+      return;
+    }
+    this.modService.delete(mod.id).subscribe({
+      next: () => {
+        this.modToDelete.set(null);
+        this.loadMods(game.id);
+        this.toast.success('Mod removido com sucesso.');
+      },
+      error: () => {
+        this.modToDelete.set(null);
+        this.toast.error('Não foi possível remover o mod.');
       },
     });
   }

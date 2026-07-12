@@ -1,42 +1,42 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SavePoint, SavePointRequest } from '../../../../core/models';
+import { Dlc, DlcRequest } from '../../../../core/models';
 
 @Component({
-  selector: 'app-save-point-form',
+  selector: 'app-dlc-form',
   standalone: true,
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './save-point-form.component.html',
+  templateUrl: './dlc-form.component.html',
 })
-export class SavePointFormComponent {
+export class DlcFormComponent {
   private readonly fb = inject(FormBuilder);
 
-  readonly savePoint = input<SavePoint | null>(null);
-  readonly saved = output<SavePointRequest>();
+  readonly dlc = input<Dlc | null>(null);
+  readonly saved = output<DlcRequest>();
   readonly cancelled = output<void>();
 
-  protected readonly isEditMode = computed(() => !!this.savePoint());
+  protected readonly isEditMode = computed(() => !!this.dlc());
 
   protected readonly form = this.fb.nonNullable.group({
-    slot: ['', Validators.required],
     title: ['', Validators.required],
     description: [''],
-    date: [''],
+    completed: [false],
+    notes: [''],
   });
 
   constructor() {
     effect(() => {
-      const savePoint = this.savePoint();
-      if (savePoint) {
+      const dlc = this.dlc();
+      if (dlc) {
         this.form.patchValue({
-          slot: savePoint.slot,
-          title: savePoint.title,
-          description: savePoint.description ?? '',
-          date: savePoint.date ?? '',
+          title: dlc.title,
+          description: dlc.description ?? '',
+          completed: dlc.completed,
+          notes: dlc.notes ?? '',
         });
       } else {
-        this.form.reset({ slot: '', title: '', description: '', date: '' });
+        this.form.reset({ title: '', description: '', completed: false, notes: '' });
       }
     });
   }
@@ -49,10 +49,10 @@ export class SavePointFormComponent {
 
     const value = this.form.getRawValue();
     this.saved.emit({
-      slot: value.slot,
       title: value.title,
       description: value.description || undefined,
-      date: value.date || undefined,
+      completed: value.completed,
+      notes: value.notes || undefined,
     });
   }
 }

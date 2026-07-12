@@ -24,7 +24,12 @@
         <li class="save-point-item">
           <span class="chip">{{ sp.slot }}</span>
           <div class="save-point-info">
-            <strong>{{ sp.title }}</strong>
+            <div class="save-point-title-row">
+              <strong>{{ sp.title }}</strong>
+              @if (sp.date) {
+                <span class="field-hint">{{ sp.date | date: 'dd/MM/yyyy' }}</span>
+              }
+            </div>
             @if (sp.description) {
               <p>{{ sp.description }}</p>
             }

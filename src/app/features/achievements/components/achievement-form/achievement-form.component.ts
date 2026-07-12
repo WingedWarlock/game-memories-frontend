@@ -1,42 +1,42 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SavePoint, SavePointRequest } from '../../../../core/models';
+import { Achievement, AchievementRequest } from '../../../../core/models';
 
 @Component({
-  selector: 'app-save-point-form',
+  selector: 'app-achievement-form',
   standalone: true,
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './save-point-form.component.html',
+  templateUrl: './achievement-form.component.html',
 })
-export class SavePointFormComponent {
+export class AchievementFormComponent {
   private readonly fb = inject(FormBuilder);
 
-  readonly savePoint = input<SavePoint | null>(null);
-  readonly saved = output<SavePointRequest>();
+  readonly achievement = input<Achievement | null>(null);
+  readonly saved = output<AchievementRequest>();
   readonly cancelled = output<void>();
 
-  protected readonly isEditMode = computed(() => !!this.savePoint());
+  protected readonly isEditMode = computed(() => !!this.achievement());
 
   protected readonly form = this.fb.nonNullable.group({
-    slot: ['', Validators.required],
     title: ['', Validators.required],
     description: [''],
-    date: [''],
+    unlocked: [false],
+    unlockedDate: [''],
   });
 
   constructor() {
     effect(() => {
-      const savePoint = this.savePoint();
-      if (savePoint) {
+      const achievement = this.achievement();
+      if (achievement) {
         this.form.patchValue({
-          slot: savePoint.slot,
-          title: savePoint.title,
-          description: savePoint.description ?? '',
-          date: savePoint.date ?? '',
+          title: achievement.title,
+          description: achievement.description ?? '',
+          unlocked: achievement.unlocked,
+          unlockedDate: achievement.unlockedDate ?? '',
         });
       } else {
-        this.form.reset({ slot: '', title: '', description: '', date: '' });
+        this.form.reset({ title: '', description: '', unlocked: false, unlockedDate: '' });
       }
     });
   }
@@ -49,10 +49,10 @@ export class SavePointFormComponent {
 
     const value = this.form.getRawValue();
     this.saved.emit({
-      slot: value.slot,
       title: value.title,
       description: value.description || undefined,
-      date: value.date || undefined,
+      unlocked: value.unlocked,
+      unlockedDate: value.unlockedDate || undefined,
     });
   }
 }

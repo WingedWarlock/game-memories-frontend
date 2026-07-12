@@ -27,13 +27,27 @@
     </div>
   </div>
 
-  <div class="field">
-    <label for="game-status">Status *</label>
-    <select id="game-status" formControlName="status">
-      @for (option of statusOptions; track option.value) {
-        <option [value]="option.value">{{ option.label }}</option>
+  <div class="field-row">
+    <div class="field">
+      <label for="game-status">Status *</label>
+      <select id="game-status" formControlName="status">
+        @for (option of statusOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="field">
+      <label for="game-rating">O quanto eu gostei</label>
+      <select id="game-rating" formControlName="rating">
+        <option [value]="null">Sem avaliação</option>
+        @for (option of ratingOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+      @if (ratingHint()) {
+        <span class="field-hint">{{ ratingHint() }}</span>
       }
-    </select>
+    </div>
   </div>
 
   <div class="field">
@@ -49,6 +63,14 @@
   <div class="checkbox-field field">
     <input id="game-favorite" type="checkbox" formControlName="favorite" />
     <label for="game-favorite">Marcar como favorito</label>
+  </div>
+
+  <div class="checkbox-field field">
+    <input id="game-hundred-percent" type="checkbox" formControlName="myHundredPercent" />
+    <label for="game-hundred-percent">Meu 100%</label>
+    <span class="crown-icon" title="Meu 100%">
+      <app-icon name="crown" [size]="16" />
+    </span>
   </div>
 
   <div class="form-actions">

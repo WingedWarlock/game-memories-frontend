@@ -1,0 +1,34 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="mod-title">Título *</label>
+    <input id="mod-title" type="text" formControlName="title" placeholder="Ex: Randomizer" />
+    @if (form.controls.title.invalid && form.controls.title.touched) {
+      <span class="field-error">Informe o título do mod.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="mod-description">Descrição</label>
+    <textarea id="mod-description" formControlName="description" rows="3"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="mod-link">Link</label>
+    <input id="mod-link" type="url" formControlName="link" placeholder="Ex: https://nexusmods.com/..." />
+  </div>
+
+  <div class="field">
+    <label for="mod-notes">Anotações</label>
+    <textarea id="mod-notes" formControlName="notes" rows="3"></textarea>
+  </div>
+
+  <div class="checkbox-field field">
+    <input id="mod-active" type="checkbox" formControlName="active" />
+    <label for="mod-active">Ativo</label>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Criar Mod' }}</button>
+  </div>
+</form>

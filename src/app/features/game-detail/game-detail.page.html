@@ -13,16 +13,25 @@
     </div>
   } @else {
     <nav class="tabs">
-      <a class="tab" href="#info">Informações</a>
-      <a class="tab" href="#runs">Runs</a>
-      <a class="tab" href="#memories">Memories</a>
-      <a class="tab" href="#screenshots">Screenshots</a>
-      <a class="tab" href="#music">Músicas</a>
+      @for (tab of sectionTabs; track tab.key) {
+        <button
+          type="button"
+          class="tab"
+          [class.tab-active]="isSectionVisible(tab.key)"
+          (click)="toggleSection(tab.key)"
+        >
+          {{ tab.label }}
+        </button>
+      }
       @for (tabName of futureTabs; track tabName) {
         <span class="tab tab-disabled" [attr.title]="tabName + ' — em breve'">{{ tabName }}</span>
       }
+      <button type="button" class="tab tab-toggle-all" (click)="toggleAllSections()">
+        {{ allSectionsSelected() ? 'Limpar tudo' : 'Selecionar tudo' }}
+      </button>
     </nav>
 
+    @if (isSectionVisible('info')) {
     <section id="info" class="section game-info-section">
       <div class="game-info-cover-wrap">
         <div class="game-info-cover">
@@ -59,6 +68,11 @@
           <div class="section-title">
             <h2>{{ game()!.title }}</h2>
             <app-favorite-icon [favorite]="game()!.favorite" [size]="20" />
+            @if (game()!.myHundredPercent) {
+              <span class="crown-badge" title="Meu 100%">
+                <app-icon name="crown" [size]="20" />
+              </span>
+            }
           </div>
           <div class="section-actions">
             <button type="button" class="btn btn-secondary btn-sm" (click)="openEditGame()">
@@ -78,6 +92,9 @@
 
         <div class="game-info-meta">
           <app-status-badge [label]="gameStatusLabel(game()!.status)" [variant]="gameStatusVariant(game()!.status)" />
+          @if (game()!.rating) {
+            <app-status-badge [label]="gameRatingLabel(game()!.rating!)" [variant]="gameRatingVariant(game()!.rating!)" />
+          }
           <span class="chip">{{ game()!.platform }}</span>
           @if (game()!.genre) {
             <span class="chip">{{ game()!.genre }}</span>
@@ -96,7 +113,9 @@
         }
       </div>
     </section>
+    }
 
+    @if (isSectionVisible('runs')) {
     <section id="runs" class="section">
       <div class="section-header">
         <h2 class="section-title">Runs</h2>
@@ -157,7 +176,9 @@
         </ul>
       }
     </section>
+    }
 
+    @if (isSectionVisible('memories')) {
     <section id="memories" class="section">
       <div class="section-header">
         <h2 class="section-title">Memories</h2>
@@ -201,7 +222,9 @@
         </ul>
       }
     </section>
+    }
 
+    @if (isSectionVisible('screenshots')) {
     <section id="screenshots" class="section">
       <div class="section-header">
         <h2 class="section-title">Screenshots</h2>
@@ -235,7 +258,9 @@
         </div>
       }
     </section>
+    }
 
+    @if (isSectionVisible('music')) {
     <section id="music" class="section">
       <div class="section-header">
         <h2 class="section-title">Músicas</h2>
@@ -273,6 +298,179 @@
         </ul>
       }
     </section>
+    }
+
+    @if (isSectionVisible('achievements')) {
+    <section id="achievements" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Conquistas</h2>
+        <div class="section-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateAchievement()">
+            <app-icon name="plus" [size]="14" />
+            Nova Conquista
+          </button>
+        </div>
+      </div>
+
+      @if (loadingAchievements()) {
+        <p class="loading-state">Carregando conquistas...</p>
+      } @else if (achievements().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhuma conquista registrada</h3>
+          <p>Acompanhe as conquistas que você já desbloqueou neste jogo.</p>
+        </div>
+      } @else {
+        <ul class="memory-list">
+          @for (achievement of achievements(); track achievement.id) {
+            <li class="memory-item">
+              <div class="memory-item-header">
+                <strong>{{ achievement.title }}</strong>
+                <app-status-badge
+                  [label]="achievement.unlocked ? 'Desbloqueada' : 'Bloqueada'"
+                  [variant]="achievement.unlocked ? 'success' : 'neutral'"
+                />
+              </div>
+              @if (achievement.description) {
+                <p class="memory-item-description">{{ achievement.description }}</p>
+              }
+              <div class="memory-item-footer">
+                <span class="field-hint">
+                  @if (achievement.unlockedDate) {
+                    {{ achievement.unlockedDate | date: 'dd/MM/yyyy' }}
+                  }
+                </span>
+                <div class="memory-item-actions">
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="openEditAchievement(achievement)" aria-label="Editar conquista">
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteAchievement(achievement)" aria-label="Remover conquista">
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+    }
+
+    @if (isSectionVisible('dlcs')) {
+    <section id="dlcs" class="section">
+      <div class="section-header">
+        <h2 class="section-title">DLCs</h2>
+        <div class="section-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateDlc()">
+            <app-icon name="plus" [size]="14" />
+            Nova DLC
+          </button>
+        </div>
+      </div>
+
+      @if (loadingDlcs()) {
+        <p class="loading-state">Carregando DLCs...</p>
+      } @else if (dlcs().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhuma DLC registrada</h3>
+          <p>Cadastre as expansões e conteúdos extras deste jogo.</p>
+        </div>
+      } @else {
+        <ul class="memory-list">
+          @for (dlc of dlcs(); track dlc.id) {
+            <li class="memory-item">
+              <div class="memory-item-header">
+                <strong>{{ dlc.title }}</strong>
+                <app-status-badge
+                  [label]="dlc.completed ? 'Concluída' : 'Pendente'"
+                  [variant]="dlc.completed ? 'success' : 'neutral'"
+                />
+              </div>
+              @if (dlc.description) {
+                <p class="memory-item-description">{{ dlc.description }}</p>
+              }
+              @if (dlc.notes) {
+                <p class="field-hint">{{ dlc.notes }}</p>
+              }
+              <div class="memory-item-footer">
+                <span></span>
+                <div class="memory-item-actions">
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="openEditDlc(dlc)" aria-label="Editar DLC">
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteDlc(dlc)" aria-label="Remover DLC">
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+    }
+
+    @if (isSectionVisible('mods')) {
+    <section id="mods" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Mods</h2>
+        <div class="section-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="openCreateMod()">
+            <app-icon name="plus" [size]="14" />
+            Novo Mod
+          </button>
+        </div>
+      </div>
+
+      @if (loadingMods()) {
+        <p class="loading-state">Carregando mods...</p>
+      } @else if (mods().length === 0) {
+        <div class="empty-state">
+          <h3>Nenhum mod registrado</h3>
+          <p>Guarde os mods que você usa ou já usou neste jogo.</p>
+        </div>
+      } @else {
+        <ul class="memory-list">
+          @for (mod of mods(); track mod.id) {
+            <li class="memory-item">
+              <div class="memory-item-header">
+                <strong>{{ mod.title }}</strong>
+                <app-status-badge [label]="mod.active ? 'Ativo' : 'Inativo'" [variant]="mod.active ? 'success' : 'neutral'" />
+              </div>
+              @if (mod.description) {
+                <p class="memory-item-description">{{ mod.description }}</p>
+              }
+              @if (mod.link) {
+                <a class="chip" [href]="mod.link" target="_blank" rel="noopener">{{ mod.link }}</a>
+              }
+              @if (mod.notes) {
+                <p class="field-hint">{{ mod.notes }}</p>
+              }
+              <div class="memory-item-footer">
+                <span></span>
+                <div class="memory-item-actions">
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="openEditMod(mod)" aria-label="Editar mod">
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="requestDeleteMod(mod)" aria-label="Remover mod">
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+    }
+
+    @if (isSectionVisible('timeline')) {
+    <section id="timeline" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Linha do Tempo</h2>
+      </div>
+      <app-game-timeline-chart [runs]="runs()" [savePointsByRun]="savePointsByRun()" />
+    </section>
+    }
   }
 </div>
 
@@ -357,4 +555,46 @@
   [danger]="true"
   (confirmed)="confirmDeleteMusic()"
   (cancelled)="musicToDelete.set(null)"
+/>
+
+<app-modal [open]="showAchievementModal()" [title]="editingAchievement() ? 'Editar Conquista' : 'Nova Conquista'" (closed)="closeAchievementModal()">
+  <app-achievement-form [achievement]="editingAchievement()" (saved)="onAchievementSaved($event)" (cancelled)="closeAchievementModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!achievementToDelete()"
+  title="Remover Conquista"
+  [message]="'Tem certeza que deseja remover a conquista \'' + (achievementToDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteAchievement()"
+  (cancelled)="achievementToDelete.set(null)"
+/>
+
+<app-modal [open]="showDlcModal()" [title]="editingDlc() ? 'Editar DLC' : 'Nova DLC'" (closed)="closeDlcModal()">
+  <app-dlc-form [dlc]="editingDlc()" (saved)="onDlcSaved($event)" (cancelled)="closeDlcModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!dlcToDelete()"
+  title="Remover DLC"
+  [message]="'Tem certeza que deseja remover a DLC \'' + (dlcToDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteDlc()"
+  (cancelled)="dlcToDelete.set(null)"
+/>
+
+<app-modal [open]="showModModal()" [title]="editingMod() ? 'Editar Mod' : 'Novo Mod'" (closed)="closeModModal()">
+  <app-mod-form [mod]="editingMod()" (saved)="onModSaved($event)" (cancelled)="closeModModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!modToDelete()"
+  title="Remover Mod"
+  [message]="'Tem certeza que deseja remover o mod \'' + (modToDelete()?.title ?? '') + '\'?'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDeleteMod()"
+  (cancelled)="modToDelete.set(null)"
 />

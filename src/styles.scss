@@ -300,6 +300,15 @@ textarea {
     color: var(--text-primary);
     font-weight: 500;
   }
+
+  .crown-icon {
+    display: none;
+    color: var(--accent-strong);
+  }
+
+  &:has(input:checked) .crown-icon {
+    display: inline-flex;
+  }
 }
 
 .form-actions {

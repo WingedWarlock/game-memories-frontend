@@ -1,5 +1,6 @@
 export * from './game.model';
 export * from './game-status.model';
+export * from './game-rating.model';
 export * from './run.model';
 export * from './run-status.model';
 export * from './save-point.model';
@@ -8,3 +9,6 @@ export * from './memory-type.model';
 export * from './game-cover.model';
 export * from './game-screenshot.model';
 export * from './game-music.model';
+export * from './achievement.model';
+export * from './dlc.model';
+export * from './mod.model';

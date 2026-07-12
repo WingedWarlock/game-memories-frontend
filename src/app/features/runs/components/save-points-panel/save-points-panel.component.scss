@@ -28,6 +28,12 @@
 .save-point-info {
   flex: 1;
 
+  .save-point-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
   p {
     margin-top: 4px;
     font-size: 13px;

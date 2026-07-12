@@ -1,0 +1,35 @@
+@if (isEmpty()) {
+  <div class="empty-state">
+    <h3>Nenhuma data registrada ainda</h3>
+    <p>Preencha datas de início/fim nas runs ou datas nos save points para ver a linha do tempo.</p>
+  </div>
+} @else {
+  <div class="timeline-chart">
+    <div class="timeline-axis">
+      @for (tick of ticks(); track tick.time) {
+        <span class="timeline-axis-tick" [style.left.%]="tick.leftPercent">{{ tick.time | date: 'dd/MM/yy' }}</span>
+      }
+    </div>
+
+    <div class="timeline-rows">
+      @for (row of rows(); track row.runId) {
+        <div class="timeline-row">
+          <span class="timeline-row-label">{{ row.runName }}</span>
+          <div class="timeline-row-track">
+            @if (row.hasBar) {
+              <div class="timeline-bar" [style.left.%]="row.leftPercent" [style.width.%]="row.widthPercent"></div>
+            }
+            @for (marker of row.markers; track marker.id) {
+              <span class="timeline-marker" [style.left.%]="marker.leftPercent" [title]="marker.label"></span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="timeline-legend">
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-bar"></span>Duração da run</span>
+      <span class="timeline-legend-item"><span class="timeline-legend-swatch timeline-legend-swatch-marker"></span>SavePoint</span>
+    </div>
+  </div>
+}

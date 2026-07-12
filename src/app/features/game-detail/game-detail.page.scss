@@ -1,3 +1,19 @@
+.crown-badge {
+  display: inline-flex;
+  color: var(--accent-strong);
+}
+
+.tab {
+  cursor: pointer;
+  appearance: none;
+  font-family: inherit;
+}
+
+.tab-toggle-all {
+  margin-left: auto;
+  border-color: var(--border);
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;

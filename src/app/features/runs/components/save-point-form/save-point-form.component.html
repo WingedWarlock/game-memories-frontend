@@ -21,6 +21,11 @@
     <textarea id="sp-description" formControlName="description" rows="3"></textarea>
   </div>
 
+  <div class="field">
+    <label for="sp-date">Data (opcional)</label>
+    <input id="sp-date" type="date" formControlName="date" />
+  </div>
+
   <div class="form-actions">
     <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
     <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Adicionar SavePoint' }}</button>

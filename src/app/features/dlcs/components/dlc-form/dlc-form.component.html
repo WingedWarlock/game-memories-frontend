@@ -1,0 +1,29 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="dlc-title">Título *</label>
+    <input id="dlc-title" type="text" formControlName="title" placeholder="Ex: Rebirth" />
+    @if (form.controls.title.invalid && form.controls.title.touched) {
+      <span class="field-error">Informe o título da DLC.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="dlc-description">Descrição</label>
+    <textarea id="dlc-description" formControlName="description" rows="3"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="dlc-notes">Anotações</label>
+    <textarea id="dlc-notes" formControlName="notes" rows="3"></textarea>
+  </div>
+
+  <div class="checkbox-field field">
+    <input id="dlc-completed" type="checkbox" formControlName="completed" />
+    <label for="dlc-completed">Concluída</label>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Criar DLC' }}</button>
+  </div>
+</form>

@@ -12,7 +12,8 @@ export type IconName =
   | 'save'
   | 'book'
   | 'check'
-  | 'alert';
+  | 'alert'
+  | 'crown';
 
 @Component({
   selector: 'app-icon',
@@ -86,6 +87,9 @@ export type IconName =
           <circle cx="12" cy="12" r="10" />
           <path d="M12 8v5" />
           <path d="M12 16h.01" />
+        }
+        @case ('crown') {
+          <path d="M4 19L2 9l6 4 4-8 4 8 6-4-2 10z" fill="currentColor" stroke-linejoin="round" />
         }
       }
     </svg>

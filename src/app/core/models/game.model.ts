@@ -1,4 +1,5 @@
 import { GameStatus } from './game-status.model';
+import { GameRating } from './game-rating.model';
 
 export interface Game {
   id: number;
@@ -10,6 +11,8 @@ export interface Game {
   favorite: boolean;
   description?: string;
   notes?: string;
+  rating?: GameRating;
+  myHundredPercent: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

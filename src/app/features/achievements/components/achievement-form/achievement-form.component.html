@@ -1,0 +1,30 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="field">
+    <label for="ach-title">Título *</label>
+    <input id="ach-title" type="text" formControlName="title" placeholder="Ex: Derrote o chefão final" />
+    @if (form.controls.title.invalid && form.controls.title.touched) {
+      <span class="field-error">Informe o título da conquista.</span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="ach-description">Descrição</label>
+    <textarea id="ach-description" formControlName="description" rows="3"></textarea>
+  </div>
+
+  <div class="field-row">
+    <div class="checkbox-field field">
+      <input id="ach-unlocked" type="checkbox" formControlName="unlocked" />
+      <label for="ach-unlocked">Desbloqueada</label>
+    </div>
+    <div class="field">
+      <label for="ach-unlocked-date">Data (opcional)</label>
+      <input id="ach-unlocked-date" type="date" formControlName="unlockedDate" />
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" (click)="cancelled.emit()">Cancelar</button>
+    <button type="submit" class="btn btn-primary">{{ isEditMode() ? 'Salvar alterações' : 'Criar Conquista' }}</button>
+  </div>
+</form>
