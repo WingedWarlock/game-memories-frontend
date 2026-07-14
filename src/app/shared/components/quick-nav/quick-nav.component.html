@@ -1,0 +1,9 @@
+@if (items().length > 0) {
+  <nav class="quick-nav" aria-label="Navegação rápida">
+    @for (item of items(); track item.id) {
+      <button type="button" class="quick-nav-item" [title]="item.label" (click)="scrollTo(item.id)">
+        {{ item.label }}
+      </button>
+    }
+  </nav>
+}

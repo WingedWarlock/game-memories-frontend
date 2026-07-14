@@ -54,6 +54,7 @@ import { AchievementFormComponent } from '../achievements/components/achievement
 import { DlcFormComponent } from '../dlcs/components/dlc-form/dlc-form.component';
 import { ModFormComponent } from '../mods/components/mod-form/mod-form.component';
 import { GameTimelineChartComponent } from './components/game-timeline-chart/game-timeline-chart.component';
+import { QuickNavComponent } from '../../shared/components/quick-nav/quick-nav.component';
 
 interface SectionTab {
   key: string;
@@ -93,6 +94,7 @@ const SECTION_TABS: SectionTab[] = [
     DlcFormComponent,
     ModFormComponent,
     GameTimelineChartComponent,
+    QuickNavComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './game-detail.page.html',
@@ -118,6 +120,9 @@ export class GameDetailPage {
 
   protected readonly visibleSections = signal<Set<string>>(new Set(SECTION_TABS.map((tab) => tab.key)));
   protected readonly allSectionsSelected = computed(() => this.visibleSections().size === SECTION_TABS.length);
+  protected readonly quickNavItems = computed(() =>
+    SECTION_TABS.filter((tab) => this.visibleSections().has(tab.key)).map((tab) => ({ id: tab.key, label: tab.label })),
+  );
 
   protected readonly game = signal<Game | null>(null);
   protected readonly loadingGame = signal(true);

@@ -20,6 +20,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LifeEventFormComponent } from '../life-events/components/life-event-form/life-event-form.component';
 import { LibraryRun, LibraryTimelineChartComponent } from './components/library-timeline-chart/library-timeline-chart.component';
+import { QuickNavComponent } from '../../shared/components/quick-nav/quick-nav.component';
 
 interface TimelineEntry {
   key: string;
@@ -44,7 +45,16 @@ function formatDate(isoDate: string): string {
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [NgFor, GameCardComponent, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent, LibraryTimelineChartComponent],
+  imports: [
+    NgFor,
+    GameCardComponent,
+    ModalComponent,
+    ConfirmDialogComponent,
+    IconComponent,
+    LifeEventFormComponent,
+    LibraryTimelineChartComponent,
+    QuickNavComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './timeline.page.html',
   styleUrl: './timeline.page.scss',
@@ -69,6 +79,14 @@ export class TimelinePage {
   protected readonly allYearsExpanded = computed(() => {
     const groups = this.yearGroups();
     return groups.length > 0 && groups.every((group) => this.expandedYears().has(group.year));
+  });
+
+  protected readonly quickNavItems = computed(() => {
+    const items = this.yearGroups().map((group) => ({ id: `year-${group.year}`, label: String(group.year) }));
+    if (this.libraryRuns().length > 0) {
+      items.push({ id: 'library-timeline', label: 'Geral' });
+    }
+    return items;
   });
 
   protected readonly showMoments = signal(true);
@@ -296,6 +314,18 @@ export class TimelinePage {
 
   toggleMoments(): void {
     this.showMoments.update((value) => !value);
+  }
+
+  onQuickNavBeforeScroll(id: string): void {
+    if (!id.startsWith('year-')) {
+      return;
+    }
+    const year = Number(id.slice('year-'.length));
+    if (!this.expandedYears().has(year)) {
+      const next = new Set(this.expandedYears());
+      next.add(year);
+      this.expandedYears.set(next);
+    }
   }
 
   // ---------- Momentos de vida ----------

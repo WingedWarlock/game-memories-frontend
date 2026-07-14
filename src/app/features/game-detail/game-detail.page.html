@@ -12,6 +12,7 @@
       <p>Verifique se o servidor está rodando ou volte para a biblioteca.</p>
     </div>
   } @else {
+    <app-quick-nav [items]="quickNavItems()" />
     <nav class="tabs">
       @for (tab of sectionTabs; track tab.key) {
         <button

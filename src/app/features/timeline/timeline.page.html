@@ -36,8 +36,9 @@
       <p>Marque jogos como "Jogando", conclua uma run, ou registre um momento de vida para eles aparecerem aqui.</p>
     </div>
   } @else {
+    <app-quick-nav [items]="quickNavItems()" (beforeScroll)="onQuickNavBeforeScroll($event)" />
     @for (group of yearGroups(); track group.year) {
-      <section class="timeline-year">
+      <section class="timeline-year" id="year-{{ group.year }}">
         <button type="button" class="timeline-year-toggle" (click)="toggleYear(group.year)">
           <app-icon name="chevron-right" [size]="18" [class.rotated]="isYearExpanded(group.year)" />
           <h2 class="timeline-year-heading">{{ group.year }}</h2>
@@ -97,7 +98,7 @@
     }
 
     @if (libraryRuns().length > 0) {
-      <section class="section library-timeline-section">
+      <section class="section library-timeline-section" id="library-timeline">
         <h2 class="section-title">Linha do Tempo Geral</h2>
         <p class="field-hint">Todas as runs da sua biblioteca, juntas em um só gráfico.</p>
         <app-library-timeline-chart
