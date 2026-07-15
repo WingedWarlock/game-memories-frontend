@@ -190,5 +190,50 @@
         }
       </div>
     </section>
+
+    @if (runsByYear().length > 0) {
+      <section class="section">
+        <h2 class="section-title">Runs</h2>
+        <div class="highlight-grid">
+          @if (fastestRun(); as r) {
+            <div class="highlight-card">
+              <span class="highlight-value">{{ r.days }} dia(s)</span>
+              <span class="highlight-label">Run mais rápida — {{ r.gameTitle }} ({{ r.runName }})</span>
+            </div>
+          }
+          @if (slowestRun(); as r) {
+            <div class="highlight-card">
+              <span class="highlight-value">{{ r.days }} dia(s)</span>
+              <span class="highlight-label">Run mais demorada — {{ r.gameTitle }} ({{ r.runName }})</span>
+            </div>
+          }
+        </div>
+
+        @for (group of runsByYear(); track group.year) {
+          <div class="run-year-group">
+            <h3 class="run-year-heading">{{ group.year }}</h3>
+            <div class="highlight-grid run-year-highlights">
+              <div class="highlight-card highlight-card-sm">
+                <span class="highlight-value">{{ group.fastest.days }} dia(s)</span>
+                <span class="highlight-label">Mais rápida — {{ group.fastest.gameTitle }} ({{ group.fastest.runName }})</span>
+              </div>
+              <div class="highlight-card highlight-card-sm">
+                <span class="highlight-value">{{ group.slowest.days }} dia(s)</span>
+                <span class="highlight-label">Mais demorada — {{ group.slowest.gameTitle }} ({{ group.slowest.runName }})</span>
+              </div>
+            </div>
+            <ul class="run-duration-list">
+              <li class="run-duration-item" *ngFor="let run of group.runs; trackBy: trackByRunKey">
+                  <div class="run-duration-info">
+                    <strong>{{ run.gameTitle }}</strong>
+                    <span class="field-hint">{{ run.runName }}</span>
+                  </div>
+                  <span class="run-duration-days">{{ run.days }} dia(s)</span>
+              </li>
+            </ul>
+          </div>
+        }
+      </section>
+    }
   }
 </div>

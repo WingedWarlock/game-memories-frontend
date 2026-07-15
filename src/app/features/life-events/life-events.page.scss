@@ -6,6 +6,19 @@
   flex-wrap: wrap;
 }
 
+.moments-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.toggle-all-years {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .moment-year {
   margin-bottom: 32px;
 }
@@ -35,6 +48,12 @@
   border-radius: var(--radius-md);
 }
 
+.moment-item-linked {
+  padding: 8px 12px;
+  background: transparent;
+  border-style: dashed;
+}
+
 .moment-item-icon {
   display: flex;
   align-items: center;
@@ -45,6 +64,13 @@
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent-strong);
+}
+
+.moment-item-icon-linked {
+  width: 24px;
+  height: 24px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
 }
 
 .moment-item-body {

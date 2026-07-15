@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { DatePipe, NgFor } from '@angular/common';
-import { Achievement, GameMemory, Run, SavePoint } from '../../../../core/models';
+import { Achievement, GameMemory, LifeEvent, Run, SavePoint } from '../../../../core/models';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import {
   MarkerCluster,
@@ -43,6 +43,7 @@ export class LibraryTimelineChartComponent {
   readonly savePointsByRun = input<Map<number, SavePoint[]>>(new Map());
   readonly memoriesByRun = input<Map<number, GameMemory[]>>(new Map());
   readonly achievementsByRun = input<Map<number, Achievement[]>>(new Map());
+  readonly lifeEvents = input<LifeEvent[]>([]);
 
   protected readonly selectedCluster = signal<MarkerCluster | null>(null);
   protected readonly trackByItemId = (_: number, item: TimelineMarkerItem) => item.id;
@@ -67,6 +68,9 @@ export class LibraryTimelineChartComponent {
       for (const achievement of achievements) {
         if (achievement.unlocked && achievement.unlockedDate) times.push(parseTimelineDate(achievement.unlockedDate));
       }
+    }
+    for (const lifeEvent of this.lifeEvents()) {
+      if (lifeEvent.date) times.push(parseTimelineDate(lifeEvent.date));
     }
     if (times.length === 0) {
       return null;
@@ -93,7 +97,7 @@ export class LibraryTimelineChartComponent {
     const memoriesByRun = this.memoriesByRun();
     const achievementsByRun = this.achievementsByRun();
 
-    return this.runs()
+    const runRows = this.runs()
       .map((run): TimelineRow & { sortKey: number } => {
         const savePoints = (savePointsByRun.get(run.id) ?? []).filter((sp) => !!sp.date);
         const savePointItems: TimelineMarkerItem[] = savePoints.map((sp) => ({
@@ -158,6 +162,34 @@ export class LibraryTimelineChartComponent {
       })
       .filter((row) => row.hasBar || row.clusters.length > 0)
       .sort((a, b) => a.sortKey - b.sortKey);
+
+    const lifeEventItems: TimelineMarkerItem[] = this.lifeEvents()
+      .filter((lifeEvent) => !!lifeEvent.date)
+      .map((lifeEvent) => ({
+        id: `life-event-${lifeEvent.id}`,
+        kind: 'life-event',
+        leftPercent: percent(parseTimelineDate(lifeEvent.date)),
+        title: lifeEvent.title,
+        description: lifeEvent.description,
+        date: lifeEvent.date,
+      }));
+
+    if (lifeEventItems.length === 0) {
+      return runRows;
+    }
+
+    const momentsRow: TimelineRow = {
+      key: 'moments',
+      label: 'Momentos',
+      fullLabel: 'Momentos de vida',
+      hasBar: false,
+      leftPercent: 0,
+      widthPercent: 0,
+      barLabel: '',
+      clusters: clusterMarkers(lifeEventItems),
+    };
+
+    return [...runRows, momentsRow];
   });
 
   protected readonly ticks = computed<TimelineTick[]>(() => {

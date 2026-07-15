@@ -1,0 +1,68 @@
+<div class="page-container">
+  <div class="page-header music-header-row">
+    <div>
+      <h1>Músicas</h1>
+      <p class="page-subtitle">
+        @if (totalTracks() > 0) {
+          {{ totalTracks() }} faixa(s) em {{ groups().length }} jogo(s).
+        } @else {
+          As trilhas sonoras da sua biblioteca, por jogo.
+        }
+      </p>
+    </div>
+    @if (groups().length > 0) {
+      <div class="music-view-toggle">
+        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode() === 'accordion'" [class.btn-secondary]="viewMode() !== 'accordion'" (click)="setViewMode('accordion')">
+          Por jogo
+        </button>
+        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode() === 'all'" [class.btn-secondary]="viewMode() !== 'all'" (click)="setViewMode('all')">
+          Todas juntas
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando músicas...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar as músicas</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (groups().length === 0) {
+    <div class="empty-state">
+      <h3>Nenhuma música cadastrada ainda</h3>
+      <p>Adicione trilhas na tela de cada jogo para elas aparecerem aqui.</p>
+    </div>
+  } @else {
+    <app-alphabet-nav [availableLetters]="availableLetters()" (letterClick)="scrollToLetter($event)" />
+    <ul class="music-game-list">
+      <li
+        class="music-game-group"
+        [id]="'music-game-' + group.game.id"
+        *ngFor="let group of groups(); trackBy: trackByGameId"
+      >
+          <button type="button" class="music-game-header" (click)="toggleGame(group.game.id)">
+            <app-icon name="chevron-right" [size]="16" [class.rotated]="isExpanded(group.game.id)" />
+            <strong>{{ group.game.title }}</strong>
+            <span class="field-hint">{{ group.tracks.length }} faixa(s)</span>
+          </button>
+
+          @if (isExpanded(group.game.id)) {
+            <ul class="music-track-list">
+              <li class="music-track-item" *ngFor="let track of group.tracks; trackBy: trackByTrackId">
+                  <div class="music-track-info">
+                    <strong>{{ trackLabel(track) }}</strong>
+                    @if (track.artist) {
+                      <span class="field-hint">{{ track.artist }}</span>
+                    }
+                  </div>
+                  <audio controls [src]="track.fileUrl"></audio>
+              </li>
+            </ul>
+          }
+      </li>
+    </ul>
+  }
+</div>

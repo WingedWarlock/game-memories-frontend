@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Game, GameRequest } from '../../core/models';
 import { GameService } from '../../core/services/game.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -8,6 +8,11 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { GameCardComponent } from '../games/components/game-card/game-card.component';
 import { GameFormComponent } from '../games/components/game-form/game-form.component';
+import { AlphabetNavComponent } from '../../shared/components/alphabet-nav/alphabet-nav.component';
+
+function firstLetter(title: string): string {
+  return (title.trim()[0] ?? '').toLocaleUpperCase('pt-BR');
+}
 
 @Component({
   selector: 'app-home',
@@ -19,6 +24,7 @@ import { GameFormComponent } from '../games/components/game-form/game-form.compo
     IconComponent,
     GameCardComponent,
     GameFormComponent,
+    AlphabetNavComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.page.html',
@@ -36,6 +42,19 @@ export class HomePage {
   protected readonly showGameModal = signal(false);
   protected readonly editingGame = signal<Game | null>(null);
   protected readonly gameToDelete = signal<Game | null>(null);
+
+  private readonly firstGameIdByLetter = computed(() => {
+    const map = new Map<string, number>();
+    for (const game of this.games()) {
+      const letter = firstLetter(game.title);
+      if (/[A-Z]/.test(letter) && !map.has(letter)) {
+        map.set(letter, game.id);
+      }
+    }
+    return map;
+  });
+
+  protected readonly availableLetters = computed(() => new Set(this.firstGameIdByLetter().keys()));
 
   constructor() {
     this.loadGames();
@@ -56,6 +75,13 @@ export class HomePage {
         this.error.set(true);
       },
     });
+  }
+
+  scrollToLetter(letter: string): void {
+    const gameId = this.firstGameIdByLetter().get(letter);
+    if (gameId != null) {
+      document.getElementById(`game-${gameId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   openCreateModal(): void {

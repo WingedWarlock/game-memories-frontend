@@ -1,0 +1,13 @@
+<nav class="alphabet-nav" aria-label="Navegação alfabética">
+  @for (letter of letters; track letter) {
+    <button
+      type="button"
+      class="alphabet-nav-item"
+      [class.alphabet-nav-item-disabled]="!isAvailable(letter)"
+      [disabled]="!isAvailable(letter)"
+      (click)="select(letter)"
+    >
+      {{ letter }}
+    </button>
+  }
+</nav>

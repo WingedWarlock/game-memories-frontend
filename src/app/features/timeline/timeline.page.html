@@ -97,7 +97,7 @@
       </section>
     }
 
-    @if (libraryRuns().length > 0) {
+    @if (libraryRuns().length > 0 || allLifeEvents().length > 0) {
       <section class="section library-timeline-section" id="library-timeline">
         <h2 class="section-title">Linha do Tempo Geral</h2>
         <p class="field-hint">Todas as runs da sua biblioteca, juntas em um só gráfico.</p>
@@ -106,6 +106,7 @@
           [savePointsByRun]="librarySavePointsByRun()"
           [memoriesByRun]="libraryMemoriesByRun()"
           [achievementsByRun]="libraryAchievementsByRun()"
+          [lifeEvents]="allLifeEvents()"
         />
       </section>
     }

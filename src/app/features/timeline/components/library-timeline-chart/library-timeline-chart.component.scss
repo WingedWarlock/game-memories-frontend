@@ -98,6 +98,11 @@
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
+.library-timeline-marker-life-event {
+  background: var(--danger);
+  border-radius: 2px;
+}
+
 .library-timeline-marker-cluster {
   width: 16px;
   height: 16px;
@@ -212,4 +217,9 @@
 .library-timeline-legend-swatch-achievement {
   background: var(--success);
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.library-timeline-legend-swatch-life-event {
+  background: var(--danger);
+  border-radius: 2px;
 }

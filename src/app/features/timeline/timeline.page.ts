@@ -102,6 +102,7 @@ export class TimelinePage {
   protected readonly librarySavePointsByRun = signal<Map<number, SavePoint[]>>(new Map());
   protected readonly libraryMemoriesByRun = signal<Map<number, GameMemory[]>>(new Map());
   protected readonly libraryAchievementsByRun = signal<Map<number, Achievement[]>>(new Map());
+  protected readonly allLifeEvents = signal<LifeEvent[]>([]);
 
   constructor() {
     this.load();
@@ -134,6 +135,7 @@ export class TimelinePage {
           const groups = this.buildYearGroups(games, runsByGameId, lifeEvents);
           this.loadSummaries(groups);
           this.loadLibraryTimeline(games, runsByGameId);
+          this.allLifeEvents.set(lifeEvents);
         },
         error: () => {
           this.error.set(true);
@@ -237,8 +239,15 @@ export class TimelinePage {
     const currentYear = new Date().getFullYear();
 
     const playingEntries: TimelineEntry[] = games
-      .filter((game) => (runsByGameId.get(game.id) ?? []).some((run) => run.status === 'IN_PROGRESS'))
-      .map((game) => ({ key: `playing-${game.id}`, game, isPlaying: true, captionLabel: null, completionDate: null }));
+      .map((game) => ({ game, run: (runsByGameId.get(game.id) ?? []).find((run) => run.status === 'IN_PROGRESS') }))
+      .filter((entry): entry is { game: Game; run: Run } => !!entry.run)
+      .map(({ game, run }) => ({
+        key: `playing-${game.id}`,
+        game,
+        isPlaying: true,
+        captionLabel: run.startDate ? `${run.runName} — iniciado em ${formatDate(run.startDate)}` : run.runName,
+        completionDate: null,
+      }));
 
     const completedByYear = new Map<number, TimelineEntry[]>();
 

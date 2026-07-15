@@ -31,6 +31,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/life-events/life-events.page').then((m) => m.LifeEventsPage),
   },
   {
+    path: 'musicas',
+    loadComponent: () => import('./features/music/music.page').then((m) => m.MusicPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

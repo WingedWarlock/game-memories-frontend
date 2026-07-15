@@ -1,11 +1,37 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { NameCount, Stats } from '../../core/models';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { NameCount, Run, Stats } from '../../core/models';
 import { StatsService } from '../../core/services/stats.service';
+import { GameService } from '../../core/services/game.service';
+import { RunService } from '../../core/services/run.service';
 
 interface DistributionGroup {
   title: string;
   items: NameCount[];
+}
+
+interface RunDuration {
+  gameId: number;
+  gameTitle: string;
+  runName: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+}
+
+interface RunDurationYearGroup {
+  year: number;
+  runs: RunDuration[];
+  fastest: RunDuration;
+  slowest: RunDuration;
+}
+
+function daysBetween(startDate: string, endDate: string): number {
+  const start = new Date(startDate).getTime();
+  const end = new Date(endDate).getTime();
+  return Math.max(0, Math.round((end - start) / 86400000));
 }
 
 @Component({
@@ -18,10 +44,42 @@ interface DistributionGroup {
 })
 export class StatsPage {
   private readonly statsService = inject(StatsService);
+  private readonly gameService = inject(GameService);
+  private readonly runService = inject(RunService);
 
   protected readonly stats = signal<Stats | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
+
+  protected readonly runDurations = signal<RunDuration[]>([]);
+
+  protected readonly fastestRun = computed<RunDuration | null>(() => {
+    const runs = this.runDurations();
+    return runs.length === 0 ? null : runs.reduce((min, run) => (run.days < min.days ? run : min));
+  });
+
+  protected readonly slowestRun = computed<RunDuration | null>(() => {
+    const runs = this.runDurations();
+    return runs.length === 0 ? null : runs.reduce((max, run) => (run.days > max.days ? run : max));
+  });
+
+  protected readonly runsByYear = computed<RunDurationYearGroup[]>(() => {
+    const groups = new Map<number, RunDuration[]>();
+    for (const run of this.runDurations()) {
+      const year = Number(run.endDate.slice(0, 4));
+      const list = groups.get(year) ?? [];
+      list.push(run);
+      groups.set(year, list);
+    }
+    return Array.from(groups.entries())
+      .sort((a, b) => b[0] - a[0])
+      .map(([year, runs]) => {
+        const sorted = runs.slice().sort((a, b) => a.days - b.days);
+        return { year, runs: sorted, fastest: sorted[0], slowest: sorted[sorted.length - 1] };
+      });
+  });
+
+  protected readonly trackByRunKey = (_: number, run: RunDuration) => `${run.gameId}-${run.runName}-${run.endDate}`;
 
   protected readonly distributions = computed<DistributionGroup[]>(() => {
     const stats = this.stats();
@@ -39,6 +97,7 @@ export class StatsPage {
 
   constructor() {
     this.load();
+    this.loadRunDurations();
   }
 
   load(): void {
@@ -53,6 +112,39 @@ export class StatsPage {
         this.error.set(true);
         this.loading.set(false);
       },
+    });
+  }
+
+  private loadRunDurations(): void {
+    this.gameService.getAll().subscribe({
+      next: (games) => {
+        if (games.length === 0) {
+          this.runDurations.set([]);
+          return;
+        }
+        forkJoin(
+          games.map((game) => this.runService.getByGame(game.id).pipe(catchError(() => of<Run[]>([])))),
+        ).subscribe((runsList) => {
+          const durations: RunDuration[] = [];
+          games.forEach((game, index) => {
+            for (const run of runsList[index]) {
+              if (!run.startDate || !run.endDate || run.endDate < run.startDate) {
+                continue;
+              }
+              durations.push({
+                gameId: game.id,
+                gameTitle: game.title,
+                runName: run.runName,
+                startDate: run.startDate,
+                endDate: run.endDate,
+                days: daysBetween(run.startDate, run.endDate),
+              });
+            }
+          });
+          this.runDurations.set(durations);
+        });
+      },
+      error: () => this.runDurations.set([]),
     });
   }
 

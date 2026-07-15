@@ -30,9 +30,15 @@
       <p>Adicione o primeiro jogo para começar a registrar suas memórias.</p>
     </div>
   } @else {
+    <app-alphabet-nav [availableLetters]="availableLetters()" (letterClick)="scrollToLetter($event)" />
     <div class="games-grid">
       @for (game of games(); track game.id) {
-        <app-game-card [game]="game" (editRequested)="openEditModal($event)" (deleteRequested)="requestDelete($event)" />
+        <app-game-card
+          [id]="'game-' + game.id"
+          [game]="game"
+          (editRequested)="openEditModal($event)"
+          (deleteRequested)="requestDelete($event)"
+        />
       }
     </div>
   }

@@ -1,7 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { LifeEvent, LifeEventRequest } from '../../core/models';
+import { RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Achievement, Game, GameMemory, LifeEvent, LifeEventRequest } from '../../core/models';
 import { LifeEventService } from '../../core/services/life-event.service';
+import { GameService } from '../../core/services/game.service';
+import { GameMemoryService } from '../../core/services/game-memory.service';
+import { AchievementService } from '../../core/services/achievement.service';
 import { ToastService } from '../../core/services/toast.service';
 import { LIFE_EVENT_CATEGORY_LABEL } from '../../core/models/life-event.model';
 
@@ -10,47 +16,87 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LifeEventFormComponent } from './components/life-event-form/life-event-form.component';
 
+type MomentKind = 'life-event' | 'memory' | 'achievement';
+
+interface MomentEntry {
+  key: string;
+  kind: MomentKind;
+  title: string;
+  description?: string;
+  date: string;
+  meta: string;
+  gameId?: number;
+  gameTitle?: string;
+  lifeEvent?: LifeEvent;
+}
+
 interface MomentYearGroup {
   year: number;
-  lifeEvents: LifeEvent[];
+  entries: MomentEntry[];
 }
 
 @Component({
   selector: 'app-life-events',
   standalone: true,
-  imports: [NgFor, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
+  imports: [NgFor, RouterLink, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './life-events.page.html',
   styleUrl: './life-events.page.scss',
 })
 export class LifeEventsPage {
   private readonly lifeEventService = inject(LifeEventService);
+  private readonly gameService = inject(GameService);
+  private readonly memoryService = inject(GameMemoryService);
+  private readonly achievementService = inject(AchievementService);
   private readonly toast = inject(ToastService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
   protected readonly lifeEvents = signal<LifeEvent[]>([]);
+  protected readonly linkedEntries = signal<MomentEntry[]>([]);
 
   protected readonly showModal = signal(false);
   protected readonly editingLifeEvent = signal<LifeEvent | null>(null);
   protected readonly lifeEventToDelete = signal<LifeEvent | null>(null);
 
-  protected readonly categoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
-  protected readonly trackByLifeEventId = (_: number, lifeEvent: LifeEvent) => lifeEvent.id;
+  protected readonly showMemories = signal(true);
+  protected readonly showAchievements = signal(true);
+
+  protected readonly trackByEntryKey = (_: number, entry: MomentEntry) => entry.key;
 
   protected readonly yearGroups = computed<MomentYearGroup[]>(() => {
-    const groups = new Map<number, LifeEvent[]>();
-    for (const lifeEvent of this.lifeEvents()) {
-      const year = Number(lifeEvent.date.slice(0, 4));
+    const lifeEventEntries: MomentEntry[] = this.lifeEvents().map((lifeEvent) => ({
+      key: `life-event-${lifeEvent.id}`,
+      kind: 'life-event',
+      title: lifeEvent.title,
+      description: lifeEvent.description,
+      date: lifeEvent.date,
+      meta: LIFE_EVENT_CATEGORY_LABEL[lifeEvent.category],
+      lifeEvent,
+    }));
+
+    const visibleLinkedEntries = this.linkedEntries().filter((entry) => {
+      if (entry.kind === 'memory') {
+        return this.showMemories();
+      }
+      if (entry.kind === 'achievement') {
+        return this.showAchievements();
+      }
+      return true;
+    });
+
+    const groups = new Map<number, MomentEntry[]>();
+    for (const entry of [...lifeEventEntries, ...visibleLinkedEntries]) {
+      const year = Number(entry.date.slice(0, 4));
       const list = groups.get(year) ?? [];
-      list.push(lifeEvent);
+      list.push(entry);
       groups.set(year, list);
     }
     return Array.from(groups.entries())
       .sort((a, b) => b[0] - a[0])
-      .map(([year, lifeEvents]) => ({
+      .map(([year, entries]) => ({
         year,
-        lifeEvents: lifeEvents.sort((a, b) => b.date.localeCompare(a.date)),
+        entries: entries.sort((a, b) => b.date.localeCompare(a.date)),
       }));
   });
 
@@ -65,12 +111,79 @@ export class LifeEventsPage {
       next: (lifeEvents) => {
         this.lifeEvents.set(lifeEvents);
         this.loading.set(false);
+        this.loadLinkedEntries();
       },
       error: () => {
         this.error.set(true);
         this.loading.set(false);
       },
     });
+  }
+
+  private loadLinkedEntries(): void {
+    this.gameService.getAll().subscribe({
+      next: (games) => {
+        if (games.length === 0) {
+          this.linkedEntries.set([]);
+          return;
+        }
+        forkJoin({
+          memories: forkJoin(games.map((game) => this.memoryService.getByGame(game.id).pipe(catchError(() => of<GameMemory[]>([]))))),
+          achievements: forkJoin(
+            games.map((game) => this.achievementService.getByGame(game.id).pipe(catchError(() => of<Achievement[]>([])))),
+          ),
+        }).subscribe(({ memories, achievements }) => {
+          const gameById = new Map<number, Game>(games.map((game) => [game.id, game]));
+          const entries: MomentEntry[] = [];
+
+          memories.forEach((gameMemories) => {
+            for (const memory of gameMemories) {
+              const game = gameById.get(memory.gameId);
+              entries.push({
+                key: `memory-${memory.id}`,
+                kind: 'memory',
+                title: memory.title,
+                description: memory.description,
+                date: memory.memoryDate,
+                meta: 'Memória',
+                gameId: memory.gameId,
+                gameTitle: game?.title,
+              });
+            }
+          });
+
+          achievements.forEach((gameAchievements) => {
+            for (const achievement of gameAchievements) {
+              if (!achievement.unlocked || !achievement.unlockedDate) {
+                continue;
+              }
+              const game = gameById.get(achievement.gameId);
+              entries.push({
+                key: `achievement-${achievement.id}`,
+                kind: 'achievement',
+                title: achievement.title,
+                description: achievement.description,
+                date: achievement.unlockedDate,
+                meta: 'Conquista',
+                gameId: achievement.gameId,
+                gameTitle: game?.title,
+              });
+            }
+          });
+
+          this.linkedEntries.set(entries);
+        });
+      },
+      error: () => this.linkedEntries.set([]),
+    });
+  }
+
+  toggleMemories(): void {
+    this.showMemories.update((value) => !value);
+  }
+
+  toggleAchievements(): void {
+    this.showAchievements.update((value) => !value);
   }
 
   openCreate(): void {

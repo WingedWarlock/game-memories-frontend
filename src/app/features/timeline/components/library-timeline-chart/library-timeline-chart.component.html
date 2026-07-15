@@ -32,6 +32,7 @@
                 [class.library-timeline-marker-savepoint]="cluster.items[0].kind === 'savepoint'"
                 [class.library-timeline-marker-memory]="cluster.items[0].kind === 'memory'"
                 [class.library-timeline-marker-achievement]="cluster.items[0].kind === 'achievement'"
+                [class.library-timeline-marker-life-event]="cluster.items[0].kind === 'life-event'"
                 [class.library-timeline-marker-cluster]="cluster.items.length > 1"
                 [class.library-timeline-marker-active]="selectedCluster()?.key === cluster.key"
                 [style.left.%]="cluster.leftPercent"
@@ -54,6 +55,7 @@
       <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-savepoint"></span>SavePoint</span>
       <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-memory"></span>Memória</span>
       <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-achievement"></span>Conquista</span>
+      <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-life-event"></span>Momento</span>
       <span class="library-timeline-legend-item">Clique num marcador para ver detalhes — marcadores próximos se agrupam em um número</span>
     </div>
 
@@ -69,7 +71,15 @@
           <li class="library-timeline-detail-item" *ngFor="let item of cluster.items; trackBy: trackByItemId">
               <div class="library-timeline-detail-item-header">
                 <app-icon
-                  [name]="item.kind === 'savepoint' ? 'save' : item.kind === 'memory' ? 'book' : 'trophy'"
+                  [name]="
+                    item.kind === 'savepoint'
+                      ? 'save'
+                      : item.kind === 'memory'
+                        ? 'book'
+                        : item.kind === 'achievement'
+                          ? 'trophy'
+                          : 'calendar'
+                  "
                   [size]="14"
                 />
                 @if (item.subtitle) {

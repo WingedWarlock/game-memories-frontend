@@ -1,4 +1,4 @@
-export type MarkerKind = 'savepoint' | 'memory' | 'achievement';
+export type MarkerKind = 'savepoint' | 'memory' | 'achievement' | 'life-event';
 
 export interface TimelineMarkerItem {
   id: string;

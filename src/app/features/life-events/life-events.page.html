@@ -2,12 +2,24 @@
   <div class="page-header moments-header-row">
     <div>
       <h1>Momentos</h1>
-      <p class="page-subtitle">Os acontecimentos da sua vida, em ordem cronológica.</p>
+      <p class="page-subtitle">Momentos de vida, memórias e conquistas, tudo em ordem cronológica.</p>
     </div>
-    <button type="button" class="btn btn-primary btn-sm" (click)="openCreate()">
-      <app-icon name="plus" [size]="14" />
-      Novo Momento
-    </button>
+    <div class="moments-header-actions">
+      <button type="button" class="btn btn-primary btn-sm" (click)="openCreate()">
+        <app-icon name="plus" [size]="14" />
+        Novo Momento
+      </button>
+      @if (yearGroups().length > 0) {
+        <label class="checkbox-field toggle-all-years">
+          <input type="checkbox" [checked]="showMemories()" (change)="toggleMemories()" />
+          {{ showMemories() ? 'Ocultar memórias' : 'Mostrar memórias' }}
+        </label>
+        <label class="checkbox-field toggle-all-years">
+          <input type="checkbox" [checked]="showAchievements()" (change)="toggleAchievements()" />
+          {{ showAchievements() ? 'Ocultar conquistas' : 'Mostrar conquistas' }}
+        </label>
+      }
+    </div>
   </div>
 
   @if (loading()) {
@@ -28,27 +40,36 @@
       <section class="moment-year">
         <h2 class="moment-year-heading">{{ group.year }}</h2>
         <ul class="moment-list">
-          <li class="moment-item" *ngFor="let lifeEvent of group.lifeEvents; trackBy: trackByLifeEventId">
-              <span class="moment-item-icon">
-                <app-icon name="calendar" [size]="16" />
+          <li
+            class="moment-item"
+            [class.moment-item-linked]="entry.kind !== 'life-event'"
+            *ngFor="let entry of group.entries; trackBy: trackByEntryKey"
+          >
+              <span class="moment-item-icon" [class.moment-item-icon-linked]="entry.kind !== 'life-event'">
+                <app-icon [name]="entry.kind === 'life-event' ? 'calendar' : entry.kind === 'memory' ? 'book' : 'trophy'" [size]="entry.kind === 'life-event' ? 16 : 13" />
               </span>
               <div class="moment-item-body">
                 <div class="moment-item-header">
-                  <strong>{{ lifeEvent.title }}</strong>
-                  <span class="field-hint">{{ categoryLabel(lifeEvent.category) }} · {{ lifeEvent.date }}</span>
+                  <strong>{{ entry.title }}</strong>
+                  @if (entry.gameId) {
+                    <a class="chip" [routerLink]="['/games', entry.gameId]">{{ entry.gameTitle }}</a>
+                  }
+                  <span class="field-hint">{{ entry.meta }} · {{ entry.date }}</span>
                 </div>
-                @if (lifeEvent.description) {
-                  <p>{{ lifeEvent.description }}</p>
+                @if (entry.description) {
+                  <p>{{ entry.description }}</p>
                 }
               </div>
-              <div class="moment-item-actions">
-                <button type="button" class="btn btn-icon btn-ghost" (click)="openEdit(lifeEvent)" aria-label="Editar momento">
-                  <app-icon name="edit" [size]="14" />
-                </button>
-                <button type="button" class="btn btn-icon btn-ghost" (click)="requestDelete(lifeEvent)" aria-label="Remover momento">
-                  <app-icon name="trash" [size]="14" />
-                </button>
-              </div>
+              @if (entry.kind === 'life-event' && entry.lifeEvent) {
+                <div class="moment-item-actions">
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="openEdit(entry.lifeEvent)" aria-label="Editar momento">
+                    <app-icon name="edit" [size]="14" />
+                  </button>
+                  <button type="button" class="btn btn-icon btn-ghost" (click)="requestDelete(entry.lifeEvent)" aria-label="Remover momento">
+                    <app-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              }
           </li>
         </ul>
       </section>
