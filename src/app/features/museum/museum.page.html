@@ -1,0 +1,305 @@
+<div class="page-container museum-page">
+  <div class="page-header">
+    <div>
+      <h1>Museu</h1>
+      <p class="page-subtitle">Uma volta pela sua história como jogador, sala por sala, ano após ano.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Preparando o museu...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível abrir o museu</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (exhibits().length === 0) {
+    <div class="empty-state">
+      <h3>O museu ainda está vazio</h3>
+      <p>Registre runs, memórias, conquistas, save points ou momentos com datas para começar a preencher as salas.</p>
+    </div>
+  } @else {
+    @if (specialDays().length > 0) {
+      <section class="section special-days-section">
+        <h2 class="section-title">✨ Dias especiais de hoje</h2>
+        <div class="special-days-row">
+          <div class="special-day-card" *ngFor="let day of specialDays(); trackBy: trackBySpecialDayKey">
+              <span class="special-day-years">{{ day.yearsAgo }} {{ day.yearsAgo === 1 ? 'ano' : 'anos' }}</span>
+              <p>{{ day.text }}</p>
+          </div>
+        </div>
+      </section>
+    }
+
+    <nav class="museum-year-nav" aria-label="Selecionar ano do museu">
+      @for (exhibit of exhibits(); track exhibit.year) {
+        <button
+          type="button"
+          class="museum-year-pill"
+          [class.museum-year-pill-active]="selectedYear() === exhibit.year"
+          (click)="selectYear(exhibit.year)"
+        >
+          {{ exhibit.year }}
+        </button>
+      }
+    </nav>
+
+    @if (currentExhibit(); as exhibit) {
+      <section class="museum-room">
+        <div class="museum-room-header">
+          <h2>{{ exhibit.year }}</h2>
+          <button type="button" class="btn btn-primary btn-sm relive-trigger" (click)="startRelive(exhibit)">
+            <app-icon name="music" [size]="14" />
+            ✨ Reviver {{ exhibit.year }}
+          </button>
+        </div>
+
+        @if (exhibit.games.length > 0) {
+          <div class="museum-subsection">
+            <h3>Jogos</h3>
+            <div class="museum-game-row">
+              @for (game of exhibit.games; track game.gameId) {
+                <div class="museum-game-item">
+                  <app-cover-carousel [gameId]="game.gameId" [altText]="game.title" [iconSize]="22" />
+                  <strong>{{ game.title }}</strong>
+                  <span class="field-hint">
+                    @if (game.startedThisYear && game.completedThisYear) {
+                      Iniciado e concluído
+                    } @else if (game.completedThisYear) {
+                      Concluído
+                    } @else if (game.startedThisYear) {
+                      Iniciado
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (exhibit.memories.length > 0) {
+          <div class="museum-subsection">
+            <h3>Memórias</h3>
+            <div class="moment-grid">
+              @for (memory of exhibit.memories; track memory.key) {
+                <div class="moment-card">
+                  <div class="moment-card-header">
+                    <app-icon name="book" [size]="14" />
+                    <span class="field-hint">{{ memory.gameTitle }} · {{ memory.date | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+                  <p class="moment-quote">"{{ memory.description || memory.title }}"</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (exhibit.screenshots.length > 0) {
+          <div class="museum-subsection">
+            <h3>Screenshots</h3>
+            <div class="museum-screenshot-grid">
+              @for (shot of exhibit.screenshots; track shot.key) {
+                <figure class="museum-screenshot">
+                  <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" loading="lazy" />
+                  <figcaption>{{ shot.gameTitle }}</figcaption>
+                </figure>
+              }
+            </div>
+          </div>
+        }
+
+        @if (exhibit.achievements.length > 0) {
+          <div class="museum-subsection">
+            <h3>Conquistas</h3>
+            <ul class="museum-list">
+              <li class="museum-list-item" *ngFor="let achievement of exhibit.achievements; trackBy: trackByAchievementKey">
+                  <app-icon name="trophy" [size]="14" />
+                  <div>
+                    <strong>{{ achievement.title }}</strong>
+                    <span class="field-hint">{{ achievement.gameTitle }} · {{ achievement.date | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+              </li>
+            </ul>
+          </div>
+        }
+
+        @if (exhibit.savePoints.length > 0) {
+          <div class="museum-subsection">
+            <h3>Save Points</h3>
+            <ul class="museum-list">
+              <li class="museum-list-item" *ngFor="let savePoint of exhibit.savePoints; trackBy: trackBySavePointKey">
+                  <app-icon name="save" [size]="14" />
+                  <div>
+                    <strong>{{ savePoint.title }}</strong>
+                    <span class="field-hint">{{ savePoint.gameTitle }} · {{ savePoint.runName }} · {{ savePoint.date | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+              </li>
+            </ul>
+          </div>
+        }
+
+        @if (exhibit.lifeEvents.length > 0) {
+          <div class="museum-subsection">
+            <h3>Momentos de vida</h3>
+            <ul class="museum-list">
+              <li class="museum-list-item" *ngFor="let lifeEvent of exhibit.lifeEvents; trackBy: trackByLifeEventId">
+                  <app-icon name="calendar" [size]="14" />
+                  <div>
+                    <strong>{{ lifeEvent.title }}</strong>
+                    <span class="field-hint">{{ lifeEventCategoryLabel(lifeEvent.category) }} · {{ lifeEvent.date | date: 'dd/MM/yyyy' }}</span>
+                  </div>
+              </li>
+            </ul>
+          </div>
+        }
+      </section>
+    }
+  }
+</div>
+
+@if (relive(); as reliveState) {
+  <div class="relive-overlay" role="dialog" aria-modal="true" aria-label="Modo reviver">
+    <div class="relive-sparkles" [class.relive-sparkles-burst]="reliveTransitioning()" aria-hidden="true">
+      <span class="relive-comet relive-comet-silver"></span>
+      <span class="relive-comet relive-comet-gold"></span>
+    </div>
+
+    @if (reliveTrack(); as track) {
+      <audio #reliveAudio [src]="track.fileUrl" [muted]="reliveMuted()" loop autoplay></audio>
+    }
+
+    <button type="button" class="btn btn-icon btn-ghost relive-close" (click)="closeRelive()" aria-label="Fechar modo reviver">
+      <app-icon name="close" [size]="18" />
+    </button>
+
+    <div class="relive-slide">
+      @switch (currentSlide()?.kind) {
+        @case ('intro') {
+          <div class="relive-slide-intro">
+            <span class="relive-year">{{ reliveState.year }}</span>
+            <p>{{ currentSlide()?.body }}</p>
+          </div>
+        }
+        @case ('outro') {
+          <div class="relive-slide-intro">
+            <span class="relive-year">{{ reliveState.year }}</span>
+            <p>{{ currentSlide()?.body }}</p>
+          </div>
+        }
+        @case ('games') {
+          <div class="relive-slide-games">
+            <h2 class="relive-slide-heading">{{ currentSlide()?.title }}</h2>
+            <div class="relive-games-grid">
+              @for (game of currentSlide()?.games ?? []; track game.gameId) {
+                <div class="relive-game-item">
+                  <app-cover-carousel [gameId]="game.gameId" [altText]="game.title" [iconSize]="26" />
+                  <strong>{{ game.title }}</strong>
+                  <span class="field-hint">
+                    @if (game.startedThisYear && game.completedThisYear) {
+                      Iniciado e concluído
+                    } @else if (game.completedThisYear) {
+                      Concluído
+                    } @else if (game.startedThisYear) {
+                      Iniciado
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @case ('highlights') {
+          <div class="relive-slide-highlights">
+            <h2 class="relive-slide-heading">{{ currentSlide()?.title }}</h2>
+            <div class="relive-highlights-grid">
+              @for (item of currentSlide()?.highlights ?? []; track item.label) {
+                <div class="relive-highlight-card">
+                  <span class="relive-highlight-label">{{ item.label }}</span>
+                  <strong>{{ item.title }}</strong>
+                  <span class="relive-quote-meta">{{ item.meta }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @case ('timeline') {
+          <div class="relive-slide-timeline">
+            <h2 class="relive-slide-heading">{{ currentSlide()?.title }}</h2>
+            <div class="relive-timeline-grid">
+              @for (item of currentSlide()?.items ?? []; track item.title + item.subtitle) {
+                <div class="relive-timeline-item">
+                  <app-icon [name]="item.icon" [size]="18" />
+                  <div>
+                    <strong>{{ item.title }}</strong>
+                    @if (item.body) {
+                      <p>"{{ item.body }}"</p>
+                    }
+                    <span class="relive-quote-meta">{{ item.subtitle }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @case ('screenshots') {
+          <div class="relive-slide-screenshots">
+            <h2 class="relive-slide-heading">{{ currentSlide()?.title }}</h2>
+            <div class="relive-screenshots-grid">
+              @for (shot of currentSlide()?.screenshots ?? []; track shot.key) {
+                <figure class="relive-screenshot-item">
+                  <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" />
+                  <figcaption>{{ shot.gameTitle }}</figcaption>
+                </figure>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    @if (reliveState.tracks.length > 0) {
+      <div class="relive-track-picker">
+        <app-icon name="music" [size]="14" />
+        <select (change)="onReliveTrackChange($event)" aria-label="Escolher trilha sonora">
+          <option value="-1" [selected]="reliveState.trackIndex === -1">Sem música</option>
+          @for (track of reliveState.tracks; track track.key; let i = $index) {
+            <option [value]="i" [selected]="reliveState.trackIndex === i">
+              {{ track.title || track.originalFileName }} · {{ track.gameTitle }}
+            </option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="relive-controls">
+      <button type="button" class="btn btn-icon btn-ghost" (click)="relivePrev()" [disabled]="reliveState.index === 0" aria-label="Momento anterior">
+        <app-icon name="chevron-right" [size]="16" class="relive-icon-prev" />
+      </button>
+      <span class="relive-progress">{{ reliveState.index + 1 }} / {{ reliveState.slides.length }}</span>
+      <button
+        type="button"
+        class="btn btn-icon btn-ghost"
+        (click)="reliveNext()"
+        [disabled]="reliveState.index === reliveState.slides.length - 1"
+        aria-label="Próximo momento"
+      >
+        <app-icon name="chevron-right" [size]="16" />
+      </button>
+      @if (reliveTrack()) {
+        <button
+          type="button"
+          class="btn btn-icon btn-ghost"
+          (click)="toggleReliveMute()"
+          [attr.aria-label]="reliveMuted() ? 'Ativar som' : 'Silenciar música'"
+        >
+          <app-icon name="music" [size]="16" />
+        </button>
+      }
+    </div>
+
+    <div class="relive-progress-bar">
+      <div class="relive-progress-bar-fill" [style.width.%]="((reliveState.index + 1) / reliveState.slides.length) * 100"></div>
+    </div>
+  </div>
+}

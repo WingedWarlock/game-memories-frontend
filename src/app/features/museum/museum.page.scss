@@ -1,0 +1,564 @@
+$relive-silver: #dfe6ee;
+
+$relive-star-silver: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e8ede9' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23e8ede9' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%23e8ede9'/%3E%3C/svg%3E");
+$relive-star-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%239be8bc' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%239be8bc' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%239be8bc'/%3E%3C/svg%3E");
+$relive-star-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e3bd45' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23e3bd45' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%23e3bd45'/%3E%3C/svg%3E");
+$relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%239c7fe0' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%239c7fe0' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%239c7fe0'/%3E%3C/svg%3E");
+
+.special-days-section {
+  background: var(--bg-elevated);
+  border-left: 4px solid var(--accent-2);
+}
+
+.special-days-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.special-day-card {
+  padding: 16px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+}
+
+.special-day-years {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.museum-year-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.museum-year-pill {
+  appearance: none;
+  padding: 8px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: var(--accent-strong);
+    border-color: var(--accent);
+  }
+}
+
+.museum-year-pill-active {
+  color: var(--bg-elevated);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.museum-room {
+  padding: 32px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.museum-room-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h2 {
+    font-size: 34px;
+    color: var(--accent-strong);
+  }
+}
+
+.museum-subsection {
+  h3 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+}
+
+.museum-game-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.museum-game-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+
+  app-cover-carousel {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  strong {
+    color: var(--accent);
+  }
+}
+
+.moment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.moment-card {
+  padding: 18px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moment-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-strong);
+}
+
+.moment-quote {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.museum-screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.museum-screenshot {
+  margin: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  background: var(--bg-elevated-2);
+
+  img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+
+  figcaption {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+}
+
+.museum-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.museum-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  color: var(--accent-strong);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--text-primary);
+  }
+}
+
+// --- Modo Reviver ---
+
+.relive-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 32px;
+  background: rgba(4, 10, 8, 0.94);
+  color: $relive-silver;
+}
+
+.relive-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  transform: scale(1);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  background:
+    $relive-star-silver 12% 45% / 10px 10px no-repeat,
+    $relive-star-green 35% 55% / 8px 8px no-repeat,
+    $relive-star-gold 60% 25% / 11px 11px no-repeat,
+    $relive-star-purple 45% 85% / 9px 9px no-repeat,
+    $relive-star-silver 90% 35% / 9px 9px no-repeat,
+    $relive-star-green 65% 60% / 10px 10px no-repeat,
+    $relive-star-gold 25% 15% / 8px 8px no-repeat,
+    $relive-star-purple 75% 45% / 10px 10px no-repeat,
+    $relive-star-silver 50% 10% / 7px 7px no-repeat,
+    $relive-star-green 30% 70% / 9px 9px no-repeat,
+    $relive-star-purple 80% 68% / 9px 9px no-repeat,
+    $relive-star-purple 86% 71% / 9px 9px no-repeat,
+    $relive-star-purple 88% 77% / 8px 8px no-repeat,
+    $relive-star-purple 85% 83% / 9px 9px no-repeat,
+    $relive-star-purple 78% 83% / 8px 8px no-repeat,
+    $relive-star-purple 75% 77% / 9px 9px no-repeat;
+}
+
+.relive-sparkles-burst {
+  opacity: 0.9;
+  transform: scale(1.08);
+}
+
+.relive-comet {
+  position: absolute;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, currentColor);
+  transform-origin: left center;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    transform: translateY(-50%);
+    box-shadow: 0 0 10px 3px currentColor;
+  }
+}
+
+.relive-comet-silver {
+  top: 8%;
+  left: 3%;
+  width: 170px;
+  color: rgba(232, 237, 233, 0.85);
+  transform: rotate(35deg);
+}
+
+.relive-comet-gold {
+  bottom: 9%;
+  left: 4%;
+  width: 150px;
+  color: rgba(227, 189, 69, 0.85);
+  transform: rotate(-32deg);
+}
+
+.relive-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: $relive-silver;
+}
+
+.relive-slide {
+  width: 100%;
+  max-width: 1040px;
+  max-height: 72vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  overflow-y: auto;
+  text-align: center;
+  animation: relive-fade-in 0.5s ease;
+}
+
+@keyframes relive-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.relive-slide-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.relive-year {
+  font-size: 56px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.relive-slide-intro p {
+  color: rgba(223, 230, 238, 0.75);
+  font-size: 16px;
+}
+
+.relive-slide-heading {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $relive-silver;
+  text-shadow: 0 0 10px rgba(223, 230, 238, 0.5);
+  margin-bottom: 20px;
+}
+
+.relive-slide-games,
+.relive-slide-highlights,
+.relive-slide-timeline,
+.relive-slide-screenshots {
+  width: 100%;
+}
+
+.relive-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.relive-highlight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+  background: rgba(232, 237, 233, 0.05);
+  border: 1px solid rgba(232, 237, 233, 0.14);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  text-align: left;
+
+  strong {
+    font-size: 18px;
+    color: var(--accent);
+  }
+}
+
+.relive-highlight-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-strong);
+}
+
+.relive-games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.relive-game-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+
+  app-cover-carousel {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  strong {
+    font-size: 15px;
+    color: var(--accent);
+  }
+
+  .field-hint {
+    color: rgba(223, 230, 238, 0.6);
+  }
+}
+
+.relive-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.relive-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  background: rgba(232, 237, 233, 0.06);
+  border: 1px solid rgba(232, 237, 233, 0.12);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--accent);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  strong {
+    color: $relive-silver;
+    font-size: 15px;
+  }
+
+  p {
+    color: rgba(223, 230, 238, 0.8);
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+.relive-screenshots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.relive-screenshot-item {
+  margin: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(232, 237, 233, 0.12);
+  border-top: 3px solid var(--accent);
+
+  img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+
+  figcaption {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+}
+
+.relive-quote-meta {
+  font-size: 13px;
+  color: rgba(223, 230, 238, 0.65);
+}
+
+.relive-track-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(223, 230, 238, 0.75);
+
+  select {
+    max-width: 260px;
+    padding: 6px 10px;
+    font-size: 13px;
+    background: rgba(223, 230, 238, 0.08);
+    border: 1px solid rgba(223, 230, 238, 0.2);
+    border-radius: var(--radius-sm);
+    color: $relive-silver;
+    color-scheme: dark;
+  }
+
+  option {
+    color: #111;
+    background: #e8ede9;
+  }
+}
+
+.relive-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: $relive-silver;
+
+  .btn-icon {
+    color: $relive-silver;
+  }
+}
+
+.relive-icon-prev {
+  transform: rotate(180deg);
+}
+
+.relive-progress {
+  font-size: 13px;
+  color: rgba(223, 230, 238, 0.7);
+  min-width: 56px;
+  text-align: center;
+}
+
+.relive-progress-bar {
+  width: 100%;
+  max-width: 420px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(223, 230, 238, 0.15);
+  overflow: hidden;
+}
+
+.relive-progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .relive-year {
+    font-size: 40px;
+  }
+
+  .relive-quote-text {
+    font-size: 18px;
+  }
+}

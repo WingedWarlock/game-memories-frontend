@@ -1,33 +1,38 @@
 /* Game Memories — design tokens & estilos globais */
 
 :root {
-  /* superfícies */
-  --bg-base: #14120f;
-  --bg-elevated: #1e1b15;
-  --bg-elevated-2: #262219;
-  --border: #35301f;
-  --border-strong: #4a4327;
+  /* superfícies (fundo roxo / cards verde escuro) */
+  --bg-base: #130f1a;
+  --bg-elevated: #101f1a;
+  --bg-elevated-2: #16281f;
+  --border: #263c30;
+  --border-strong: #3a5c48;
 
-  /* texto */
-  --text-primary: #f3ead9;
-  --text-secondary: #beae8c;
-  --text-muted: #877a5c;
+  /* texto (prata) */
+  --text-primary: #eef1ee;
+  --text-secondary: #b7c4bb;
+  --text-muted: #78897f;
 
-  /* acento (dourado / latão) */
-  --accent: #d1a054;
-  --accent-strong: #e8bd72;
-  --accent-soft: rgba(209, 160, 84, 0.16);
-  --on-accent: #1c1508;
+  /* acento (dourado) */
+  --accent: #c9a227;
+  --accent-strong: #e3bd45;
+  --accent-soft: rgba(201, 162, 39, 0.18);
+  --on-accent: #1c1408;
+
+  /* acento secundário (roxo) */
+  --accent-2: #9c7fe0;
+  --accent-2-strong: #b49cec;
+  --accent-2-soft: rgba(156, 127, 224, 0.18);
 
   /* estados */
-  --danger: #d3695a;
-  --danger-soft: rgba(211, 105, 90, 0.16);
-  --success: #7fae72;
-  --success-soft: rgba(127, 174, 114, 0.16);
+  --danger: #c2564a;
+  --danger-soft: rgba(194, 86, 74, 0.18);
+  --success: #46c38f;
+  --success-soft: rgba(70, 195, 143, 0.16);
   --warning: #d9b45c;
   --warning-soft: rgba(217, 180, 92, 0.16);
-  --info: #7ea3b8;
-  --info-soft: rgba(126, 163, 184, 0.16);
+  --info: #9c7fe0;
+  --info-soft: rgba(156, 127, 224, 0.18);
 
   /* forma */
   --radius-sm: 6px;
@@ -50,9 +55,40 @@ body {
   height: 100%;
 }
 
+$star-silver: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e8ede9' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23e8ede9' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%23e8ede9'/%3E%3C/svg%3E");
+$star-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%2346c38f' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%2346c38f' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%2346c38f'/%3E%3C/svg%3E");
+
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #1a170f 0%, var(--bg-base) 55%);
+  background:
+    $star-silver 8% 15% / 12px 12px no-repeat,
+    $star-green 22% 46% / 18px 18px no-repeat,
+    $star-silver 36% 82% / 11px 11px no-repeat,
+    $star-green 49% 22% / 14px 14px no-repeat,
+    $star-silver 61% 68% / 17px 17px no-repeat,
+    $star-green 73% 32% / 13px 13px no-repeat,
+    $star-silver 86% 78% / 11px 11px no-repeat,
+    $star-green 93% 12% / 17px 17px no-repeat,
+    $star-silver 15% 92% / 12px 12px no-repeat,
+    $star-green 69% 94% / 14px 14px no-repeat,
+    $star-silver 5% 60% / 9px 9px no-repeat,
+    $star-green 30% 8% / 12px 12px no-repeat,
+    $star-silver 42% 60% / 14px 14px no-repeat,
+    $star-green 56% 90% / 11px 11px no-repeat,
+    $star-silver 80% 50% / 14px 14px no-repeat,
+    $star-green 96% 58% / 9px 9px no-repeat,
+    $star-silver 3% 38% / 10px 10px no-repeat,
+    $star-green 65% 6% / 12px 12px no-repeat,
+    $star-silver 85% 30% / 13px 13px no-repeat,
+    $star-green 52% 48% / 10px 10px no-repeat,
+    $star-silver 18% 72% / 12px 12px no-repeat,
+    $star-green 88% 92% / 11px 11px no-repeat,
+    $star-silver 40% 38% / 14px 14px no-repeat,
+    $star-green 95% 42% / 10px 10px no-repeat,
+    radial-gradient(circle at 20% 20%, #201933 0%, transparent 45%),
+    radial-gradient(circle at 75% 80%, rgba(38, 60, 48, 0.1), transparent 55%),
+    var(--bg-base);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 15px;

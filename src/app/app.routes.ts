@@ -35,6 +35,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/music/music.page').then((m) => m.MusicPage),
   },
   {
+    path: 'museu',
+    loadComponent: () => import('./features/museum/museum.page').then((m) => m.MuseumPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

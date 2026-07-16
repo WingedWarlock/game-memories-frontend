@@ -32,11 +32,11 @@
   z-index: 1;
 
   .btn {
-    background: rgba(20, 18, 15, 0.75);
+    background: rgba(10, 20, 16, 0.75);
     color: var(--text-primary);
 
     &:hover {
-      background: rgba(20, 18, 15, 0.95);
+      background: rgba(10, 20, 16, 0.95);
       color: var(--accent-strong);
     }
   }
@@ -48,7 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, var(--bg-elevated-2), var(--bg-base));
+  background: var(--bg-elevated-2);
   color: var(--border-strong);
 
   img {
