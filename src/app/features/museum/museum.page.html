@@ -291,6 +291,7 @@
           type="button"
           class="btn btn-icon btn-ghost"
           (click)="toggleReliveMute()"
+          title="{{ reliveMuted() ? 'Ativar som' : 'Silenciar música' }}"
           [attr.aria-label]="reliveMuted() ? 'Ativar som' : 'Silenciar música'"
         >
           <app-icon name="music" [size]="16" />
