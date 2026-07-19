@@ -29,10 +29,15 @@
       <h3>Sua biblioteca ainda está vazia</h3>
       <p>Adicione o primeiro jogo para começar a registrar suas memórias.</p>
     </div>
+  } @else if (filteredGames().length === 0) {
+    <div class="empty-state">
+      <h3>Nenhum jogo encontrado</h3>
+      <p>Não achamos nada para "{{ searchTerm() }}". Tente outro termo.</p>
+    </div>
   } @else {
     <app-alphabet-nav [availableLetters]="availableLetters()" (letterClick)="scrollToLetter($event)" />
     <div class="games-grid">
-      @for (game of games(); track game.id) {
+      @for (game of filteredGames(); track game.id) {
         <app-game-card
           [id]="'game-' + game.id"
           [game]="game"

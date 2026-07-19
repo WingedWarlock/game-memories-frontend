@@ -43,9 +43,22 @@ export class HomePage {
   protected readonly editingGame = signal<Game | null>(null);
   protected readonly gameToDelete = signal<Game | null>(null);
 
+  protected readonly filteredGames = computed<Game[]>(() => {
+    const term = this.searchTerm().trim().toLocaleLowerCase('pt-BR');
+    if (!term) {
+      return this.games();
+    }
+    return this.games().filter(
+      (game) =>
+        game.title.toLocaleLowerCase('pt-BR').includes(term) ||
+        (game.saga ?? '').toLocaleLowerCase('pt-BR').includes(term) ||
+        game.platform.toLocaleLowerCase('pt-BR').includes(term),
+    );
+  });
+
   private readonly firstGameIdByLetter = computed(() => {
     const map = new Map<string, number>();
-    for (const game of this.games()) {
+    for (const game of this.filteredGames()) {
       const letter = firstLetter(game.title);
       if (/[A-Z]/.test(letter) && !map.has(letter)) {
         map.set(letter, game.id);
