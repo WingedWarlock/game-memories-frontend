@@ -18,8 +18,9 @@
       <p>A partir de agora, tudo que você registrar no Game Memories vai aparecer aqui.</p>
     </div>
   } @else {
+    <app-quick-nav [items]="quickNavItems()" />
     @for (group of dayGroups(); track group.dateKey) {
-      <section class="history-day">
+      <section class="history-day" id="history-day-{{ group.dateKey }}">
         <h2 class="history-day-heading">{{ group.dateKey + 'T00:00:00' | date: "dd 'de' MMMM 'de' yyyy" }}</h2>
         <ul class="history-event-list">
           <li class="history-event" *ngFor="let event of group.events; trackBy: trackByEventId">

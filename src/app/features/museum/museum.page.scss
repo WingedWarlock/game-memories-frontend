@@ -10,6 +10,19 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
   border-left: 4px solid var(--accent-2);
 }
 
+.special-days-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
 .special-days-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -561,4 +574,106 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
   .relive-quote-text {
     font-size: 18px;
   }
+}
+
+// --- Calendário de dias especiais ---
+
+.calendar-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.calendar-month-label {
+  min-width: 160px;
+  text-align: center;
+  color: var(--accent-strong);
+  font-size: 17px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-cell {
+  appearance: none;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+}
+
+.calendar-cell-empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.calendar-cell-today {
+  border-color: var(--accent-2);
+  color: var(--accent-2-strong);
+  font-weight: 700;
+}
+
+.calendar-cell-has-special::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.calendar-cell-selected {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+.calendar-cell-selected.calendar-cell-has-special::after {
+  background: var(--on-accent);
+}
+
+.calendar-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
 }

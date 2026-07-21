@@ -15,6 +15,7 @@ import { ModalComponent } from '../../shared/components/modal/modal.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LifeEventFormComponent } from './components/life-event-form/life-event-form.component';
+import { QuickNavComponent } from '../../shared/components/quick-nav/quick-nav.component';
 
 type MomentKind = 'life-event' | 'memory' | 'achievement';
 
@@ -38,7 +39,7 @@ interface MomentYearGroup {
 @Component({
   selector: 'app-life-events',
   standalone: true,
-  imports: [NgFor, RouterLink, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent],
+  imports: [NgFor, RouterLink, ModalComponent, ConfirmDialogComponent, IconComponent, LifeEventFormComponent, QuickNavComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './life-events.page.html',
   styleUrl: './life-events.page.scss',
@@ -99,6 +100,10 @@ export class LifeEventsPage {
         entries: entries.sort((a, b) => b.date.localeCompare(a.date)),
       }));
   });
+
+  protected readonly quickNavItems = computed(() =>
+    this.yearGroups().map((group) => ({ id: `moment-year-${group.year}`, label: String(group.year) })),
+  );
 
   constructor() {
     this.load();

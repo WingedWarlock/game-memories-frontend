@@ -20,17 +20,25 @@
       <p>Registre runs, memórias, conquistas, save points ou momentos com datas para começar a preencher as salas.</p>
     </div>
   } @else {
-    @if (specialDays().length > 0) {
-      <section class="section special-days-section">
-        <h2 class="section-title">✨ Dias especiais de hoje</h2>
+    <section class="section special-days-section">
+      <div class="special-days-header">
+        <h2 class="section-title">✨ Dias especiais</h2>
+        <button type="button" class="btn btn-secondary btn-sm" (click)="openCalendar()">
+          <app-icon name="calendar" [size]="14" />
+          Ver calendário
+        </button>
+      </div>
+      @if (specialDays().length > 0) {
         <div class="special-days-row">
           <div class="special-day-card" *ngFor="let day of specialDays(); trackBy: trackBySpecialDayKey">
               <span class="special-day-years">{{ day.yearsAgo }} {{ day.yearsAgo === 1 ? 'ano' : 'anos' }}</span>
               <p>{{ day.text }}</p>
           </div>
         </div>
-      </section>
-    }
+      } @else {
+        <p class="field-hint">Nada de especial aconteceu hoje... ainda. Dá uma olhada no calendário pra reviver outros dias.</p>
+      }
+    </section>
 
     <nav class="museum-year-nav" aria-label="Selecionar ano do museu">
       @for (exhibit of exhibits(); track exhibit.year) {
@@ -157,6 +165,58 @@
     }
   }
 </div>
+
+<app-modal [open]="showCalendarModal()" title="Calendário de dias especiais" (closed)="closeCalendar()">
+  <div class="calendar-modal">
+    <div class="calendar-nav">
+      <button type="button" class="btn btn-icon btn-ghost" (click)="prevCalendarMonth()" aria-label="Mês anterior">
+        <app-icon name="chevron-right" [size]="16" class="relive-icon-prev" />
+      </button>
+      <strong class="calendar-month-label">{{ calendarMonthLabel() }}</strong>
+      <button type="button" class="btn btn-icon btn-ghost" (click)="nextCalendarMonth()" aria-label="Próximo mês">
+        <app-icon name="chevron-right" [size]="16" />
+      </button>
+    </div>
+
+    <div class="calendar-weekdays">
+      @for (weekday of calendarWeekdays; track weekday) {
+        <span>{{ weekday }}</span>
+      }
+    </div>
+
+    <div class="calendar-grid">
+      @for (cell of calendarDays(); track $index) {
+        @if (cell.day == null) {
+          <span class="calendar-cell calendar-cell-empty"></span>
+        } @else {
+          <button
+            type="button"
+            class="calendar-cell"
+            [class.calendar-cell-today]="cell.isToday"
+            [class.calendar-cell-has-special]="cell.hasSpecialDay"
+            [class.calendar-cell-selected]="selectedCalendarDay() === cell.day"
+            (click)="selectCalendarDay(cell.day)"
+          >
+            {{ cell.day }}
+          </button>
+        }
+      }
+    </div>
+
+    <div class="calendar-results">
+      @if (selectedCalendarDay() == null) {
+        <p class="field-hint">Selecione um dia para ver o que aconteceu nele ao longo dos anos.</p>
+      } @else if (selectedDaySpecialDays().length === 0) {
+        <p class="field-hint">Nada de especial registrado nesse dia, em nenhum ano.</p>
+      } @else {
+        <div class="special-day-card" *ngFor="let day of selectedDaySpecialDays(); trackBy: trackBySpecialDayKey">
+            <span class="special-day-years">{{ day.yearsAgo }} {{ day.yearsAgo === 1 ? 'ano' : 'anos' }}</span>
+            <p>{{ day.text }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</app-modal>
 
 @if (relive(); as reliveState) {
   <div class="relive-overlay" role="dialog" aria-modal="true" aria-label="Modo reviver">

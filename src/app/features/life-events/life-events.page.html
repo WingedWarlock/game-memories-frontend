@@ -36,8 +36,9 @@
       <p>Guarde os acontecimentos da sua vida — trabalho, estudos, viagens — para contextualizar sua jornada gamer.</p>
     </div>
   } @else {
+    <app-quick-nav [items]="quickNavItems()" />
     @for (group of yearGroups(); track group.year) {
-      <section class="moment-year">
+      <section class="moment-year" id="moment-year-{{ group.year }}">
         <h2 class="moment-year-heading">{{ group.year }}</h2>
         <ul class="moment-list">
           <li

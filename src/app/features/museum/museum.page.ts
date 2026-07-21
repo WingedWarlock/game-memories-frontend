@@ -31,8 +31,16 @@ import { GameScreenshotService } from '../../core/services/game-screenshot.servi
 import { GameMusicService } from '../../core/services/game-music.service';
 import { SavePointService } from '../../core/services/save-point.service';
 import { LifeEventService } from '../../core/services/life-event.service';
+import { SpecialDaysService } from '../../core/services/special-days.service';
+import {
+  SpecialDay,
+  SpecialDayCandidate,
+  daysWithSpecialDaysInMonth,
+  filterSpecialDaysForDate,
+} from '../../core/utils/special-days.util';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
 import { CoverCarouselComponent } from '../games/components/cover-carousel/cover-carousel.component';
+import { ModalComponent } from '../../shared/components/modal/modal.component';
 
 interface GameYearEntry {
   gameId: number;
@@ -106,22 +114,27 @@ interface YearExhibit {
   highlights: YearHighlights;
 }
 
-type SpecialDayKind = 'run-started' | 'run-completed' | 'memory' | 'achievement' | 'save-point' | 'life-event';
-
-interface SpecialDayCandidate {
-  key: string;
-  date: string;
-  kind: SpecialDayKind;
-  gameTitle?: string;
-  runName?: string;
-  label: string;
+interface CalendarDayCell {
+  day: number | null;
+  hasSpecialDay: boolean;
+  isToday: boolean;
 }
 
-interface SpecialDay {
-  key: string;
-  yearsAgo: number;
-  text: string;
-}
+const CALENDAR_MONTH_NAMES = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
+];
+const CALENDAR_WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 type ReliveSlideKind = 'intro' | 'games' | 'highlights' | 'timeline' | 'screenshots' | 'outro';
 type ReliveTimelineItemKind = 'memory' | 'achievement' | 'save-point' | 'life-event';
@@ -182,7 +195,7 @@ function daysBetween(startDate: string, endDate: string): number {
 @Component({
   selector: 'app-museum',
   standalone: true,
-  imports: [NgFor, DatePipe, IconComponent, CoverCarouselComponent],
+  imports: [NgFor, DatePipe, IconComponent, CoverCarouselComponent, ModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './museum.page.html',
   styleUrl: './museum.page.scss',
@@ -196,13 +209,14 @@ export class MuseumPage implements OnDestroy {
   private readonly musicService = inject(GameMusicService);
   private readonly savePointService = inject(SavePointService);
   private readonly lifeEventService = inject(LifeEventService);
+  private readonly specialDaysService = inject(SpecialDaysService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
   protected readonly exhibits = signal<YearExhibit[]>([]);
   protected readonly selectedYear = signal<number | null>(null);
 
-  private readonly specialDayCandidates = signal<SpecialDayCandidate[]>([]);
+  private readonly allSpecialDayCandidates = signal<SpecialDayCandidate[]>([]);
 
   protected readonly currentExhibit = computed<YearExhibit | null>(() => {
     const year = this.selectedYear();
@@ -214,21 +228,55 @@ export class MuseumPage implements OnDestroy {
 
   protected readonly specialDays = computed<SpecialDay[]>(() => {
     const today = new Date();
-    const todayMonth = today.getMonth() + 1;
-    const todayDay = today.getDate();
-    const currentYear = today.getFullYear();
+    return filterSpecialDaysForDate(
+      this.allSpecialDayCandidates(),
+      today.getMonth() + 1,
+      today.getDate(),
+      today.getFullYear(),
+      'Hoje',
+    );
+  });
 
-    const matches: SpecialDay[] = [];
-    for (const candidate of this.specialDayCandidates()) {
-      const [yearStr, monthStr, dayStr] = candidate.date.split('-');
-      const year = Number(yearStr);
-      if (Number(monthStr) !== todayMonth || Number(dayStr) !== todayDay || year >= currentYear) {
-        continue;
-      }
-      const yearsAgo = currentYear - year;
-      matches.push({ key: candidate.key, yearsAgo, text: this.buildSpecialDayText(candidate, yearsAgo) });
+  protected readonly showCalendarModal = signal(false);
+  protected readonly calendarMonth = signal(new Date().getMonth() + 1);
+  protected readonly calendarYear = signal(new Date().getFullYear());
+  protected readonly selectedCalendarDay = signal<number | null>(null);
+
+  protected readonly calendarWeekdays = CALENDAR_WEEKDAYS;
+
+  protected readonly calendarMonthLabel = computed(
+    () => `${CALENDAR_MONTH_NAMES[this.calendarMonth() - 1]} ${this.calendarYear()}`,
+  );
+
+  protected readonly calendarDays = computed<CalendarDayCell[]>(() => {
+    const month = this.calendarMonth();
+    const year = this.calendarYear();
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const firstWeekday = new Date(year, month - 1, 1).getDay();
+    const daysWithSpecial = daysWithSpecialDaysInMonth(this.allSpecialDayCandidates(), month, new Date().getFullYear());
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() + 1 === month;
+
+    const cells: CalendarDayCell[] = [];
+    for (let i = 0; i < firstWeekday; i++) {
+      cells.push({ day: null, hasSpecialDay: false, isToday: false });
     }
-    return matches.sort((a, b) => b.yearsAgo - a.yearsAgo);
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push({ day, hasSpecialDay: daysWithSpecial.has(day), isToday: isCurrentMonth && today.getDate() === day });
+    }
+    return cells;
+  });
+
+  protected readonly selectedDaySpecialDays = computed<SpecialDay[]>(() => {
+    const day = this.selectedCalendarDay();
+    if (day == null) {
+      return [];
+    }
+    const month = this.calendarMonth();
+    const year = this.calendarYear();
+    const today = new Date();
+    const isToday = today.getFullYear() === year && today.getMonth() + 1 === month && today.getDate() === day;
+    return filterSpecialDaysForDate(this.allSpecialDayCandidates(), month, day, today.getFullYear(), isToday ? 'Hoje' : 'Nessa data');
   });
 
   protected readonly relive = signal<ReliveState | null>(null);
@@ -258,12 +306,14 @@ export class MuseumPage implements OnDestroy {
   protected readonly trackByScreenshotKey = (_: number, entry: ScreenshotEntry) => entry.key;
   protected readonly trackByLifeEventId = (_: number, entry: LifeEvent) => entry.id;
   protected readonly trackBySpecialDayKey = (_: number, entry: SpecialDay) => entry.key;
+  protected readonly trackByCalendarCell = (index: number, cell: CalendarDayCell) => cell.day ?? `blank-${index}`;
 
   private reliveTimer?: ReturnType<typeof setInterval>;
   private reliveTransitionTimeout?: ReturnType<typeof setTimeout>;
 
   constructor() {
     this.load();
+    this.specialDaysService.getCandidates().subscribe((candidates) => this.allSpecialDayCandidates.set(candidates));
     effect(() => {
       const track = this.reliveTrack();
       const audio = this.reliveAudioEl()?.nativeElement;
@@ -334,6 +384,49 @@ export class MuseumPage implements OnDestroy {
 
   selectYear(year: number): void {
     this.selectedYear.set(year);
+  }
+
+  openCalendar(): void {
+    const today = new Date();
+    this.calendarMonth.set(today.getMonth() + 1);
+    this.calendarYear.set(today.getFullYear());
+    this.selectedCalendarDay.set(today.getDate());
+    this.showCalendarModal.set(true);
+  }
+
+  closeCalendar(): void {
+    this.showCalendarModal.set(false);
+  }
+
+  prevCalendarMonth(): void {
+    let month = this.calendarMonth() - 1;
+    let year = this.calendarYear();
+    if (month < 1) {
+      month = 12;
+      year -= 1;
+    }
+    this.calendarMonth.set(month);
+    this.calendarYear.set(year);
+    this.selectedCalendarDay.set(null);
+  }
+
+  nextCalendarMonth(): void {
+    let month = this.calendarMonth() + 1;
+    let year = this.calendarYear();
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+    this.calendarMonth.set(month);
+    this.calendarYear.set(year);
+    this.selectedCalendarDay.set(null);
+  }
+
+  selectCalendarDay(day: number | null): void {
+    if (day == null) {
+      return;
+    }
+    this.selectedCalendarDay.set(day);
   }
 
   startRelive(exhibit: YearExhibit): void {
@@ -543,24 +636,6 @@ export class MuseumPage implements OnDestroy {
     return slides;
   }
 
-  private buildSpecialDayText(candidate: SpecialDayCandidate, yearsAgo: number): string {
-    const yearsLabel = `${yearsAgo} ${yearsAgo === 1 ? 'ano' : 'anos'}`;
-    switch (candidate.kind) {
-      case 'run-completed':
-        return `Hoje faz ${yearsLabel} que você terminou ${candidate.gameTitle} (run "${candidate.runName}").`;
-      case 'run-started':
-        return `Hoje faz ${yearsLabel} que você começou sua run "${candidate.runName}" em ${candidate.gameTitle}.`;
-      case 'achievement':
-        return `Hoje faz ${yearsLabel} que você desbloqueou "${candidate.label}" em ${candidate.gameTitle}.`;
-      case 'memory':
-        return `Hoje faz ${yearsLabel} que você registrou a memória "${candidate.label}" em ${candidate.gameTitle}.`;
-      case 'save-point':
-        return `Hoje faz ${yearsLabel} que você salvou em "${candidate.label}" — ${candidate.gameTitle}.`;
-      case 'life-event':
-        return `Hoje faz ${yearsLabel}: ${candidate.label}.`;
-    }
-  }
-
   private finishLoading(
     games: Game[],
     allRuns: { game: Game; run: Run }[],
@@ -751,96 +826,5 @@ export class MuseumPage implements OnDestroy {
       this.selectedYear.set(exhibits[0].year);
     }
 
-    this.buildSpecialDayCandidates(games, allRuns, memoriesLists, achievementsLists, lifeEvents, savePointLists);
-  }
-
-  private buildSpecialDayCandidates(
-    games: Game[],
-    allRuns: { game: Game; run: Run }[],
-    memoriesLists: GameMemory[][],
-    achievementsLists: Achievement[][],
-    lifeEvents: LifeEvent[],
-    savePointLists: SavePoint[][],
-  ): void {
-    const candidates: SpecialDayCandidate[] = [];
-
-    for (const { game, run } of allRuns) {
-      if (run.startDate) {
-        candidates.push({
-          key: `run-started-${run.id}`,
-          date: run.startDate,
-          kind: 'run-started',
-          gameTitle: game.title,
-          runName: run.runName,
-          label: run.runName,
-        });
-      }
-      if (run.endDate) {
-        candidates.push({
-          key: `run-completed-${run.id}`,
-          date: run.endDate,
-          kind: 'run-completed',
-          gameTitle: game.title,
-          runName: run.runName,
-          label: run.runName,
-        });
-      }
-    }
-
-    games.forEach((game, index) => {
-      for (const memory of memoriesLists[index]) {
-        if (!memory.memoryDate) {
-          continue;
-        }
-        candidates.push({
-          key: `memory-${memory.id}`,
-          date: memory.memoryDate,
-          kind: 'memory',
-          gameTitle: game.title,
-          label: memory.title,
-        });
-      }
-      for (const achievement of achievementsLists[index]) {
-        if (!achievement.unlocked || !achievement.unlockedDate) {
-          continue;
-        }
-        candidates.push({
-          key: `achievement-${achievement.id}`,
-          date: achievement.unlockedDate,
-          kind: 'achievement',
-          gameTitle: game.title,
-          label: achievement.title,
-        });
-      }
-    });
-
-    allRuns.forEach(({ game, run }, index) => {
-      for (const savePoint of savePointLists[index] ?? []) {
-        if (!savePoint.date) {
-          continue;
-        }
-        candidates.push({
-          key: `savepoint-${savePoint.id}`,
-          date: savePoint.date,
-          kind: 'save-point',
-          gameTitle: game.title,
-          label: savePoint.title,
-        });
-      }
-    });
-
-    for (const lifeEvent of lifeEvents) {
-      if (!lifeEvent.date) {
-        continue;
-      }
-      candidates.push({
-        key: `life-event-${lifeEvent.id}`,
-        date: lifeEvent.date,
-        kind: 'life-event',
-        label: lifeEvent.title,
-      });
-    }
-
-    this.specialDayCandidates.set(candidates);
   }
 }

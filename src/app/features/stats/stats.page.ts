@@ -6,6 +6,7 @@ import { NameCount, Run, Stats } from '../../core/models';
 import { StatsService } from '../../core/services/stats.service';
 import { GameService } from '../../core/services/game.service';
 import { RunService } from '../../core/services/run.service';
+import { QuickNavComponent } from '../../shared/components/quick-nav/quick-nav.component';
 
 interface DistributionGroup {
   title: string;
@@ -37,7 +38,7 @@ function daysBetween(startDate: string, endDate: string): number {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, QuickNavComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './stats.page.html',
   styleUrl: './stats.page.scss',
@@ -80,6 +81,10 @@ export class StatsPage {
   });
 
   protected readonly trackByRunKey = (_: number, run: RunDuration) => `${run.gameId}-${run.runName}-${run.endDate}`;
+
+  protected readonly quickNavItems = computed(() =>
+    this.runsByYear().map((group) => ({ id: `stats-year-${group.year}`, label: String(group.year) })),
+  );
 
   protected readonly distributions = computed<DistributionGroup[]>(() => {
     const stats = this.stats();

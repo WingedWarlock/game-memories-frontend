@@ -22,6 +22,17 @@
     </div>
   </div>
 
+  @if (museumSpecialDaysToday().length > 0) {
+    <a class="museum-special-day-banner" routerLink="/museu">
+      <app-icon name="calendar" [size]="16" />
+      <span>
+        ✨ {{ museumSpecialDaysToday().length }} {{ museumSpecialDaysToday().length === 1 ? 'dia especial' : 'dias especiais' }}
+        hoje no Museu — "{{ museumSpecialDaysToday()[0].text }}"
+      </span>
+      <app-icon name="chevron-right" [size]="16" />
+    </a>
+  }
+
   @if (loading()) {
     <p class="loading-state">Carregando sua timeline...</p>
   } @else if (error()) {

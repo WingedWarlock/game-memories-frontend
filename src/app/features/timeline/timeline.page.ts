@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgFor } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -12,6 +13,8 @@ import { AchievementService } from '../../core/services/achievement.service';
 import { LifeEventService } from '../../core/services/life-event.service';
 import { StatsService } from '../../core/services/stats.service';
 import { ToastService } from '../../core/services/toast.service';
+import { SpecialDaysService } from '../../core/services/special-days.service';
+import { SpecialDay, SpecialDayCandidate, filterSpecialDaysForDate } from '../../core/utils/special-days.util';
 import { LIFE_EVENT_CATEGORY_LABEL } from '../../core/models/life-event.model';
 
 import { GameCardComponent } from '../games/components/game-card/game-card.component';
@@ -47,6 +50,7 @@ function formatDate(isoDate: string): string {
   standalone: true,
   imports: [
     NgFor,
+    RouterLink,
     GameCardComponent,
     ModalComponent,
     ConfirmDialogComponent,
@@ -68,6 +72,7 @@ export class TimelinePage {
   private readonly lifeEventService = inject(LifeEventService);
   private readonly statsService = inject(StatsService);
   private readonly toast = inject(ToastService);
+  private readonly specialDaysService = inject(SpecialDaysService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
@@ -75,6 +80,18 @@ export class TimelinePage {
   protected readonly isEmpty = signal(false);
   protected readonly expandedYears = signal<Set<number>>(new Set());
   private expansionInitialized = false;
+
+  private readonly museumSpecialDayCandidates = signal<SpecialDayCandidate[]>([]);
+  protected readonly museumSpecialDaysToday = computed<SpecialDay[]>(() => {
+    const today = new Date();
+    return filterSpecialDaysForDate(
+      this.museumSpecialDayCandidates(),
+      today.getMonth() + 1,
+      today.getDate(),
+      today.getFullYear(),
+      'Hoje',
+    );
+  });
 
   protected readonly allYearsExpanded = computed(() => {
     const groups = this.yearGroups();
@@ -106,6 +123,7 @@ export class TimelinePage {
 
   constructor() {
     this.load();
+    this.specialDaysService.getCandidates().subscribe((candidates) => this.museumSpecialDayCandidates.set(candidates));
   }
 
   load(): void {

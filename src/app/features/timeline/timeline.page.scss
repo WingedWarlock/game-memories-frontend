@@ -19,6 +19,30 @@
   white-space: nowrap;
 }
 
+.museum-special-day-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-2);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  span {
+    flex: 1;
+  }
+
+  &:hover {
+    border-color: var(--accent-2);
+    color: var(--text-primary);
+  }
+}
+
 .timeline-year {
   margin-bottom: 32px;
 }

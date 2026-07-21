@@ -3,6 +3,7 @@ import { DatePipe, NgFor } from '@angular/common';
 import { HistoryEvent, HistoryEventType } from '../../core/models';
 import { HistoryEventService } from '../../core/services/history-event.service';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
+import { QuickNavComponent } from '../../shared/components/quick-nav/quick-nav.component';
 
 interface HistoryDayGroup {
   dateKey: string;
@@ -32,7 +33,7 @@ const EVENT_ICON: Record<HistoryEventType, IconName> = {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [DatePipe, NgFor, IconComponent],
+  imports: [DatePipe, NgFor, IconComponent, QuickNavComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './history.page.html',
   styleUrl: './history.page.scss',
@@ -52,7 +53,22 @@ export class HistoryPage {
       list.push(event);
       groups.set(dateKey, list);
     }
-    return Array.from(groups.entries()).map(([dateKey, events]) => ({ dateKey, events }));
+    return Array.from(groups.entries())
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([dateKey, events]) => ({ dateKey, events }));
+  });
+
+  protected readonly quickNavItems = computed(() => {
+    const items: { id: string; label: string }[] = [];
+    const seenYears = new Set<number>();
+    for (const group of this.dayGroups()) {
+      const year = Number(group.dateKey.slice(0, 4));
+      if (!seenYears.has(year)) {
+        seenYears.add(year);
+        items.push({ id: `history-day-${group.dateKey}`, label: String(year) });
+      }
+    }
+    return items;
   });
 
   protected readonly eventIcon = (type: HistoryEventType) => EVENT_ICON[type];
