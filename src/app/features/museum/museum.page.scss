@@ -187,6 +187,7 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
     aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
+    cursor: zoom-in;
   }
 
   figcaption {
@@ -234,8 +235,8 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-  padding: 32px;
+  gap: 18px;
+  padding: 24px;
   background: rgba(4, 10, 8, 0.94);
   color: $relive-silver;
 }
@@ -317,8 +318,8 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 
 .relive-slide {
   width: 100%;
-  max-width: 1040px;
-  max-height: 72vh;
+  max-width: min(1560px, 94vw);
+  max-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -492,6 +493,7 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
     aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
+    cursor: zoom-in;
   }
 
   figcaption {
@@ -529,6 +531,32 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
   }
 }
 
+.relive-interval-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(223, 230, 238, 0.75);
+
+  .field-hint {
+    color: rgba(223, 230, 238, 0.75);
+  }
+
+  select {
+    padding: 6px 10px;
+    font-size: 13px;
+    background: rgba(223, 230, 238, 0.08);
+    border: 1px solid rgba(223, 230, 238, 0.2);
+    border-radius: var(--radius-sm);
+    color: $relive-silver;
+    color-scheme: dark;
+  }
+
+  option {
+    color: #111;
+    background: #e8ede9;
+  }
+}
+
 .relive-controls {
   display: flex;
   align-items: center;
@@ -537,6 +565,39 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 
   .btn-icon {
     color: $relive-silver;
+  }
+}
+
+.relive-volume-slider {
+  appearance: none;
+  width: 90px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(223, 230, 238, 0.2);
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(223, 230, 238, 0.2);
   }
 }
 
@@ -676,4 +737,38 @@ $relive-star-purple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
   gap: 10px;
   max-height: 280px;
   overflow-y: auto;
+}
+
+// --- Lightbox de imagens (capas e screenshots) ---
+
+.lightbox-image-wrap {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  max-height: 75vh;
+  display: flex;
+  justify-content: center;
+  background: var(--bg-elevated-2);
+}
+
+.lightbox-image-wrap-zoomed {
+  overflow: auto;
+  display: block;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 75vh;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  cursor: zoom-in;
+}
+
+.lightbox-image-zoomed {
+  max-width: none;
+  max-height: none;
+  width: 200%;
+  height: auto;
+  cursor: zoom-out;
 }

@@ -69,7 +69,13 @@
             <div class="museum-game-row">
               @for (game of exhibit.games; track game.gameId) {
                 <div class="museum-game-item">
-                  <app-cover-carousel [gameId]="game.gameId" [altText]="game.title" [iconSize]="22" />
+                  <app-cover-carousel
+                    [gameId]="game.gameId"
+                    [altText]="game.title"
+                    [iconSize]="22"
+                    [zoomable]="true"
+                    (zoomClick)="onGameCoverZoom(game.title, $event)"
+                  />
                   <strong>{{ game.title }}</strong>
                   <span class="field-hint">
                     @if (game.startedThisYear && game.completedThisYear) {
@@ -109,7 +115,12 @@
             <div class="museum-screenshot-grid">
               @for (shot of exhibit.screenshots; track shot.key) {
                 <figure class="museum-screenshot">
-                  <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" loading="lazy" />
+                  <img
+                    [src]="shot.fileUrl"
+                    alt="{{ shot.title || shot.gameTitle }}"
+                    loading="lazy"
+                    (click)="openImageLightbox(shot.fileUrl, shot.title || shot.gameTitle)"
+                  />
                   <figcaption>{{ shot.gameTitle }}</figcaption>
                 </figure>
               }
@@ -226,7 +237,7 @@
     </div>
 
     @if (reliveTrack(); as track) {
-      <audio #reliveAudio [src]="track.fileUrl" [muted]="reliveMuted()" loop autoplay></audio>
+      <audio #reliveAudio [src]="track.fileUrl" [muted]="reliveMuted()" [volume]="reliveVolume()" loop autoplay></audio>
     }
 
     <button type="button" class="btn btn-icon btn-ghost relive-close" (click)="closeRelive()" aria-label="Fechar modo reviver">
@@ -253,7 +264,13 @@
             <div class="relive-games-grid">
               @for (game of currentSlide()?.games ?? []; track game.gameId) {
                 <div class="relive-game-item">
-                  <app-cover-carousel [gameId]="game.gameId" [altText]="game.title" [iconSize]="26" />
+                  <app-cover-carousel
+                    [gameId]="game.gameId"
+                    [altText]="game.title"
+                    [iconSize]="26"
+                    [zoomable]="true"
+                    (zoomClick)="onGameCoverZoom(game.title, $event)"
+                  />
                   <strong>{{ game.title }}</strong>
                   <span class="field-hint">
                     @if (game.startedThisYear && game.completedThisYear) {
@@ -308,7 +325,11 @@
             <div class="relive-screenshots-grid">
               @for (shot of currentSlide()?.screenshots ?? []; track shot.key) {
                 <figure class="relive-screenshot-item">
-                  <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" />
+                  <img
+                    [src]="shot.fileUrl"
+                    alt="{{ shot.title || shot.gameTitle }}"
+                    (click)="openImageLightbox(shot.fileUrl, shot.title || shot.gameTitle)"
+                  />
                   <figcaption>{{ shot.gameTitle }}</figcaption>
                 </figure>
               }
@@ -332,6 +353,15 @@
       </div>
     }
 
+    <div class="relive-interval-picker">
+      <span class="field-hint">Avanço:</span>
+      <select (change)="onReliveIntervalChange($event)" aria-label="Velocidade do avanço automático">
+        @for (option of reliveIntervalOptions; track option.value) {
+          <option [value]="option.value" [selected]="reliveIntervalMs() === option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
     <div class="relive-controls">
       <button type="button" class="btn btn-icon btn-ghost" (click)="relivePrev()" [disabled]="reliveState.index === 0" aria-label="Momento anterior">
         <app-icon name="chevron-right" [size]="16" class="relive-icon-prev" />
@@ -354,8 +384,18 @@
           title="{{ reliveMuted() ? 'Ativar som' : 'Silenciar música' }}"
           [attr.aria-label]="reliveMuted() ? 'Ativar som' : 'Silenciar música'"
         >
-          <app-icon name="music" [size]="16" />
+          <app-icon [name]="reliveMuted() ? 'music-off' : 'music'" [size]="16" />
         </button>
+        <input
+          type="range"
+          class="relive-volume-slider"
+          min="0"
+          max="1"
+          step="0.05"
+          [value]="reliveVolume()"
+          (input)="onReliveVolumeChange($event)"
+          aria-label="Volume da música"
+        />
       }
     </div>
 
@@ -364,3 +404,18 @@
     </div>
   </div>
 }
+
+<app-modal [open]="!!lightboxImage()" [title]="lightboxImage()?.title || ''" size="lg" (closed)="closeImageLightbox()">
+  @if (lightboxImage(); as image) {
+    <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
+      <img
+        class="lightbox-image"
+        [class.lightbox-image-zoomed]="imageZoomed()"
+        [src]="image.url"
+        alt="{{ image.title }}"
+        title="{{ image.title }}"
+        (click)="toggleImageZoom()"
+      />
+    </div>
+  }
+</app-modal>

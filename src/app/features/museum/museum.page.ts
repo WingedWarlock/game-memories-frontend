@@ -15,6 +15,7 @@ import { catchError } from 'rxjs/operators';
 import {
   Achievement,
   Game,
+  GameCover,
   GameMemory,
   GameMusic,
   GameScreenshot,
@@ -171,11 +172,23 @@ interface ReliveState {
   trackIndex: number;
 }
 
-const RELIVE_SLIDE_MS = 8000;
+const DEFAULT_RELIVE_INTERVAL_MS = 8000;
 const MAX_SCREENSHOTS_PER_YEAR = 18;
 const MAX_RELIVE_SCREENSHOTS = 18;
 const TIMELINE_ITEMS_PER_SLIDE = 4;
 const SCREENSHOTS_PER_SLIDE = 6;
+
+interface ReliveIntervalOption {
+  value: number;
+  label: string;
+}
+
+const RELIVE_INTERVAL_OPTIONS: ReliveIntervalOption[] = [
+  { value: 4000, label: 'Rápido (4s)' },
+  { value: DEFAULT_RELIVE_INTERVAL_MS, label: 'Normal (8s)' },
+  { value: 14000, label: 'Devagar (14s)' },
+  { value: 0, label: 'Sem avanço automático' },
+];
 
 function yearOf(dateStr: string): number {
   return Number(dateStr.slice(0, 4));
@@ -237,6 +250,9 @@ export class MuseumPage implements OnDestroy {
     );
   });
 
+  protected readonly lightboxImage = signal<{ url: string; title: string } | null>(null);
+  protected readonly imageZoomed = signal(false);
+
   protected readonly showCalendarModal = signal(false);
   protected readonly calendarMonth = signal(new Date().getMonth() + 1);
   protected readonly calendarYear = signal(new Date().getFullYear());
@@ -281,7 +297,10 @@ export class MuseumPage implements OnDestroy {
 
   protected readonly relive = signal<ReliveState | null>(null);
   protected readonly reliveMuted = signal(false);
+  protected readonly reliveVolume = signal(0.7);
   protected readonly reliveTransitioning = signal(false);
+  protected readonly reliveIntervalOptions = RELIVE_INTERVAL_OPTIONS;
+  protected readonly reliveIntervalMs = signal(DEFAULT_RELIVE_INTERVAL_MS);
   protected readonly currentSlide = computed<ReliveSlide | null>(() => {
     const state = this.relive();
     return state ? (state.slides[state.index] ?? null) : null;
@@ -384,6 +403,29 @@ export class MuseumPage implements OnDestroy {
 
   selectYear(year: number): void {
     this.selectedYear.set(year);
+  }
+
+  openImageLightbox(url: string, title: string): void {
+    this.lightboxImage.set({ url, title });
+    this.imageZoomed.set(false);
+    this.clearReliveTimer();
+  }
+
+  closeImageLightbox(): void {
+    this.lightboxImage.set(null);
+    if (this.relive()) {
+      this.restartReliveTimer();
+    }
+  }
+
+  toggleImageZoom(): void {
+    this.imageZoomed.update((value) => !value);
+  }
+
+  onGameCoverZoom(gameTitle: string, cover: GameCover | null): void {
+    if (cover) {
+      this.openImageLightbox(cover.fileUrl, gameTitle);
+    }
   }
 
   openCalendar(): void {
@@ -502,9 +544,31 @@ export class MuseumPage implements OnDestroy {
     this.reliveMuted.update((value) => !value);
   }
 
+  onReliveVolumeChange(event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    if (!Number.isNaN(value)) {
+      this.reliveVolume.set(value);
+      if (value > 0 && this.reliveMuted()) {
+        this.reliveMuted.set(false);
+      }
+    }
+  }
+
+  onReliveIntervalChange(event: Event): void {
+    const value = Number((event.target as HTMLSelectElement).value);
+    if (!Number.isNaN(value)) {
+      this.reliveIntervalMs.set(value);
+      this.restartReliveTimer();
+    }
+  }
+
   private restartReliveTimer(): void {
     this.clearReliveTimer();
-    this.reliveTimer = setInterval(() => this.reliveNext(), RELIVE_SLIDE_MS);
+    const interval = this.reliveIntervalMs();
+    if (interval <= 0) {
+      return;
+    }
+    this.reliveTimer = setInterval(() => this.reliveNext(), interval);
   }
 
   private clearReliveTimer(): void {

@@ -12,6 +12,10 @@
   background: var(--bg-elevated-2);
 }
 
+.cover-carousel-zoomable {
+  cursor: zoom-in;
+}
+
 .cover-carousel-img {
   position: absolute;
   inset: 0;

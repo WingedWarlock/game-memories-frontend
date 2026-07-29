@@ -16,6 +16,7 @@ export type IconName =
   | 'crown'
   | 'camera'
   | 'music'
+  | 'music-off'
   | 'trophy'
   | 'package'
   | 'wrench'
@@ -111,6 +112,12 @@ export type IconName =
           <path d="M9 18V5l10-2v13" />
           <circle cx="6" cy="18" r="3" />
           <circle cx="16" cy="16" r="3" />
+        }
+        @case ('music-off') {
+          <path d="M9 18V5l10-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="16" cy="16" r="3" />
+          <path d="M2 2l20 20" />
         }
         @case ('trophy') {
           <path d="M7 4h10v5a5 5 0 0 1-10 0V4z" />

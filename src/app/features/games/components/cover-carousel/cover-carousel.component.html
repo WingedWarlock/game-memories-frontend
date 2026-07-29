@@ -1,4 +1,4 @@
-<div class="cover-carousel">
+<div class="cover-carousel" [class.cover-carousel-zoomable]="zoomable()" (click)="onClick()">
   @if (activeCovers().length > 0) {
     <img
       [src]="activeCovers()[currentIndex()].fileUrl"

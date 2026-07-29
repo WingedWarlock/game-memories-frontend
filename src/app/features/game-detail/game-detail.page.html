@@ -33,7 +33,13 @@
     <section id="info" class="section game-info-section">
       <div class="game-info-cover-wrap">
         <div class="game-info-cover">
-          <app-cover-carousel [covers]="covers()" [altText]="game()!.title" [iconSize]="36" />
+          <app-cover-carousel
+            [covers]="covers()"
+            [altText]="game()!.title"
+            [iconSize]="36"
+            [zoomable]="true"
+            (zoomClick)="openCoverLightbox($event)"
+          />
         </div>
 
         <div class="cover-manager">
@@ -521,9 +527,44 @@
 
 <app-modal [open]="!!lightboxScreenshot()" [title]="lightboxScreenshot()?.title || 'Screenshot'" size="lg" (closed)="closeLightbox()">
   @if (lightboxScreenshot(); as shot) {
-    <img class="lightbox-image" [src]="shot.fileUrl" alt="{{ shot.title || 'Screenshot' }}" title="{{ shot.title || 'Screenshot' }}" />
+    <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
+      <img
+        class="lightbox-image"
+        [class.lightbox-image-zoomed]="imageZoomed()"
+        [src]="shot.fileUrl"
+        alt="{{ shot.title || 'Screenshot' }}"
+        title="{{ shot.title || 'Screenshot' }}"
+        (click)="toggleImageZoom()"
+      />
+    </div>
     @if (shot.description) {
       <p class="lightbox-description">{{ shot.description }}</p>
+    }
+  }
+</app-modal>
+
+<app-modal [open]="showCoverLightbox()" [title]="game()!.title" size="lg" (closed)="closeCoverLightbox()">
+  @if (lightboxCover(); as cover) {
+    <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
+      <img
+        class="lightbox-image"
+        [class.lightbox-image-zoomed]="imageZoomed()"
+        [src]="cover.fileUrl"
+        alt="{{ cover.title || game()!.title }}"
+        title="{{ cover.title || game()!.title }}"
+        (click)="toggleImageZoom()"
+      />
+    </div>
+    @if (covers().length > 1) {
+      <div class="lightbox-nav">
+        <button type="button" class="btn btn-icon btn-ghost" (click)="prevLightboxCover()" aria-label="Capa anterior">
+          <app-icon name="chevron-right" [size]="16" class="lightbox-nav-icon-prev" />
+        </button>
+        <span class="field-hint">{{ (lightboxCoverIndex() ?? 0) + 1 }} / {{ covers().length }}</span>
+        <button type="button" class="btn btn-icon btn-ghost" (click)="nextLightboxCover()" aria-label="Próxima capa">
+          <app-icon name="chevron-right" [size]="16" />
+        </button>
+      </div>
     }
   }
 </app-modal>

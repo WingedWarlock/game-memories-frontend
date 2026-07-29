@@ -150,11 +150,18 @@ export class GameDetailPage {
   protected readonly covers = signal<GameCover[]>([]);
   protected readonly loadingCovers = signal(true);
   protected readonly coverToDelete = signal<GameCover | null>(null);
+  protected readonly showCoverLightbox = signal(false);
+  protected readonly lightboxCoverIndex = signal<number | null>(null);
+  protected readonly lightboxCover = computed<GameCover | null>(() => {
+    const index = this.lightboxCoverIndex();
+    return index == null ? null : (this.covers()[index] ?? null);
+  });
 
   protected readonly screenshots = signal<GameScreenshot[]>([]);
   protected readonly loadingScreenshots = signal(true);
   protected readonly screenshotToDelete = signal<GameScreenshot | null>(null);
   protected readonly lightboxScreenshot = signal<GameScreenshot | null>(null);
+  protected readonly imageZoomed = signal(false);
 
   protected readonly music = signal<GameMusic[]>([]);
   protected readonly loadingMusic = signal(true);
@@ -637,10 +644,46 @@ export class GameDetailPage {
 
   openLightbox(screenshot: GameScreenshot): void {
     this.lightboxScreenshot.set(screenshot);
+    this.imageZoomed.set(false);
   }
 
   closeLightbox(): void {
     this.lightboxScreenshot.set(null);
+  }
+
+  openCoverLightbox(cover: GameCover | null): void {
+    const covers = this.covers();
+    const index = cover ? covers.findIndex((c) => c.id === cover.id) : 0;
+    this.lightboxCoverIndex.set(index >= 0 ? index : 0);
+    this.showCoverLightbox.set(true);
+    this.imageZoomed.set(false);
+  }
+
+  closeCoverLightbox(): void {
+    this.showCoverLightbox.set(false);
+    this.lightboxCoverIndex.set(null);
+  }
+
+  prevLightboxCover(): void {
+    const total = this.covers().length;
+    if (total === 0) {
+      return;
+    }
+    this.lightboxCoverIndex.update((index) => ((index ?? 0) - 1 + total) % total);
+    this.imageZoomed.set(false);
+  }
+
+  nextLightboxCover(): void {
+    const total = this.covers().length;
+    if (total === 0) {
+      return;
+    }
+    this.lightboxCoverIndex.update((index) => ((index ?? 0) + 1) % total);
+    this.imageZoomed.set(false);
+  }
+
+  toggleImageZoom(): void {
+    this.imageZoomed.update((value) => !value);
   }
 
   requestDeleteScreenshot(screenshot: GameScreenshot): void {

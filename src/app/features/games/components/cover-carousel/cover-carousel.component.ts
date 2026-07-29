@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, computed, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { GameCover } from '../../../../core/models';
 import { GameCoverService } from '../../../../core/services/game-cover.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
@@ -24,12 +34,22 @@ export class CoverCarouselComponent implements OnDestroy {
   readonly covers = input<GameCover[] | null>(null);
   readonly altText = input<string>('Capa do jogo');
   readonly iconSize = input<number>(32);
+  /** When true, clicking the image emits `zoomClick` instead of doing nothing. */
+  readonly zoomable = input<boolean>(false);
+
+  /** Emits the cover that was on screen at the moment of the click. */
+  readonly zoomClick = output<GameCover | null>();
 
   private readonly fetchedCovers = signal<GameCover[]>([]);
   protected readonly activeCovers = computed(() => this.covers() ?? this.fetchedCovers());
 
   protected readonly currentIndex = signal(0);
   protected readonly visible = signal(true);
+
+  protected readonly currentCover = computed<GameCover | null>(() => {
+    const covers = this.activeCovers();
+    return covers.length > 0 ? (covers[this.currentIndex()] ?? null) : null;
+  });
 
   private rotationTimeout?: ReturnType<typeof setTimeout>;
   private fadeTimeout?: ReturnType<typeof setTimeout>;
@@ -52,6 +72,12 @@ export class CoverCarouselComponent implements OnDestroy {
         next: (covers) => this.resetRotation(covers),
       });
     });
+  }
+
+  onClick(): void {
+    if (this.zoomable()) {
+      this.zoomClick.emit(this.currentCover());
+    }
   }
 
   ngOnDestroy(): void {
