@@ -15,3 +15,4 @@ export * from './mod.model';
 export * from './history-event.model';
 export * from './life-event.model';
 export * from './stats.model';
+export * from './saga.model';

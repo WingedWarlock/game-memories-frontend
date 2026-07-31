@@ -1,0 +1,92 @@
+<div class="constellation-backdrop" aria-hidden="true"></div>
+
+<div class="constellation-motifs" aria-hidden="true">
+  @for (motif of allMotifs; track motif; let i = $index) {
+    <svg class="constellation-motif" [class]="'motif-position-' + (i % 6) + ' motif-' + motif" viewBox="0 0 100 100">
+      @for (line of motifLines[motif]; track line) {
+        <polyline [attr.points]="line" class="motif-line" />
+      }
+      @for (point of motifPoints[motif]; track point) {
+        <circle [attr.cx]="point[0]" [attr.cy]="point[1]" r="2.2" class="motif-star" />
+      }
+    </svg>
+  }
+</div>
+
+@if (entryPhase() === 'tunnel') {
+  <div class="constellation-tunnel">
+    <div class="tunnel-streak" *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12]" [style.--i]="n"></div>
+    <button type="button" class="btn btn-ghost btn-sm tunnel-skip" (click)="skipIntro()">Pular</button>
+  </div>
+} @else if (entryPhase() === 'title') {
+  <div class="constellation-title-card">
+    <h1>Constelações <span>(Sagas)</span></h1>
+  </div>
+} @else {
+
+<div class="page-container constellation-page">
+  <div class="page-header">
+    <div>
+      <h1>Constelações</h1>
+      <p class="page-subtitle">Suas sagas favoritas, reunidas em um universo só.</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" (click)="openMergeModal()">
+      <app-icon name="plus" [size]="14" />
+      Adicionar Saga
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando constelações...</p>
+  } @else if (error()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar as constelações</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+      <button type="button" class="btn btn-secondary retry-button" (click)="load()">Tentar novamente</button>
+    </div>
+  } @else if (sagas().length === 0) {
+    <div class="empty-state">
+      <h3>Nenhuma constelação criada ainda</h3>
+      <p>Mescle as sagas que já estão nos seus jogos pra criar a primeira.</p>
+    </div>
+  } @else {
+    <div class="constellation-grid">
+      <div class="constellation-card" *ngFor="let saga of sagas(); trackBy: trackBySagaId">
+          <a class="constellation-card-body" [routerLink]="['/constelacoes', saga.id]">
+            <div class="constellation-card-cover">
+              @if (heroThumbnails()[saga.id]; as url) {
+                <img [src]="url" alt="{{ saga.name }}" loading="lazy" />
+              } @else {
+                <app-icon name="star" [size]="28" />
+              }
+            </div>
+            <h3>{{ saga.name }}</h3>
+            <span class="field-hint">{{ saga.gameSagaNames.length }} saga(s) mesclada(s)</span>
+          </a>
+          <div class="constellation-card-actions">
+            <button type="button" class="btn btn-icon btn-ghost" (click)="editSaga(saga)" aria-label="Editar constelação">
+              <app-icon name="edit" [size]="14" />
+            </button>
+            <button type="button" class="btn btn-icon btn-ghost" (click)="requestDelete(saga)" aria-label="Remover constelação">
+              <app-icon name="trash" [size]="14" />
+            </button>
+          </div>
+      </div>
+    </div>
+  }
+</div>
+
+<app-modal [open]="showMergeModal()" title="Adicionar Saga" (closed)="closeMergeModal()">
+  <app-saga-merge-form [games]="games()" [existingSagas]="sagas()" (saved)="onMergeSaved($event)" (cancelled)="closeMergeModal()" />
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!sagaToDelete()"
+  title="Remover Constelação"
+  [message]="'Tem certeza que deseja remover \'' + (sagaToDelete()?.name ?? '') + '\'? As sagas mescladas voltam a ficar disponíveis pra usar em outra constelação.'"
+  confirmLabel="Remover"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()"
+/>
+}

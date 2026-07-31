@@ -28,7 +28,6 @@ export class SpecialDaysService {
     return this.candidates$;
   }
 
-  /** Forces the next getCandidates() call to re-fetch instead of reusing the cached result. */
   refresh(): void {
     this.candidates$ = undefined;
   }

@@ -1,0 +1,505 @@
+$constellation-bg: #05060f;
+$constellation-bg-elevated: #0d1128;
+$constellation-bg-elevated-2: #141a3d;
+$constellation-border: #262c63;
+$constellation-accent: #8fb2ff;
+$constellation-accent-strong: #b6cbff;
+$constellation-text: #e8ecff;
+$constellation-text-muted: #8992c4;
+
+$const-star-blue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%238fb2ff' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%238fb2ff' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%238fb2ff'/%3E%3C/svg%3E");
+$const-star-silver: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23e8ecff' fill-opacity='0.1'/%3E%3Ccircle cx='32' cy='32' r='14' fill='%23e8ecff' fill-opacity='0.22'/%3E%3Cpath d='M32 3 L36.5 27.5 L61 32 L36.5 36.5 L32 61 L27.5 36.5 L3 32 L27.5 27.5 Z' fill='%23e8ecff'/%3E%3C/svg%3E");
+
+.constellation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    $const-star-silver 8% 15% / 12px 12px no-repeat,
+    $const-star-blue 22% 46% / 16px 16px no-repeat,
+    $const-star-silver 36% 82% / 10px 10px no-repeat,
+    $const-star-blue 49% 22% / 13px 13px no-repeat,
+    $const-star-silver 61% 68% / 15px 15px no-repeat,
+    $const-star-blue 73% 32% / 11px 11px no-repeat,
+    $const-star-silver 86% 78% / 10px 10px no-repeat,
+    $const-star-blue 93% 12% / 15px 15px no-repeat,
+    $const-star-silver 15% 92% / 11px 11px no-repeat,
+    $const-star-blue 69% 94% / 12px 12px no-repeat,
+    $const-star-silver 5% 60% / 9px 9px no-repeat,
+    $const-star-blue 30% 8% / 11px 11px no-repeat,
+    radial-gradient(circle at 30% 10%, rgba(143, 178, 255, 0.12), transparent 55%),
+    $constellation-bg;
+}
+
+.constellation-motifs {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.constellation-motif {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  opacity: 0.5;
+  overflow: visible;
+
+  .motif-line {
+    fill: none;
+    stroke: var(--saga-accent, #{$constellation-accent});
+    stroke-width: 0.6;
+    opacity: 0.6;
+  }
+
+  .motif-star {
+    fill: var(--saga-accent, #{$constellation-accent-strong});
+    filter: drop-shadow(0 0 3px var(--saga-accent, #{$constellation-accent}));
+    animation: constellation-motif-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+.motif-ring {
+  .motif-line {
+    stroke: #f4c542;
+  }
+
+  .motif-star {
+    fill: #f4c542;
+    filter: drop-shadow(0 0 3px #f4c542);
+  }
+}
+
+.motif-position-0 {
+  top: 10%;
+  left: 6%;
+}
+
+.motif-position-1 {
+  top: 12%;
+  right: 8%;
+}
+
+.motif-position-2 {
+  bottom: 10%;
+  left: 12%;
+}
+
+.motif-position-3 {
+  bottom: 12%;
+  right: 10%;
+}
+
+.motif-position-4 {
+  top: 45%;
+  left: 3%;
+}
+
+.motif-position-5 {
+  top: 48%;
+  right: 3%;
+}
+
+@keyframes constellation-motif-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.constellation-page {
+  color: $constellation-text;
+
+  h1,
+  h3 {
+    color: $constellation-text;
+  }
+}
+
+.loading-state,
+.empty-state {
+  color: $constellation-text-muted;
+
+  h3 {
+    color: $constellation-text;
+  }
+}
+
+.constellation-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: transparent;
+  color: $constellation-text;
+}
+
+.viewer-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: linear-gradient(to bottom, rgba(5, 6, 15, 0.85), transparent);
+
+  h1 {
+    flex: 1;
+    margin: 0;
+    font-size: 20px;
+    color: $constellation-text;
+  }
+}
+
+.viewer-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $constellation-text-muted;
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    color: $constellation-accent;
+  }
+}
+
+.view-back-icon {
+  transform: rotate(180deg);
+}
+
+.player-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 24px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, calc(100vw - 48px));
+}
+
+.constellation-audio {
+  width: 100%;
+}
+
+.music-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(13, 17, 40, 0.85);
+  border: 1px solid $constellation-border;
+  border-radius: var(--radius-sm);
+  color: $constellation-text-muted;
+
+  select {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: $constellation-text;
+    color-scheme: dark;
+    font-size: 13px;
+
+    option {
+      background-color: $constellation-bg-elevated-2;
+      color: $constellation-text;
+    }
+  }
+}
+
+.cinematic-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--saga-accent, #{$constellation-accent});
+    opacity: 0.12;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Fundo desfocado da própria imagem preenche o viewport inteiro; a imagem real usa
+   `cover` quando a proporção bate com a tela (preenche tudo) ou `contain` quando é bem
+   diferente (mostra a imagem inteira, sem cortar) — decidido dinamicamente ao carregar. */
+.cinematic-image-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.cinematic-image-blur {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(50px) brightness(0.55) saturate(1.2);
+  transform: scale(1.2);
+}
+
+.cinematic-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kenburns {
+  animation: constellation-kenburns 34s ease-in-out infinite alternate;
+}
+
+@keyframes constellation-kenburns {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.04) translate(-1%, -0.6%);
+  }
+}
+
+.cinematic-caption {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: $constellation-text-muted;
+  font-size: 14px;
+  background: rgba(5, 6, 15, 0.55);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.cinematic-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 360px;
+  color: $constellation-accent;
+  text-align: center;
+}
+
+.saga-tunnel {
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, $constellation-bg-elevated 0%, $constellation-bg 70%);
+}
+
+.tunnel-streak {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--saga-accent, #{$constellation-accent-strong});
+  box-shadow: 0 0 6px 1px var(--saga-accent, #{$constellation-accent});
+  transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(0);
+  animation: tunnel-streak-fly 2.2s ease-in calc(var(--i) * 0.06s) infinite;
+}
+
+@keyframes tunnel-streak-fly {
+  0% {
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(0) scale(0.4);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 30deg)) translateX(70vmax) scale(1.6);
+    opacity: 0;
+  }
+}
+
+.fast-pass-stage {
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+}
+
+.fast-pass-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.fast-pass-row {
+  overflow: hidden;
+  width: 100%;
+}
+
+.fast-pass-row-track {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  width: max-content;
+  animation: fast-pass-loop 26s linear infinite;
+  will-change: transform;
+}
+
+.fast-pass-row:nth-child(2) .fast-pass-row-track {
+  animation-duration: 34s;
+  animation-direction: reverse;
+}
+
+@keyframes fast-pass-loop {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.fast-pass-item {
+  flex: 0 0 auto;
+
+  img {
+    max-height: 34vh;
+    max-width: 32vw;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    display: block;
+  }
+}
+
+.fast-pass-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 220px;
+  padding: 16px 20px;
+  background: $constellation-bg-elevated;
+  border: 1px solid $constellation-border;
+  border-radius: var(--radius-lg);
+  text-align: center;
+
+  .field-hint {
+    color: $constellation-text-muted;
+  }
+}
+
+@keyframes fast-pass-flash {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gallery-stage {
+  .gallery-group-label {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $constellation-text-muted;
+    background: rgba(5, 6, 15, 0.55);
+    padding: 6px 16px;
+    border-radius: 999px;
+  }
+
+  .gallery-batch {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: min(620px, calc(100vw - 48px));
+    max-height: 46vh;
+    overflow-y: auto;
+  }
+
+  .gallery-small-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 18px;
+    background: rgba(13, 17, 40, 0.88);
+    border: 1px solid $constellation-border;
+    border-radius: var(--radius-lg);
+    color: $constellation-accent-strong;
+    animation: fast-pass-flash 0.5s ease;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: $constellation-text;
+    }
+
+    .field-hint {
+      color: $constellation-text-muted;
+    }
+
+    .moment-quote {
+      margin: 4px 0 0;
+      color: $constellation-text-muted;
+      font-style: italic;
+    }
+  }
+
+  .gallery-empty-hint {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: $constellation-text-muted;
+  }
+}
+
+.cinematic-paused {
+  .kenburns,
+  .fast-pass-row-track,
+  .tunnel-streak {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kenburns,
+  .fast-pass-card,
+  .gallery-small-card,
+  .tunnel-streak,
+  .motif-star {
+    animation: none;
+  }
+}

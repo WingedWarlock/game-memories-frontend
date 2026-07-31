@@ -1,0 +1,215 @@
+<div class="constellation-backdrop" aria-hidden="true"></div>
+
+<div class="constellation-motifs" aria-hidden="true">
+  @for (motif of sagaMotifs; track motif; let i = $index) {
+    <svg class="constellation-motif" [class]="'motif-position-' + (i % 3) + ' motif-' + motif" viewBox="0 0 100 100">
+      @for (line of motifLines[motif]; track line) {
+        <polyline [attr.points]="line" class="motif-line" />
+      }
+      @for (point of motifPoints[motif]; track point) {
+        <circle [attr.cx]="point[0]" [attr.cy]="point[1]" r="2.2" class="motif-star" />
+      }
+    </svg>
+  }
+</div>
+
+<div class="page-container constellation-page">
+  <div class="page-header">
+    <div>
+      <a class="back-link" [routerLink]="['/constelacoes']">
+        <app-icon name="chevron-right" [size]="14" class="editor-back-icon" />
+        Voltar pras Constelações
+      </a>
+      <h1>{{ saga()?.name || 'Editar Constelação' }}</h1>
+      <p class="page-subtitle">Escolha o que representa essa saga — herói, música e a galeria de memórias.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-state">Carregando conteúdo da saga...</p>
+  } @else if (error() || !saga() || !content()) {
+    <div class="empty-state">
+      <h3>Não foi possível carregar essa constelação</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+    </div>
+  } @else {
+    <section class="section constellation-section">
+      <h2 class="section-title">Imagem herói</h2>
+      <p class="field-hint">A primeira imagem que aparece ao entrar nessa constelação.</p>
+      <div class="image-picker-grid">
+        <button
+          type="button"
+          class="image-picker-item"
+          *ngFor="let cover of content()!.covers; trackBy: trackByKey"
+          [class.image-picker-item-selected]="isHero('GAME_COVER', cover.id)"
+          (click)="selectHero('GAME_COVER', cover.id)"
+        >
+            <img [src]="cover.fileUrl" alt="{{ cover.gameTitle }}" loading="lazy" />
+            <span class="field-hint">{{ cover.gameTitle }}</span>
+        </button>
+        <button
+          type="button"
+          class="image-picker-item"
+          *ngFor="let shot of content()!.screenshots; trackBy: trackByKey"
+          [class.image-picker-item-selected]="isHero('GAME_SCREENSHOT', shot.id)"
+          (click)="selectHero('GAME_SCREENSHOT', shot.id)"
+        >
+            <img [src]="shot.fileUrl" alt="{{ shot.gameTitle }}" loading="lazy" />
+            <span class="field-hint">{{ shot.gameTitle }}</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section constellation-section">
+      <h2 class="section-title">Segunda imagem</h2>
+      <p class="field-hint">A imagem especial que aparece logo depois da herói.</p>
+      <div class="image-picker-grid">
+        <button
+          type="button"
+          class="image-picker-item"
+          *ngFor="let cover of content()!.covers; trackBy: trackByKey"
+          [class.image-picker-item-selected]="isSecond('GAME_COVER', cover.id)"
+          (click)="selectSecond('GAME_COVER', cover.id)"
+        >
+            <img [src]="cover.fileUrl" alt="{{ cover.gameTitle }}" loading="lazy" />
+            <span class="field-hint">{{ cover.gameTitle }}</span>
+        </button>
+        <button
+          type="button"
+          class="image-picker-item"
+          *ngFor="let shot of content()!.screenshots; trackBy: trackByKey"
+          [class.image-picker-item-selected]="isSecond('GAME_SCREENSHOT', shot.id)"
+          (click)="selectSecond('GAME_SCREENSHOT', shot.id)"
+        >
+            <img [src]="shot.fileUrl" alt="{{ shot.gameTitle }}" loading="lazy" />
+            <span class="field-hint">{{ shot.gameTitle }}</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section constellation-section">
+      <h2 class="section-title">Música-tema</h2>
+      @if (content()!.music.length === 0) {
+        <p class="field-hint">Nenhuma música cadastrada nos jogos dessa saga ainda.</p>
+      } @else {
+        <select class="constellation-select" aria-label="Música-tema" (change)="onThemeMusicChange($event)">
+          <option value="-1" [selected]="themeMusicId() == null">Sem música-tema</option>
+          @for (track of content()!.music; track track.id) {
+            <option [value]="track.id" [selected]="track.id === themeMusicId()">
+              {{ track.title || track.originalFileName }} · {{ track.gameTitle }}
+            </option>
+          }
+        </select>
+
+        @if (selectedThemeTrack(); as track) {
+          <audio [src]="track.fileUrl" controls class="constellation-audio-preview"></audio>
+        }
+
+        <p class="field-hint">
+          Durante a visualização, dá pra trocar pra qualquer outra música da saga na hora, direto pelo player.
+        </p>
+      }
+    </section>
+
+    <section class="section constellation-section">
+      <h2 class="section-title">Curadoria da galeria</h2>
+      <p class="field-hint">Só o que for marcado aqui vai aparecer na constelação.</p>
+
+      @if (content()!.memories.length > 0) {
+        <div class="curation-group">
+          <h3>Memórias</h3>
+          <ul class="curation-list">
+            <li class="curation-item" *ngFor="let memory of content()!.memories; trackBy: trackByKey">
+                <label class="checkbox-field">
+                  <input type="checkbox" [checked]="isGallerySelected(memory.key)" (change)="toggleGallerySelection(memory.key)" />
+                  <strong>{{ memory.title }}</strong>
+                  <span class="field-hint">{{ memory.gameTitle }} · {{ memory.date | date: 'dd/MM/yyyy' }}</span>
+                </label>
+            </li>
+          </ul>
+        </div>
+      }
+
+      @if (content()!.achievements.length > 0) {
+        <div class="curation-group">
+          <h3>Conquistas</h3>
+          <ul class="curation-list">
+            <li class="curation-item" *ngFor="let achievement of content()!.achievements; trackBy: trackByKey">
+                <label class="checkbox-field">
+                  <input type="checkbox" [checked]="isGallerySelected(achievement.key)" (change)="toggleGallerySelection(achievement.key)" />
+                  <strong>{{ achievement.title }}</strong>
+                  <span class="field-hint">{{ achievement.gameTitle }} · {{ achievement.date | date: 'dd/MM/yyyy' }}</span>
+                </label>
+            </li>
+          </ul>
+        </div>
+      }
+
+      @if (content()!.savePoints.length > 0) {
+        <div class="curation-group">
+          <h3>Save Points</h3>
+          <ul class="curation-list">
+            <li class="curation-item" *ngFor="let savePoint of content()!.savePoints; trackBy: trackByKey">
+                <label class="checkbox-field">
+                  <input type="checkbox" [checked]="isGallerySelected(savePoint.key)" (change)="toggleGallerySelection(savePoint.key)" />
+                  <strong>{{ savePoint.title }}</strong>
+                  <span class="field-hint">{{ savePoint.gameTitle }} · {{ savePoint.runName }} · {{ savePoint.date | date: 'dd/MM/yyyy' }}</span>
+                </label>
+            </li>
+          </ul>
+        </div>
+      }
+
+      @if (content()!.screenshots.length > 0) {
+        <div class="curation-group">
+          <h3>Screenshots</h3>
+          <div class="curation-thumb-grid">
+            <label
+              class="curation-thumb-item"
+              *ngFor="let shot of content()!.screenshots; trackBy: trackByKey"
+              [class.curation-thumb-item-selected]="isGallerySelected(shot.key)"
+            >
+              <input
+                type="checkbox"
+                class="curation-thumb-checkbox"
+                [checked]="isGallerySelected(shot.key)"
+                (change)="toggleGallerySelection(shot.key)"
+              />
+              <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" loading="lazy" />
+              <span class="field-hint">{{ shot.gameTitle }}</span>
+            </label>
+          </div>
+        </div>
+      }
+
+      @if (content()!.covers.length > 0) {
+        <div class="curation-group">
+          <h3>Capas</h3>
+          <div class="curation-thumb-grid">
+            <label
+              class="curation-thumb-item"
+              *ngFor="let cover of content()!.covers; trackBy: trackByKey"
+              [class.curation-thumb-item-selected]="isGallerySelected(cover.key)"
+            >
+              <input
+                type="checkbox"
+                class="curation-thumb-checkbox"
+                [checked]="isGallerySelected(cover.key)"
+                (change)="toggleGallerySelection(cover.key)"
+              />
+              <img [src]="cover.fileUrl" alt="{{ cover.title || cover.gameTitle }}" loading="lazy" />
+              <span class="field-hint">{{ cover.gameTitle }}</span>
+            </label>
+          </div>
+        </div>
+      }
+    </section>
+
+    <div class="constellation-editor-actions">
+      <button type="button" class="btn btn-secondary" [routerLink]="['/constelacoes']">Cancelar</button>
+      <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">
+        {{ saving() ? 'Salvando...' : 'Salvar Constelação' }}
+      </button>
+    </div>
+  }
+</div>

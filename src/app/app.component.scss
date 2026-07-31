@@ -29,3 +29,87 @@
   display: flex;
   gap: 6px;
 }
+
+.tab-constellation {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.tab-constellation-glow {
+  position: absolute;
+  inset: -12px -16px;
+  width: calc(100% + 32px);
+  height: calc(100% + 24px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  line {
+    stroke: #8fb2ff;
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+
+  circle {
+    fill: #8fb2ff;
+    filter: drop-shadow(0 0 3px #8fb2ff);
+  }
+}
+
+.tab-label-stack {
+  position: relative;
+  display: inline-grid;
+}
+
+.tab-label {
+  grid-area: 1 / 1;
+  transition: opacity 0.35s ease, letter-spacing 0.35s ease, filter 0.35s ease;
+}
+
+.tab-label-primary {
+  opacity: 1;
+}
+
+.tab-label-alt {
+  opacity: 0;
+  letter-spacing: 0.15em;
+  filter: blur(2px);
+}
+
+.tab-constellation:hover {
+  .tab-constellation-glow {
+    opacity: 1;
+    animation: tab-constellation-pulse 1.8s ease-in-out infinite;
+  }
+
+  .tab-label-primary {
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  .tab-label-alt {
+    opacity: 1;
+    letter-spacing: 0;
+    filter: blur(0);
+  }
+}
+
+@keyframes tab-constellation-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-constellation-glow,
+  .tab-label {
+    transition: none;
+    animation: none;
+  }
+}

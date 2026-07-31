@@ -39,6 +39,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/museum/museum.page').then((m) => m.MuseumPage),
   },
   {
+    path: 'constelacoes',
+    loadComponent: () =>
+      import('./features/constellations/constellations.page').then((m) => m.ConstellationsPage),
+  },
+  {
+    path: 'constelacoes/:id/editar',
+    loadComponent: () =>
+      import('./features/constellations/constellation-editor.page').then((m) => m.ConstellationEditorPage),
+  },
+  {
+    path: 'constelacoes/:id',
+    loadComponent: () =>
+      import('./features/constellations/constellation-view.page').then((m) => m.ConstellationViewPage),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

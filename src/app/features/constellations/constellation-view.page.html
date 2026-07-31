@@ -1,0 +1,203 @@
+<div class="constellation-backdrop" aria-hidden="true"></div>
+
+@if (!loading() && saga(); as motifSaga) {
+  <div class="constellation-motifs" aria-hidden="true">
+    @for (motif of sagaMotifs; track motif; let i = $index) {
+      <svg class="constellation-motif" [class]="'motif-position-' + (i % 6) + ' motif-' + motif" viewBox="0 0 100 100">
+        @for (line of motifLines[motif]; track line) {
+          <polyline [attr.points]="line" class="motif-line" />
+        }
+        @for (point of motifPoints[motif]; track point) {
+          <circle [attr.cx]="point[0]" [attr.cy]="point[1]" r="2.2" class="motif-star" />
+        }
+      </svg>
+    }
+  </div>
+}
+
+@if (loading()) {
+  <div class="page-container constellation-page">
+    <p class="loading-state">Entrando na constelação...</p>
+  </div>
+} @else if (error() || !saga() || !content()) {
+  <div class="page-container constellation-page">
+    <div class="empty-state">
+      <h3>Não foi possível carregar essa constelação</h3>
+      <p>Verifique se o servidor do Game Memories está rodando.</p>
+    </div>
+  </div>
+} @else {
+  <div class="constellation-viewer" [class.cinematic-paused]="paused()">
+    <div class="viewer-topbar">
+      <a class="back-link" [routerLink]="['/constelacoes']">
+        <app-icon name="chevron-right" [size]="14" class="view-back-icon" />
+        Voltar
+      </a>
+      <h1>{{ saga()!.name }}</h1>
+      <div class="viewer-controls">
+        <button type="button" class="btn btn-ghost btn-sm" (click)="previousPhase()">Voltar</button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="togglePause()">
+          {{ paused() ? 'Retomar' : 'Pausar' }}
+        </button>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="skipPhase()">Avançar</button>
+        <a class="btn btn-secondary btn-sm" [routerLink]="['/constelacoes', saga()!.id, 'editar']">
+          <app-icon name="edit" [size]="14" />
+          Editar
+        </a>
+      </div>
+    </div>
+
+    <div class="player-bar">
+      @if (activeTrack(); as track) {
+        <audio [src]="track.fileUrl" loop controls autoplay class="constellation-audio"></audio>
+      }
+      @if (content()!.music.length > 0) {
+        <label class="music-switcher">
+          <app-icon name="music" [size]="14" />
+          <select aria-label="Trocar música" (change)="onManualTrackChange($event)">
+            @for (track of content()!.music; track track.id) {
+              <option [value]="track.id" [selected]="track.id === activeTrack()?.id">
+                {{ track.title || track.originalFileName }} · {{ track.gameTitle }}
+              </option>
+            }
+          </select>
+        </label>
+      }
+    </div>
+
+    @switch (cinematicPhase()) {
+      @case ('tunnel') {
+        <div class="cinematic-stage saga-tunnel">
+          @for (n of tunnelStreaks; track n) {
+            <div class="tunnel-streak" [style.--i]="n"></div>
+          }
+        </div>
+      }
+      @case ('hero') {
+        <div class="cinematic-stage">
+          @if (heroImage(); as hero) {
+            <div class="cinematic-image-frame">
+              <img class="cinematic-image-blur" [src]="hero.fileUrl" alt="" aria-hidden="true" />
+              <img class="cinematic-image kenburns" [src]="hero.fileUrl" alt="{{ saga()!.name }}" (load)="onCinematicImageLoad($event)" />
+            </div>
+            <div class="cinematic-caption">{{ hero.gameTitle }}</div>
+          } @else {
+            <div class="cinematic-placeholder">
+              <app-icon name="star" [size]="48" />
+              <p class="field-hint">Nenhuma imagem-herói escolhida ainda — edite a constelação pra selecionar uma.</p>
+            </div>
+          }
+        </div>
+      }
+      @case ('fastPass') {
+        <div class="cinematic-stage fast-pass-stage">
+          @if (fastPassRows().length > 0) {
+            <div class="fast-pass-rows">
+              @for (row of fastPassRows(); track $index) {
+                <div class="fast-pass-row">
+                  <div class="fast-pass-row-track">
+                    @for (item of row; track item.key) {
+                      <div class="fast-pass-item">
+                        @if (item.fileUrl) {
+                          <img [src]="item.fileUrl" alt="{{ item.title }}" />
+                        } @else {
+                          <div class="fast-pass-card">
+                            <strong>{{ item.title }}</strong>
+                            <span class="field-hint">
+                              {{ item.subtitle }}
+                              @if (item.date) {
+                                · {{ item.date | date: 'dd/MM/yyyy' }}
+                              }
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    @for (item of row; track item.key + '-dup') {
+                      <div class="fast-pass-item" aria-hidden="true">
+                        @if (item.fileUrl) {
+                          <img [src]="item.fileUrl" alt="" />
+                        } @else {
+                          <div class="fast-pass-card">
+                            <strong>{{ item.title }}</strong>
+                            <span class="field-hint">
+                              {{ item.subtitle }}
+                              @if (item.date) {
+                                · {{ item.date | date: 'dd/MM/yyyy' }}
+                              }
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+      @case ('second') {
+        <div class="cinematic-stage">
+          @if (secondImage(); as second) {
+            <div class="cinematic-image-frame">
+              <img class="cinematic-image-blur" [src]="second.fileUrl" alt="" aria-hidden="true" />
+              <img class="cinematic-image kenburns" [src]="second.fileUrl" alt="{{ saga()!.name }}" (load)="onCinematicImageLoad($event)" />
+            </div>
+            <div class="cinematic-caption">{{ second.gameTitle }}</div>
+          } @else {
+            <div class="cinematic-placeholder">
+              <app-icon name="star" [size]="48" />
+              <p class="field-hint">Nenhuma segunda imagem escolhida ainda — edite a constelação pra selecionar uma.</p>
+            </div>
+          }
+        </div>
+      }
+      @case ('gallery') {
+        <div class="cinematic-stage gallery-stage">
+          @if (currentGalleryBig(); as big) {
+            <div class="cinematic-image-frame">
+              <img class="cinematic-image-blur" [src]="big.fileUrl" alt="" aria-hidden="true" />
+              <img
+                class="cinematic-image gallery-big-image kenburns"
+                [src]="big.fileUrl"
+                alt="{{ big.title }}"
+                (load)="onCinematicImageLoad($event)"
+              />
+            </div>
+          }
+          @if (currentGalleryGroup(); as group) {
+            <div class="gallery-group-label">{{ group.gameTitle }}</div>
+          }
+          @if (gallerySubPhase() === 'batch' && currentGalleryBatch().length > 0) {
+            <div class="gallery-batch">
+              @for (small of currentGalleryBatch(); track small.key) {
+                <div class="gallery-small-card">
+                  <app-icon [name]="smallIcon(small.kind)" [size]="14" />
+                  <div>
+                    <strong>{{ small.title }}</strong>
+                    <span class="field-hint">
+                      {{ small.gameTitle }}
+                      @if (small.runName) {
+                        · {{ small.runName }}
+                      }
+                      · {{ small.date | date: 'dd/MM/yyyy' }}
+                    </span>
+                    @if (small.quote) {
+                      <p class="moment-quote">"{{ small.quote }}"</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (!currentGalleryGroup()) {
+            <p class="field-hint gallery-empty-hint">
+              Nada foi selecionado ainda pra galeria dessa constelação — edite a constelação pra escolher o que aparece aqui.
+            </p>
+          }
+        </div>
+      }
+    }
+  </div>
+}
