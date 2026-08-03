@@ -48,7 +48,7 @@ interface FastPassItem {
   fileUrl?: string;
 }
 
-const TUNNEL_DURATION_MS = 2600;
+const TUNNEL_DURATION_MS = 3800;
 const HERO_DURATION_MS = 90000;
 const SECOND_DURATION_MS = 90000;
 const GALLERY_IMAGE_ONLY_MS = 9000;
@@ -63,6 +63,14 @@ const SMALL_ICON_BY_KIND: Record<GallerySmallKind, IconName> = {
   memory: 'book',
   achievement: 'trophy',
   savepoint: 'save',
+};
+
+const PHASE_LABELS: Record<CinematicPhase, string> = {
+  tunnel: 'Túnel',
+  hero: 'Imagem-herói',
+  fastPass: 'Passagem rápida',
+  second: 'Segunda imagem',
+  gallery: 'Galeria',
 };
 
 @Component({
@@ -87,6 +95,7 @@ export class ConstellationViewPage implements OnDestroy {
 
   protected readonly cinematicPhase = signal<CinematicPhase>('tunnel');
   protected readonly paused = signal(false);
+  protected readonly phaseLabel = computed(() => PHASE_LABELS[this.cinematicPhase()]);
 
   protected readonly manualTrackId = signal<number | null>(null);
 
@@ -95,7 +104,7 @@ export class ConstellationViewPage implements OnDestroy {
   protected readonly gallerySubPhase = signal<GallerySubPhase>('image');
   protected readonly galleryBatchIndex = signal(0);
 
-  protected readonly tunnelStreaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  protected readonly tunnelStreaks = Array.from({ length: 700 }, (_, i) => i);
   protected readonly motifLines = MOTIF_LINES;
   protected readonly motifPoints = MOTIF_POINTS;
 

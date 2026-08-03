@@ -15,7 +15,8 @@
 
 @if (entryPhase() === 'tunnel') {
   <div class="constellation-tunnel">
-    <div class="tunnel-streak" *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12]" [style.--i]="n"></div>
+    <div class="tunnel-core"></div>
+    <div class="tunnel-streak {{ 'tunnel-streak-' + n }}" *ngFor="let n of tunnelStreaks"></div>
     <button type="button" class="btn btn-ghost btn-sm tunnel-skip" (click)="skipIntro()">Pular</button>
   </div>
 } @else if (entryPhase() === 'title') {

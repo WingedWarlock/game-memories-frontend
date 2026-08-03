@@ -34,6 +34,7 @@
         Voltar
       </a>
       <h1>{{ saga()!.name }}</h1>
+      <span class="phase-label">{{ phaseLabel() }}</span>
       <div class="viewer-controls">
         <button type="button" class="btn btn-ghost btn-sm" (click)="previousPhase()">Voltar</button>
         <button type="button" class="btn btn-ghost btn-sm" (click)="togglePause()">
@@ -68,8 +69,9 @@
     @switch (cinematicPhase()) {
       @case ('tunnel') {
         <div class="cinematic-stage saga-tunnel">
+          <div class="tunnel-core"></div>
           @for (n of tunnelStreaks; track n) {
-            <div class="tunnel-streak" [style.--i]="n"></div>
+            <div class="tunnel-streak {{ 'tunnel-streak-' + n }}"></div>
           }
         </div>
       }

@@ -16,7 +16,7 @@ import { ALL_MOTIF_SHAPES, MOTIF_LINES, MOTIF_POINTS } from './saga-motifs.util'
 
 type EntryPhase = 'tunnel' | 'title' | 'content';
 
-const TUNNEL_DURATION_MS = 2400;
+const TUNNEL_DURATION_MS = 3800;
 const TITLE_DURATION_MS = 1600;
 
 @Component({
@@ -44,6 +44,7 @@ export class ConstellationsPage implements OnDestroy {
   protected readonly sagaToDelete = signal<Saga | null>(null);
 
   protected readonly entryPhase = signal<EntryPhase>('tunnel');
+  protected readonly tunnelStreaks = Array.from({ length: 700 }, (_, i) => i);
 
   protected readonly allMotifs = ALL_MOTIF_SHAPES;
   protected readonly motifLines = MOTIF_LINES;
