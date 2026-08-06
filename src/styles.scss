@@ -60,6 +60,7 @@ $star-green: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' w
 
 body {
   margin: 0;
+  overflow-x: hidden;
   background:
     $star-silver 8% 15% / 12px 12px no-repeat,
     $star-green 22% 46% / 18px 18px no-repeat,

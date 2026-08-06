@@ -30,6 +30,12 @@ interface TimelineTick {
   time: number;
 }
 
+// A tela do gráfico renderiza 3x mais larga que o contêiner visível (ver .scss),
+// então o limiar de agrupamento (em % da linha do tempo) precisa cair na mesma
+// proporção pra continuar representando a mesma distância em pixels na tela.
+const CANVAS_WIDTH_MULTIPLIER = 3;
+const CLUSTER_THRESHOLD_PERCENT = 2 / CANVAS_WIDTH_MULTIPLIER;
+
 @Component({
   selector: 'app-library-timeline-chart',
   standalone: true,
@@ -156,7 +162,7 @@ export class LibraryTimelineChartComponent {
           leftPercent: left,
           widthPercent: Math.max(right - left, hasBar ? 0.8 : 0),
           barLabel,
-          clusters: clusterMarkers(markerItems),
+          clusters: clusterMarkers(markerItems, CLUSTER_THRESHOLD_PERCENT),
           sortKey: startTime ?? (markerItems[0]?.leftPercent ?? Infinity),
         };
       })
@@ -186,7 +192,7 @@ export class LibraryTimelineChartComponent {
       leftPercent: 0,
       widthPercent: 0,
       barLabel: '',
-      clusters: clusterMarkers(lifeEventItems),
+      clusters: clusterMarkers(lifeEventItems, CLUSTER_THRESHOLD_PERCENT),
     };
 
     return [...runRows, momentsRow];

@@ -5,50 +5,54 @@
   </div>
 } @else {
   <div class="library-timeline-chart">
-    <div class="library-timeline-axis">
-      @for (tick of ticks(); track tick.time) {
-        <span class="library-timeline-axis-tick" [style.left.%]="tick.leftPercent">{{ tick.time | date: 'dd/MM/yy' }}</span>
-      }
-    </div>
+    <div class="library-timeline-scroll">
+      <div class="library-timeline-canvas">
+        <div class="library-timeline-axis">
+          @for (tick of ticks(); track tick.time) {
+            <span class="library-timeline-axis-tick" [style.left.%]="tick.leftPercent">{{ tick.time | date: 'dd/MM/yy' }}</span>
+          }
+        </div>
 
-    <div class="library-timeline-rows">
-      @for (row of rows(); track row.key) {
-        <div class="library-timeline-row">
-          <span class="library-timeline-row-label" [title]="row.fullLabel">{{ row.label }}</span>
-          <div class="library-timeline-row-track">
-            @if (row.hasBar) {
-              <div
-                class="library-timeline-bar"
-                [style.left.%]="row.leftPercent"
-                [style.width.%]="row.widthPercent"
-                [title]="row.barLabel"
-                [attr.aria-label]="row.barLabel"
-              ></div>
-            }
-            @for (cluster of row.clusters; track cluster.key) {
-              <button
-                type="button"
-                class="library-timeline-marker"
-                [class.library-timeline-marker-savepoint]="cluster.items[0].kind === 'savepoint'"
-                [class.library-timeline-marker-memory]="cluster.items[0].kind === 'memory'"
-                [class.library-timeline-marker-achievement]="cluster.items[0].kind === 'achievement'"
-                [class.library-timeline-marker-life-event]="cluster.items[0].kind === 'life-event'"
-                [class.library-timeline-marker-cluster]="cluster.items.length > 1"
-                [class.library-timeline-marker-active]="selectedCluster()?.key === cluster.key"
-                [style.left.%]="cluster.leftPercent"
-                [title]="cluster.items.length > 1 ? cluster.items.length + ' itens nesta data' : cluster.items[0].title"
-                (click)="selectCluster(cluster)"
-              >
-                <span class="sr-only">{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</span>
-                @if (cluster.items.length > 1) {
-                  <span class="library-timeline-marker-count">{{ cluster.items.length }}</span>
+        <div class="library-timeline-rows">
+          @for (row of rows(); track row.key) {
+            <div class="library-timeline-row">
+              <span class="library-timeline-row-label" [title]="row.fullLabel">{{ row.label }}</span>
+              <div class="library-timeline-row-track">
+                @if (row.hasBar) {
+                  <div
+                    class="library-timeline-bar"
+                    [style.left.%]="row.leftPercent"
+                    [style.width.%]="row.widthPercent"
+                    [title]="row.barLabel"
+                    [attr.aria-label]="row.barLabel"
+                  ></div>
                 }
-              </button>
-            }
+                @for (cluster of row.clusters; track cluster.key) {
+                  <button
+                    type="button"
+                    class="library-timeline-marker"
+                    [class.library-timeline-marker-savepoint]="cluster.items[0].kind === 'savepoint'"
+                    [class.library-timeline-marker-memory]="cluster.items[0].kind === 'memory'"
+                    [class.library-timeline-marker-achievement]="cluster.items[0].kind === 'achievement'"
+                    [class.library-timeline-marker-life-event]="cluster.items[0].kind === 'life-event'"
+                    [class.library-timeline-marker-cluster]="cluster.items.length > 1"
+                    [class.library-timeline-marker-active]="selectedCluster()?.key === cluster.key"
+                    [style.left.%]="cluster.leftPercent"
+                    [title]="cluster.items.length > 1 ? cluster.items.length + ' itens nesta data' : cluster.items[0].title"
+                    (click)="selectCluster(cluster)"
+                  >
+                    <span class="sr-only">{{ cluster.items.length > 1 ? cluster.items.length + ' itens' : cluster.items[0].title }}</span>
+                    @if (cluster.items.length > 1) {
+                      <span class="library-timeline-marker-count">{{ cluster.items.length }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
           </div>
         </div>
-      }
-    </div>
+      </div>
 
     <div class="library-timeline-legend">
       <span class="library-timeline-legend-item"><span class="library-timeline-legend-swatch library-timeline-legend-swatch-bar"></span>Duração da run</span>

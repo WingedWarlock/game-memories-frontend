@@ -1,13 +1,30 @@
+$life-event-color: #5b8dee;
+
 .library-timeline-chart {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-x: hidden;
+}
+
+.library-timeline-scroll {
+  width: 100%;
+  min-width: 0;
+  max-height: 680px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  padding-bottom: 10px;
+}
+
+.library-timeline-canvas {
+  width: 300%;
+  min-width: 1800px;
 }
 
 .library-timeline-axis {
   position: relative;
-  height: 20px;
-  margin-left: 220px;
+  height: 24px;
+  margin-left: 272px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -23,9 +40,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 640px;
-  overflow-y: auto;
   padding-right: 4px;
+  margin-bottom: 16px;
 }
 
 .library-timeline-row {
@@ -35,7 +51,7 @@
 }
 
 .library-timeline-row-label {
-  width: 208px;
+  width: 260px;
   flex-shrink: 0;
   font-size: 12px;
   font-weight: 600;
@@ -99,7 +115,7 @@
 }
 
 .library-timeline-marker-life-event {
-  background: var(--danger);
+  background: $life-event-color;
   border-radius: 2px;
 }
 
@@ -220,6 +236,6 @@
 }
 
 .library-timeline-legend-swatch-life-event {
-  background: var(--danger);
+  background: $life-event-color;
   border-radius: 2px;
 }
