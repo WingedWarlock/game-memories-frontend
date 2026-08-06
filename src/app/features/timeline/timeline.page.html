@@ -121,6 +121,20 @@
         />
       </section>
     }
+
+    @if (notStartedGames().length > 0) {
+      <section class="section not-started-section">
+        <span class="not-started-legend">
+          <span class="not-started-legend-swatch"></span>
+          Jogos não iniciados
+        </span>
+        <ul class="not-started-list">
+          <li *ngFor="let game of notStartedGames(); trackBy: trackByGameId">
+            <a [routerLink]="['/games', game.id]">{{ game.title }}</a>
+          </li>
+        </ul>
+      </section>
+    }
   }
 </div>
 

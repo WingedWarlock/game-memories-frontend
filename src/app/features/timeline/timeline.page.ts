@@ -114,12 +114,14 @@ export class TimelinePage {
 
   protected readonly lifeEventCategoryLabel = (category: LifeEvent['category']) => LIFE_EVENT_CATEGORY_LABEL[category];
   protected readonly trackByLifeEventId = (_: number, lifeEvent: LifeEvent) => lifeEvent.id;
+  protected readonly trackByGameId = (_: number, game: Game) => game.id;
 
   protected readonly libraryRuns = signal<LibraryRun[]>([]);
   protected readonly librarySavePointsByRun = signal<Map<number, SavePoint[]>>(new Map());
   protected readonly libraryMemoriesByRun = signal<Map<number, GameMemory[]>>(new Map());
   protected readonly libraryAchievementsByRun = signal<Map<number, Achievement[]>>(new Map());
   protected readonly allLifeEvents = signal<LifeEvent[]>([]);
+  protected readonly notStartedGames = signal<Game[]>([]);
 
   constructor() {
     this.load();
@@ -154,6 +156,9 @@ export class TimelinePage {
           this.loadSummaries(groups);
           this.loadLibraryTimeline(games, runsByGameId);
           this.allLifeEvents.set(lifeEvents);
+          this.notStartedGames.set(
+            games.filter((game) => game.status === 'NOT_STARTED').sort((a, b) => a.title.localeCompare(b.title)),
+          );
         },
         error: () => {
           this.error.set(true);
