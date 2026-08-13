@@ -44,8 +44,8 @@
           [class.image-picker-item-selected]="isHero('GAME_COVER', cover.id)"
           (click)="selectHero('GAME_COVER', cover.id)"
         >
-            <img [src]="cover.fileUrl" alt="{{ cover.gameTitle }}" loading="lazy" />
-            <span class="field-hint">{{ cover.gameTitle }}</span>
+            <img [src]="cover.fileUrl" alt="{{ cover.title || cover.originalFileName }}" loading="lazy" />
+            <span class="field-hint">{{ cover.title || cover.originalFileName }} · {{ cover.gameTitle }}</span>
         </button>
         <button
           type="button"
@@ -54,8 +54,8 @@
           [class.image-picker-item-selected]="isHero('GAME_SCREENSHOT', shot.id)"
           (click)="selectHero('GAME_SCREENSHOT', shot.id)"
         >
-            <img [src]="shot.fileUrl" alt="{{ shot.gameTitle }}" loading="lazy" />
-            <span class="field-hint">{{ shot.gameTitle }}</span>
+            <img [src]="shot.fileUrl" alt="{{ shot.title || shot.originalFileName }}" loading="lazy" />
+            <span class="field-hint">{{ shot.title || shot.originalFileName }} · {{ shot.gameTitle }}</span>
         </button>
       </div>
     </section>
@@ -71,8 +71,8 @@
           [class.image-picker-item-selected]="isSecond('GAME_COVER', cover.id)"
           (click)="selectSecond('GAME_COVER', cover.id)"
         >
-            <img [src]="cover.fileUrl" alt="{{ cover.gameTitle }}" loading="lazy" />
-            <span class="field-hint">{{ cover.gameTitle }}</span>
+            <img [src]="cover.fileUrl" alt="{{ cover.title || cover.originalFileName }}" loading="lazy" />
+            <span class="field-hint">{{ cover.title || cover.originalFileName }} · {{ cover.gameTitle }}</span>
         </button>
         <button
           type="button"
@@ -81,8 +81,8 @@
           [class.image-picker-item-selected]="isSecond('GAME_SCREENSHOT', shot.id)"
           (click)="selectSecond('GAME_SCREENSHOT', shot.id)"
         >
-            <img [src]="shot.fileUrl" alt="{{ shot.gameTitle }}" loading="lazy" />
-            <span class="field-hint">{{ shot.gameTitle }}</span>
+            <img [src]="shot.fileUrl" alt="{{ shot.title || shot.originalFileName }}" loading="lazy" />
+            <span class="field-hint">{{ shot.title || shot.originalFileName }} · {{ shot.gameTitle }}</span>
         </button>
       </div>
     </section>
@@ -175,8 +175,8 @@
                 [checked]="isGallerySelected(shot.key)"
                 (change)="toggleGallerySelection(shot.key)"
               />
-              <img [src]="shot.fileUrl" alt="{{ shot.title || shot.gameTitle }}" loading="lazy" />
-              <span class="field-hint">{{ shot.gameTitle }}</span>
+              <img [src]="shot.fileUrl" alt="{{ shot.title || shot.originalFileName }}" loading="lazy" />
+              <span class="field-hint">{{ shot.title || shot.originalFileName }} · {{ shot.gameTitle }}</span>
             </label>
           </div>
         </div>
@@ -197,8 +197,8 @@
                 [checked]="isGallerySelected(cover.key)"
                 (change)="toggleGallerySelection(cover.key)"
               />
-              <img [src]="cover.fileUrl" alt="{{ cover.title || cover.gameTitle }}" loading="lazy" />
-              <span class="field-hint">{{ cover.gameTitle }}</span>
+              <img [src]="cover.fileUrl" alt="{{ cover.title || cover.originalFileName }}" loading="lazy" />
+              <span class="field-hint">{{ cover.title || cover.originalFileName }} · {{ cover.gameTitle }}</span>
             </label>
           </div>
         </div>

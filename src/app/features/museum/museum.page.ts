@@ -85,6 +85,7 @@ interface ScreenshotEntry {
   gameTitle: string;
   fileUrl: string;
   title?: string;
+  originalFileName: string;
 }
 
 interface MusicEntry {
@@ -411,6 +412,10 @@ export class MuseumPage implements OnDestroy {
     this.clearReliveTimer();
   }
 
+  screenshotLightboxTitle(shot: ScreenshotEntry): string {
+    return `${shot.gameTitle} — ${shot.title || shot.originalFileName}`;
+  }
+
   closeImageLightbox(): void {
     this.lightboxImage.set(null);
     if (this.relive()) {
@@ -424,7 +429,7 @@ export class MuseumPage implements OnDestroy {
 
   onGameCoverZoom(gameTitle: string, cover: GameCover | null): void {
     if (cover) {
-      this.openImageLightbox(cover.fileUrl, gameTitle);
+      this.openImageLightbox(cover.fileUrl, `${gameTitle} — ${cover.title || cover.originalFileName}`);
     }
   }
 
@@ -849,6 +854,7 @@ export class MuseumPage implements OnDestroy {
               gameTitle: game.title,
               fileUrl: shot.fileUrl,
               title: shot.title,
+              originalFileName: shot.originalFileName,
             });
           }
         }

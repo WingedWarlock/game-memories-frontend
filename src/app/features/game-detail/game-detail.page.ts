@@ -160,7 +160,11 @@ export class GameDetailPage {
   protected readonly screenshots = signal<GameScreenshot[]>([]);
   protected readonly loadingScreenshots = signal(true);
   protected readonly screenshotToDelete = signal<GameScreenshot | null>(null);
-  protected readonly lightboxScreenshot = signal<GameScreenshot | null>(null);
+  protected readonly lightboxScreenshotIndex = signal<number | null>(null);
+  protected readonly lightboxScreenshot = computed<GameScreenshot | null>(() => {
+    const index = this.lightboxScreenshotIndex();
+    return index == null ? null : (this.screenshots()[index] ?? null);
+  });
   protected readonly imageZoomed = signal(false);
 
   protected readonly music = signal<GameMusic[]>([]);
@@ -643,12 +647,31 @@ export class GameDetailPage {
   }
 
   openLightbox(screenshot: GameScreenshot): void {
-    this.lightboxScreenshot.set(screenshot);
+    const index = this.screenshots().findIndex((shot) => shot.id === screenshot.id);
+    this.lightboxScreenshotIndex.set(index >= 0 ? index : 0);
     this.imageZoomed.set(false);
   }
 
   closeLightbox(): void {
-    this.lightboxScreenshot.set(null);
+    this.lightboxScreenshotIndex.set(null);
+  }
+
+  prevLightboxScreenshot(): void {
+    const total = this.screenshots().length;
+    if (total === 0) {
+      return;
+    }
+    this.lightboxScreenshotIndex.update((index) => ((index ?? 0) - 1 + total) % total);
+    this.imageZoomed.set(false);
+  }
+
+  nextLightboxScreenshot(): void {
+    const total = this.screenshots().length;
+    if (total === 0) {
+      return;
+    }
+    this.lightboxScreenshotIndex.update((index) => ((index ?? 0) + 1) % total);
+    this.imageZoomed.set(false);
   }
 
   openCoverLightbox(cover: GameCover | null): void {

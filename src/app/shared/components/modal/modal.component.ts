@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostListener, input, output } from '@angular/core';
 import { IconComponent } from '../icon/icon.component';
 
-export type ModalSize = 'sm' | 'md' | 'lg';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'app-modal',

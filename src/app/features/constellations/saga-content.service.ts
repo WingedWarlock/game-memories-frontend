@@ -69,6 +69,7 @@ export interface SagaScreenshotEntry {
   id: number;
   fileUrl: string;
   title?: string;
+  originalFileName: string;
 }
 
 export interface SagaCoverEntry {
@@ -78,6 +79,7 @@ export interface SagaCoverEntry {
   id: number;
   fileUrl: string;
   title?: string;
+  originalFileName: string;
 }
 
 export interface SagaMusicEntry {
@@ -216,6 +218,7 @@ export class SagaContentService {
                     id: shot.id,
                     fileUrl: shot.fileUrl,
                     title: shot.title,
+                    originalFileName: shot.originalFileName,
                   });
                 }
                 for (const cover of covers[index]) {
@@ -226,6 +229,7 @@ export class SagaContentService {
                     id: cover.id,
                     fileUrl: cover.fileUrl,
                     title: cover.title,
+                    originalFileName: cover.originalFileName,
                   });
                 }
                 for (const track of music[index]) {

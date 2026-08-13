@@ -117,11 +117,11 @@
                 <figure class="museum-screenshot">
                   <img
                     [src]="shot.fileUrl"
-                    alt="{{ shot.title || shot.gameTitle }}"
+                    alt="{{ shot.title || shot.originalFileName }}"
                     loading="lazy"
-                    (click)="openImageLightbox(shot.fileUrl, shot.title || shot.gameTitle)"
+                    (click)="openImageLightbox(shot.fileUrl, screenshotLightboxTitle(shot))"
                   />
-                  <figcaption>{{ shot.gameTitle }}</figcaption>
+                  <figcaption>{{ shot.title || shot.originalFileName }} · {{ shot.gameTitle }}</figcaption>
                 </figure>
               }
             </div>
@@ -327,10 +327,10 @@
                 <figure class="relive-screenshot-item">
                   <img
                     [src]="shot.fileUrl"
-                    alt="{{ shot.title || shot.gameTitle }}"
-                    (click)="openImageLightbox(shot.fileUrl, shot.title || shot.gameTitle)"
+                    alt="{{ shot.title || shot.originalFileName }}"
+                    (click)="openImageLightbox(shot.fileUrl, screenshotLightboxTitle(shot))"
                   />
-                  <figcaption>{{ shot.gameTitle }}</figcaption>
+                  <figcaption>{{ shot.title || shot.originalFileName }} · {{ shot.gameTitle }}</figcaption>
                 </figure>
               }
             </div>
@@ -405,7 +405,7 @@
   </div>
 }
 
-<app-modal [open]="!!lightboxImage()" [title]="lightboxImage()?.title || ''" size="lg" (closed)="closeImageLightbox()">
+<app-modal [open]="!!lightboxImage()" [title]="lightboxImage()?.title || ''" size="xl" (closed)="closeImageLightbox()">
   @if (lightboxImage(); as image) {
     <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
       <img

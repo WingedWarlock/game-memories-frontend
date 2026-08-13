@@ -525,33 +525,44 @@
   (cancelled)="coverToDelete.set(null)"
 />
 
-<app-modal [open]="!!lightboxScreenshot()" [title]="lightboxScreenshot()?.title || 'Screenshot'" size="lg" (closed)="closeLightbox()">
+<app-modal [open]="!!lightboxScreenshot()" [title]="lightboxScreenshot()?.title || lightboxScreenshot()?.originalFileName || 'Screenshot'" size="xl" (closed)="closeLightbox()">
   @if (lightboxScreenshot(); as shot) {
     <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
       <img
         class="lightbox-image"
         [class.lightbox-image-zoomed]="imageZoomed()"
         [src]="shot.fileUrl"
-        alt="{{ shot.title || 'Screenshot' }}"
-        title="{{ shot.title || 'Screenshot' }}"
+        alt="{{ shot.title || shot.originalFileName }}"
+        title="{{ shot.title || shot.originalFileName }}"
         (click)="toggleImageZoom()"
       />
     </div>
+    @if (screenshots().length > 1) {
+      <div class="lightbox-nav">
+        <button type="button" class="btn btn-icon btn-ghost" (click)="prevLightboxScreenshot()" aria-label="Screenshot anterior">
+          <app-icon name="chevron-right" [size]="16" class="lightbox-nav-icon-prev" />
+        </button>
+        <span class="field-hint">{{ (lightboxScreenshotIndex() ?? 0) + 1 }} / {{ screenshots().length }}</span>
+        <button type="button" class="btn btn-icon btn-ghost" (click)="nextLightboxScreenshot()" aria-label="Próximo screenshot">
+          <app-icon name="chevron-right" [size]="16" />
+        </button>
+      </div>
+    }
     @if (shot.description) {
       <p class="lightbox-description">{{ shot.description }}</p>
     }
   }
 </app-modal>
 
-<app-modal [open]="showCoverLightbox()" [title]="game()!.title" size="lg" (closed)="closeCoverLightbox()">
+<app-modal [open]="showCoverLightbox()" [title]="lightboxCover()?.title || lightboxCover()?.originalFileName || game()!.title" size="xl" (closed)="closeCoverLightbox()">
   @if (lightboxCover(); as cover) {
     <div class="lightbox-image-wrap" [class.lightbox-image-wrap-zoomed]="imageZoomed()">
       <img
         class="lightbox-image"
         [class.lightbox-image-zoomed]="imageZoomed()"
         [src]="cover.fileUrl"
-        alt="{{ cover.title || game()!.title }}"
-        title="{{ cover.title || game()!.title }}"
+        alt="{{ cover.title || cover.originalFileName }}"
+        title="{{ cover.title || cover.originalFileName }}"
         (click)="toggleImageZoom()"
       />
     </div>
