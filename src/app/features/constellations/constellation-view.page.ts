@@ -51,7 +51,6 @@ interface FastPassItem {
 const TUNNEL_DURATION_MS = 3800;
 const HERO_DURATION_MS = 90000;
 const SECOND_DURATION_MS = 90000;
-const GALLERY_IMAGE_ONLY_MS = 9000;
 const GALLERY_BATCH_MS = 6500;
 const GALLERY_BATCH_SIZE = 3;
 const GALLERY_BIG_MS = 6000;
@@ -347,7 +346,7 @@ export class ConstellationViewPage implements OnDestroy {
 
   private phaseTimeout?: ReturnType<typeof setTimeout>;
   private gallerySubTimeout?: ReturnType<typeof setTimeout>;
-  private galleryBigTimer?: ReturnType<typeof setInterval>;
+  private galleryImageCycleTimer?: ReturnType<typeof setInterval>;
 
   private lastSampledHeroUrl: string | null = null;
 
@@ -477,13 +476,16 @@ export class ConstellationViewPage implements OnDestroy {
         this.phaseTimeout = setTimeout(() => this.goToPhase('gallery'), SECOND_DURATION_MS);
         break;
       case 'gallery':
-        this.galleryBigTimer = setInterval(() => this.advanceGalleryBig(), GALLERY_BIG_MS);
+        if (this.gallerySubPhase() === 'batch') {
+          this.startGalleryImageCycle();
+        }
         this.startGalleryStepTimer();
         break;
     }
   }
 
   private resetGalleryGroupState(): void {
+    this.stopGalleryImageCycle();
     const groups = this.galleryGroups();
     const group = groups[this.galleryGroupIndex() % groups.length] ?? null;
     this.galleryBigIndex.set(0);
@@ -491,13 +493,44 @@ export class ConstellationViewPage implements OnDestroy {
     this.gallerySubPhase.set(group && group.bigItems.length > 0 ? 'image' : 'batch');
   }
 
+  private startGalleryImageCycle(): void {
+    clearInterval(this.galleryImageCycleTimer);
+    const group = this.currentGalleryGroup();
+    if (!group || group.bigItems.length <= 1) {
+      return;
+    }
+    this.galleryImageCycleTimer = setInterval(() => {
+      const currentGroup = this.currentGalleryGroup();
+      if (!currentGroup || currentGroup.bigItems.length === 0) {
+        return;
+      }
+      this.galleryBigIndex.update((index) => (index + 1) % currentGroup.bigItems.length);
+    }, GALLERY_BIG_MS);
+  }
+
+  private stopGalleryImageCycle(): void {
+    clearInterval(this.galleryImageCycleTimer);
+    this.galleryImageCycleTimer = undefined;
+  }
+
   private startGalleryStepTimer(): void {
     clearTimeout(this.gallerySubTimeout);
     if (this.gallerySubPhase() === 'image') {
-      this.gallerySubTimeout = setTimeout(() => this.enterGalleryBatches(), GALLERY_IMAGE_ONLY_MS);
+      this.gallerySubTimeout = setTimeout(() => this.advanceGalleryImage(), GALLERY_BIG_MS);
     } else {
       this.gallerySubTimeout = setTimeout(() => this.advanceGalleryBatch(), GALLERY_BATCH_MS);
     }
+  }
+
+  private advanceGalleryImage(): void {
+    const group = this.currentGalleryGroup();
+    const nextIndex = this.galleryBigIndex() + 1;
+    if (!group || nextIndex >= group.bigItems.length) {
+      this.enterGalleryBatches();
+      return;
+    }
+    this.galleryBigIndex.set(nextIndex);
+    this.startGalleryStepTimer();
   }
 
   private enterGalleryBatches(): void {
@@ -508,6 +541,7 @@ export class ConstellationViewPage implements OnDestroy {
     }
     this.gallerySubPhase.set('batch');
     this.galleryBatchIndex.set(0);
+    this.startGalleryImageCycle();
     this.startGalleryStepTimer();
   }
 
@@ -525,7 +559,7 @@ export class ConstellationViewPage implements OnDestroy {
   private advanceGalleryStep(): void {
     clearTimeout(this.gallerySubTimeout);
     if (this.gallerySubPhase() === 'image') {
-      this.enterGalleryBatches();
+      this.advanceGalleryImage();
     } else {
       this.advanceGalleryBatch();
     }
@@ -555,7 +589,14 @@ export class ConstellationViewPage implements OnDestroy {
     }
     const currentGroup = this.currentGalleryGroup();
     if (this.gallerySubPhase() === 'batch' && currentGroup && currentGroup.bigItems.length > 0) {
+      this.stopGalleryImageCycle();
       this.gallerySubPhase.set('image');
+      this.galleryBigIndex.set(currentGroup.bigItems.length - 1);
+      this.startGalleryStepTimer();
+      return;
+    }
+    if (this.gallerySubPhase() === 'image' && this.galleryBigIndex() > 0) {
+      this.galleryBigIndex.update((index) => index - 1);
       this.startGalleryStepTimer();
       return;
     }
@@ -564,33 +605,29 @@ export class ConstellationViewPage implements OnDestroy {
       return;
     }
 
+    this.stopGalleryImageCycle();
     const groups = this.galleryGroups();
     const previousIndex = this.galleryGroupIndex() - 1;
     this.galleryGroupIndex.set(previousIndex);
-    this.galleryBigIndex.set(0);
     const previousGroup = groups[previousIndex];
     const previousBatchCount = Math.ceil(previousGroup.smallItems.length / GALLERY_BATCH_SIZE);
     if (previousBatchCount > 0) {
       this.gallerySubPhase.set('batch');
       this.galleryBatchIndex.set(previousBatchCount - 1);
+      this.galleryBigIndex.set(0);
+      this.startGalleryImageCycle();
     } else {
       this.gallerySubPhase.set('image');
+      this.galleryBigIndex.set(Math.max(previousGroup.bigItems.length - 1, 0));
       this.galleryBatchIndex.set(0);
     }
     this.startGalleryStepTimer();
   }
 
-  private advanceGalleryBig(): void {
-    const group = this.currentGalleryGroup();
-    if (group && group.bigItems.length > 1) {
-      this.galleryBigIndex.update((index) => (index + 1) % group.bigItems.length);
-    }
-  }
-
   private clearAllTimers(): void {
     clearTimeout(this.phaseTimeout);
     clearTimeout(this.gallerySubTimeout);
-    clearInterval(this.galleryBigTimer);
+    this.stopGalleryImageCycle();
   }
 
   private sampleAccentColor(url: string): void {
